@@ -78,6 +78,40 @@
 
   window.onbeforeunload = confirmExit;
 
+  $("#bttn-new-board").click(fountainManager.newBoard);
+  $("#bttn-remove-board").click(fountainManager.deleteBoard);
+
+  $("#bttn-previous").click(function() {fountainManager.goNext(-1);});
+  $("#bttn-next").click(function() {fountainManager.goNext(1);});
+
+  $("#bttn-undo").click(sketchpane.undo);
+  $("#bttn-redo").click(sketchpane.redo);
+
+  $("#bttn-copy").click(sketchpane.copy);
+  $("#bttn-paste").click(sketchpane.paste);
+
+  $("#bttn-lightbox").click(sketchpane.toggleLightboxMode);
+
+  $("#bttn-paint").click(function() {
+    sketchpane.setLayer(0);
+    sketchpane.setBrush({size: 20, opacity: 15});
+  });
+
+  $("#bttn-pencil").click(function() {
+    sketchpane.setLayer(1);
+    sketchpane.setBrush({size: 1, opacity: 0});
+  });
+
+  $("#bttn-pen").click(function() {
+    sketchpane.setLayer(2);
+    sketchpane.setBrush({size: 4, opacity: 60});
+  });
+
+  $("#bttn-color-1").click(function() { sketchpane.setColor([206,201,255]); });
+  $("#bttn-color-2").click(function() { sketchpane.setColor([221,218,255]); });
+  $("#bttn-color-3").click(function() { sketchpane.setColor([241,239,255]); });
+
+
   $(window).keydown(function(e){
     console.log(e.keyCode);
 
