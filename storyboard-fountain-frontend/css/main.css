@@ -149,6 +149,14 @@ body {
 #script .module img {
   margin-right: 6px;
   margin-bottom: 6px;
+  -webkit-filter: url(#script-image-filter);
+}
+
+svg {
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 
 #lightbox-image {
