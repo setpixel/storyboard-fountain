@@ -111,6 +111,15 @@
   $("#bttn-color-2").click(function() { sketchpane.setColor([221,218,255]); });
   $("#bttn-color-3").click(function() { sketchpane.setColor([241,239,255]); });
 
+  $("#bttn-color-4").click(function() { sketchpane.setColor([0,0,0]); });
+  $("#bttn-color-5").click(function() { sketchpane.setColor([152,152,152]); });
+  $("#bttn-color-6").click(function() { sketchpane.setColor([188,188,188]); });
+  $("#bttn-color-7").click(function() { sketchpane.setColor([228,228,228]); });
+  $("#bttn-color-8").click(function() { sketchpane.setColor([255,255,255]); });
+
+  $("#bttn-color-9").click(function() { sketchpane.setColor([255,92,92]); });
+  $("#bttn-color-10").click(function() { sketchpane.setColor([132,198,121]); });
+  $("#bttn-color-11").click(function() { sketchpane.setColor([85,77,184]); });
 
   $(window).keydown(function(e){
     console.log(e.keyCode);
@@ -135,19 +144,19 @@
         sketchpane.setColor([0,0,0]);
         break;
       case 104: 
-        sketchpane.setColor([200,200,200]);
+        sketchpane.setColor([188,188,188]);
         break;
       case 105: 
         sketchpane.setColor([255,255,255]);
         break;
       case 100: 
-        sketchpane.setColor([255,0,0]);
+        sketchpane.setColor([255,92,92]);
         break;
       case 101: 
-        sketchpane.setColor([0,255,0]);
+        sketchpane.setColor([132,198,121]);
         break;
       case 102: 
-        sketchpane.setColor([0,0,255]);
+        sketchpane.setColor([85,77,184]);
         break;
       case 90:
         sketchpane.undo();
