@@ -129,7 +129,7 @@
       data: {
         filename: 'test.fountain', 
         content: fountainManager.exportScriptText()
-      }}).done(function(o){console.log("yes")});
+      }}).done(function(o){log("yes")});
   };
 
   var setLayerDirty = function(layer) {
@@ -285,7 +285,7 @@
   };
 
   var setThumb = function(img) {
-    console.log("setting thumbnail:" + currentBoard)
+    log("setting thumbnail:" + currentBoard)
     $("#script-image-" + currentBoard).attr('src', img);
   };
 

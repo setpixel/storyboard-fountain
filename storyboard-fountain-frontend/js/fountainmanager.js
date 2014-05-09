@@ -76,8 +76,8 @@
     }
 
 
-    console.log("image:"+scriptImageCursorIndex)
-    console.log("cursor:"+scriptCursorIndex)
+    log("image:"+scriptImageCursorIndex)
+    log("cursor:"+scriptCursorIndex)
 
   };
 
@@ -158,7 +158,7 @@
     renderScriptModule(scriptCursorIndex);
 
     if (scriptChunks[scriptCursorIndex].images.length > 0) {
-      console.log(scriptChunks[scriptCursorIndex].images[scriptImageCursorIndex][0])
+      log(scriptChunks[scriptCursorIndex].images[scriptImageCursorIndex][0])
       storyboardState.loadFlatBoard(scriptChunks[scriptCursorIndex].images[scriptImageCursorIndex][0].file);
     } else {
       sketchpane.noImage(scriptChunks[scriptCursorIndex].text);
@@ -182,8 +182,8 @@
     insertBoardAt(scriptCursorIndex)
     selectAndScroll(scriptCursorIndex);
     storyboardState.saveScript();
-    console.log("current cursor: " + scriptCursorIndex);
-    console.log("current image:  " + scriptImageCursorIndex);
+    log("current cursor: " + scriptCursorIndex);
+    log("current image:  " + scriptImageCursorIndex);
    }
 
   var deleteBoard = function() {
@@ -192,8 +192,8 @@
       removeBoardAt(scriptCursorIndex)
       selectAndScroll(scriptCursorIndex);
       storyboardState.saveScript();
-      console.log("current cursor: " + scriptCursorIndex);
-      console.log("current image:  " + scriptImageCursorIndex);
+      log("current cursor: " + scriptCursorIndex);
+      log("current image:  " + scriptImageCursorIndex);
     } else {
     }
    }
@@ -252,7 +252,7 @@
 
 
   var renderScript = function() {
-    console.log(script);
+    log(script);
     var objects = [];
 
     var imageCollection = null;
@@ -270,7 +270,7 @@
           var object = objects.push(script[i]);
             objects[object-1]['scriptIndex'] = i;
           if (imageCollection) {
-            console.log("IMAGES")
+            log("IMAGES")
             objects[object-1]['images'] = imageCollection;
             imageCollection = null;
           }
@@ -280,7 +280,7 @@
           var object = objects.push(script[i]);
             objects[object-1]['scriptIndex'] = i;
           if (imageCollection) {
-            console.log("IMAGES")
+            log("IMAGES")
             objects[object-1]['images'] = imageCollection;
             imageCollection = null;
           }
@@ -290,7 +290,7 @@
           var object = objects.push(script[i]);
             objects[object-1]['scriptIndex'] = i;
           if (imageCollection) {
-            console.log("IMAGES")
+            log("IMAGES")
             objects[object-1]['images'] = imageCollection;
             imageCollection = null;
           }
@@ -312,9 +312,9 @@
 
     scriptChunks = objects;
 
-    console.log("SHOTS: " + shots)
+    log("SHOTS: " + shots)
 
-    console.log(objects);
+    log(objects);
     var html = [];
 
     for (var i=0; i<objects.length; i++) {
@@ -326,7 +326,7 @@
           html.push('<div class="module selectable" id="module-script-' + i + '">')
           if (objects[i].images) {
             for (var i2=0; i2<objects[i].images.length; i2++) {
-              console.log(objects[i].images[i2])
+              log(objects[i].images[i2])
               html.push("<img id='script-image-" + objects[i].images[i2][0].file + "' src='" + storyboardState.checkUpdated(objects[i].images[i2][0].file + "-small.jpeg") + "'>");
             }
           }
@@ -337,7 +337,7 @@
           html.push('<div class="module selectable" id="module-script-' + i + '">')
           if (objects[i].images) {
             for (var i2=0; i2<objects[i].images.length; i2++) {
-              console.log(objects[i].images[i2])
+              log(objects[i].images[i2])
               html.push("<img id='script-image-" + objects[i].images[i2][0].file + "' src='" + storyboardState.checkUpdated(objects[i].images[i2][0].file + "-small.jpeg") + "'>");
             }
           }
@@ -346,7 +346,7 @@
       }
     }
 
-    console.log(imageList)
+    log(imageList)
     return html.join('');  
   };
 
@@ -441,7 +441,7 @@
     var inDualDialogue = 0;
 
     for (var i=0; i<tokens.length; i++) {
-      console.log(tokens[i])
+      log(tokens[i])
 
       switch (tokens[i].type) {
         case 'title':
@@ -695,7 +695,7 @@
   vCharacterListCount = [];
   vMainChars = []
 
-  console.log(script)
+  log(script)
 
   for (var i=0; i<tokens.length; i++) {
     if (tokens[i].type == "dialogue") {
@@ -719,7 +719,7 @@
   vMainChars.push(vCharacterListCount[1][0])
 
   //console.log("total scenes: " + vSceneCount);
-  console.log(vCharacterListCount);
+  log(vCharacterListCount);
   //console.log("pages per scene: " + (vPageCount / vSceneCount));
 
 
@@ -727,7 +727,7 @@
   options.empty();
 options.append($("<option />").val("").text("Everyone"));
   for (var i = 0; i < Math.min(vCharacterListCount.length,5); i++) {
-    console.log(vCharacterListCount[i][0])
+    log(vCharacterListCount[i][0])
   options.append($("<option />").val(vCharacterListCount[i][0]).text(vCharacterListCount[i][0]));
 }
   // $.each(result, function() {
@@ -841,13 +841,13 @@ options.append($("<option />").val("").text("Everyone"));
       }
     }
 
-    console.log(vSceneListColors);
-    console.log(vSceneList);
-    console.log(vScenes);
+    log(vSceneListColors);
+    log(vSceneList);
+    log(vScenes);
 
 
-    console.log("total scenes: " + vSceneCount);
-    console.log("unique locations: " + vSceneList.length);
+    log("total scenes: " + vSceneCount);
+    log("unique locations: " + vSceneList.length);
     //console.log("pages per scene: " + (vPageCount / vSceneCount));
 
 
@@ -885,11 +885,11 @@ options.append($("<option />").val("").text("Everyone"));
 
 
   var renderOutline = function(outline) {
-    console.log(outline);
+    log(outline);
 
     html = [];
 
-    console.log(vSceneListColors);
+    log(vSceneListColors);
 
 
 
@@ -999,7 +999,7 @@ options.append($("<option />").val("").text("Everyone"));
     return finalString;
   }
 
-  console.log(recursiveMarkdown("asdfdfa kdfhjak sdfjhakjdhf <span class='underline'>adfasdf<span class='bold'>adsfadsf</span>adfadsfadF</span>"));
+  log(recursiveMarkdown("asdfdfa kdfhjak sdfjhakjdhf <span class='underline'>adfasdf<span class='bold'>adsfadsf</span>adfadsfadF</span>"));
 
   var exportScriptText = function() {
     scriptText = [];
@@ -1317,8 +1317,8 @@ options.append($("<option />").val("").text("Everyone"));
 
 
 
-    console.log("current cursor: " + scriptCursorIndex);
-    console.log("current image:  " + scriptImageCursorIndex);
+    log("current cursor: " + scriptCursorIndex);
+    log("current image:  " + scriptImageCursorIndex);
 
     
 
