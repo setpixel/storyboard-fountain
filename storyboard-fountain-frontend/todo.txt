@@ -1,5 +1,7 @@
 TODO:
 
+make project roadmap
+
 ui
 
 clear blanks
@@ -12,6 +14,15 @@ lighter visualizer tools
 
 arrow key defined bounds
 
+stats:
+	for need for boards
+	boards per scene
+	max boards per scene
+
+show board:
+	timing
+	caption
+	notes
 
 combine parenthetical and 1
 
@@ -26,6 +37,8 @@ raw fountain script edit
 switch between tabs
 
 image paste?
+	paste onto bg layer?
+	fit
 
 video capture?
 
