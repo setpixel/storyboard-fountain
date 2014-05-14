@@ -1,3 +1,5 @@
 config.json
 node_modules
 robotdawn.fountain
+webkitbuilds/*
+node-webkit-src/node_modules/*

@@ -1,0 +1,4 @@
+/* Localized versions of Info.plist keys */
+
+CFBundleName = "WacomTabletPlugin.plugin";
+NSHumanReadableCopyright = "Copyright 2014 Wacom";

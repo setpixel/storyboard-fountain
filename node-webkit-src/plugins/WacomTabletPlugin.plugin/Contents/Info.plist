@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>BuildMachineOSBuild</key>
+	<string>13C53</string>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleExecutable</key>
+	<string>WacomTabletPlugin</string>
+	<key>CFBundleGetInfoString</key>
+	<string>WacomTabletPlugin 2.1.0.6, Copyright 2014 Wacom</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.WacomTabletPluginLib.WacomTabletPlugin</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundlePackageType</key>
+	<string>BRPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>WacomTabletPlugin 2.1.0.6</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleVersion</key>
+	<string>2.1.0.6</string>
+	<key>CFPlugInDynamicRegisterFunction</key>
+	<string></string>
+	<key>CFPlugInDynamicRegistration</key>
+	<string>NO</string>
+	<key>CFPlugInFactories</key>
+	<dict>
+		<key>00000000-0000-0000-0000-000000000000</key>
+		<string>MyFactoryFunction</string>
+	</dict>
+	<key>CFPlugInTypes</key>
+	<dict>
+		<key>00000000-0000-0000-0000-000000000000</key>
+		<array>
+			<string>00000000-0000-0000-0000-000000000000</string>
+		</array>
+	</dict>
+	<key>CFPlugInUnloadFunction</key>
+	<string></string>
+	<key>DTCompiler</key>
+	<string>com.apple.compilers.llvm.clang.1_0</string>
+	<key>DTPlatformBuild</key>
+	<string>5A2034a</string>
+	<key>DTPlatformVersion</key>
+	<string>GM</string>
+	<key>DTSDKBuild</key>
+	<string>13A595</string>
+	<key>DTSDKName</key>
+	<string>macosx10.9</string>
+	<key>DTXcode</key>
+	<string>0501</string>
+	<key>DTXcodeBuild</key>
+	<string>5A2034a</string>
+	<key>WebPluginDescription</key>
+	<string>Plugin for Wacom tablets.</string>
+	<key>WebPluginMIMETypes</key>
+	<dict>
+		<key>application/x-wacomtabletplugin</key>
+		<dict>
+			<key>WebPluginExtensions</key>
+			<array>
+				<string></string>
+			</array>
+			<key>WebPluginTypeDescription</key>
+			<string>Plugin for Wacom tablets.</string>
+		</dict>
+	</dict>
+	<key>WebPluginName</key>
+	<string>WacomTabletPlugin</string>
+</dict>
+</plist>

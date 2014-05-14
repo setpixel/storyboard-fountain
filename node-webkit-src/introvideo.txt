@@ -1,0 +1,34 @@
+intro
+
+	problem
+		need to visualize a script
+		do it simply and as quickly as i can think
+
+	solution: what is is
+		an app 
+
+
+	loads in a fountain script
+
+	splits it up into showable components you can board
+
+	click an area of the script and press n for new board
+
+	then you can sketch a board out
+		using pencil
+		marker
+		and pen
+
+		Im using a cintique 13. as you can see, the pen pressure title and rotation all work perfectly fine. I wrote the drawing code to replicate how I work when drawing in photoshop. I also designed it to heavily rely on simple keyboard actions to swtich brushes and colors
+
+
+	rough it out, add more boards get the idea down. use the arrow keys to quickly navigate around. you can also copy and paste boards.
+
+	go back in and fill in details or make it look prettier
+
+	this saves automatically, either to your local hard drive, or right up to the cloud. it saves the image layers, and the fountain script itself.
+
+	Storyboard saves the references to the boards right into the fountain file. So you can feel free to edit your script in the text editor of your choice, and move things around however you'd like.
+
+
+

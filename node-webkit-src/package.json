@@ -1,0 +1,25 @@
+{
+  "name": "storyboard-fountain",
+  "version": "0.0.1",
+  "main": "index.html",
+  "dependencies": {
+    "aws-sdk": "~2.0.0-rc.14",
+    "tmp": "0.0.23",
+    "express": "~4.2.0"
+  },
+  "window": {
+    "toolbar": false,
+    "frame": true,
+    "width": 1350,
+    "height": 800,
+    "position": "center",
+    "min_width": 800,
+    "min_height": 400,
+    "max_width": 8000,
+    "max_height": 8000
+  },
+  "webkit": {
+    "plugin": true
+  },
+  "node-remote": "localhost:8081"
+}
