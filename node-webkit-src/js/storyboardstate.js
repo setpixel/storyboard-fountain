@@ -7,8 +7,8 @@
 ;(function() {
   'use strict';
 
-  var AUTO_UPLOAD_LAYER_TIME = 2;
-  var AUTO_UPLOAD_FLAT_TIME = 6;
+  //var AUTO_UPLOAD_LAYER_TIME = 2;
+  //var AUTO_UPLOAD_FLAT_TIME = 6;
   //var URL_STRING = "https://s3-us-west-2.amazonaws.com/storyboard.setpixel.com/";
 
   var scriptData = [];
@@ -123,13 +123,14 @@
   var newBoard = function() {
     var boardName = new Date().getTime().toString();
     scriptData.push(boardName);
-    saveScript();
-    addBoardToList(boardName);
-    loadFlatBoard(boardName, true);
+    saveScript(function(err) {
+      addBoardToList(boardName);
+      loadFlatBoard(boardName, true);
+    });
   };
 
-  var saveScript = function() {
-    currentFile.saveScript();
+  var saveScript = function(next) {
+    currentFile.saveScript(next);
     /*
     $.ajax({
       type: "POST", 
@@ -146,11 +147,15 @@
     dirtyLayer[layer] = 1;
     if (timeoutLayerID) {
     } else {
-      timeoutLayerID = window.setTimeout(uploadLayer, AUTO_UPLOAD_LAYER_TIME*1000);
+      timeoutLayerID = window.setTimeout(
+        uploadLayer, 
+        currentFile.settings().AUTO_UPLOAD_LAYER_TIME * 1000);
     }
     if (timeoutFlatID) {
     } else {
-      timeoutFlatID = window.setTimeout(uploadFlat, AUTO_UPLOAD_FLAT_TIME*1000);
+      timeoutFlatID = window.setTimeout(
+        uploadFlat, 
+        currentFile.settings().AUTO_UPLOAD_FLAT_TIME * 1000);
     }
   };
 

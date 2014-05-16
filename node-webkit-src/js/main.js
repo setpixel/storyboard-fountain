@@ -6,6 +6,35 @@
 
   var util = require('util');
 
+  var NEW_SCRIPT_TEXT = "Title: **THE LAST BIRTHDAY CARD**\n"+
+"Credit: Written by\n"+
+"Author: Stu Maschwitz\n"+
+"Draft date: 7/8/1998\n"+
+"Contact:\n"+
+"    PO Box 10031\n"+
+"    San Rafael CA 94912\n"+
+"    Registered WGAw No. 701428\n"+
+"\n"+
+"# ACT I\n"+
+"\n"+
+"= Meet the players and set up the world. Two hit men with very different lives.\n"+
+"\n"+
+"> HERE WE GO:\n"+
+"\n"+
+"## Meet Scott\n"+
+"\n"+
+"= And his friend Baxter.\n"+
+"\n"+
+"### Scott's SF Apartment\n"+
+"\n"+
+"INT. SAN FRANCISCO APARTMENT, DAY\n"+
+"\n"+
+"SCOTT is painting.  Badly.  Let's not mince words.\n"+
+"\n"+
+"SCOTT\n"+
+"sup\n"+
+"";
+
   //storyboardState.loadURL("https://s3-us-west-2.amazonaws.com/storyboard.setpixel.com/test.fountain");
 
   //fountainManager.loadURL("https://dl.dropboxusercontent.com/u/10266/sketch/data/steel.fountain");
@@ -16,28 +45,29 @@
   var currentConfig = null;
   var sourceModule = null;
   var SOURCES = {
-    local: window.localfs,
-    s3: window.s3fs
+    local: window.localSource,
+    s3: window.s3Source
   };
 
 
-  var openOnStartup = function() {
-    var source = localStorage.getItem("editing");
-    if (source) {
-      try {
-        source = JSON.parse(source);
-      }
-      catch (e) {
-        log(e);
-        source = null;
-      }
+  var openOnStartup = function(next) {
+    if (sourceModule) {
+      sourceModule.setup(JSON.parse(localStorage.getItem('sourceConfig') || '{}'));
     }
-    log('source', util.inspect(source), typeof(source));
+
+    var source = JSON.parse(localStorage.getItem("editing") || '{}');
     if (source) {
-      open(source);
+      open(source, function(err) {
+        if (err) {
+          create(next);
+        }
+        else {
+          next();
+        }
+      });
     }
     else {
-      create();
+      create(next);
     }
   };
 
@@ -49,36 +79,34 @@
     return currentConfig;
   }
 
-  var open = function(source) {
-    var next = function(err, config) {
-      if (err) {
-        log('failed to load', err);
-        localStorage.removeItem("editing");
-        create();
-      }
-      else {
-        currentConfig = config;
-        console.log('sourceModule = ', currentConfig);
-        fountainManager.load(currentConfig);
-        // ...
-      }
-    };
-
-    log('open', source);
+  var open = function(source, next) {
+    console.log('open', source);
     if (source && source.type) {
       currentSource = source;
       localStorage.setItem("editing", JSON.stringify(currentSource));
       log('set localstorage and it is now', localStorage.getItem('editing'));
       sourceModule = SOURCES[currentSource.type];
       console.log('sourceModule = ', currentSource.type, sourceModule);
-      sourceModule.load(source, next);
+      sourceModule.load(source, function(err, result) {
+        if (err) {
+          log('failed to load', err);
+          localStorage.removeItem("editing");
+          create(next);
+        }
+        else {
+          currentConfig = result.config;
+          console.log('sourceModule = ', currentConfig);
+          fountainManager.load(currentConfig);
+          next();
+        }
+      });
     }
     else {
       next('invalid source');
     }
   };
 
-  var create = function() {
+  var create = function(next) {
     var type;
     if (currentSource) {
       type = currentSource.type || 'local';
@@ -87,18 +115,33 @@
       type = 'local';
     }
     log('create', type);
-    SOURCES[type].create(function(err, source) {
-      log('created', err, source);
-      if (!err) {
-        open(source);
+    SOURCES[type].create(function(err, result) {
+      log('created', err, result);
+      if (err) {
+        next(err);
+      }
+      else {
+        open(result.source, next);
         log('opened');
       }
     });
   };
 
-  var saveScript = function() {
+  var save = function(source, next) {
+    var path = sourceModule.localPath();
+    SOURCES[source.type].save(source, path, function(err, result) {
+      if (err) return next(err);
+      currentSource = result.source;
+      sourceModule = SOURCES[currentSource.type];
+      currentConfig = result.config;
+      localStorage.setItem("editing", JSON.stringify(currentSource));
+      next();
+    });
+  };
+
+  var saveScript = function(next) {
     currentConfig.script = fountainManager.exportScriptText();
-    sourceModule.saveScript(currentConfig);
+    sourceModule.saveScript(currentConfig, next);
   }
 
   var imageUrl = function(name) {
@@ -108,6 +151,10 @@
 
   var saveImage = function(filename, imageData, contentType) {
     return sourceModule.saveImage(filename, imageData, contentType);
+  }
+
+  var settings = function() {
+    return sourceModule.settings();
   }
 
   var currentFile = window.currentFile = {
@@ -123,16 +170,20 @@
      * - title
      */
     //config: config,
-    //create: create,
-    //open: open,
-    //save: save,
+    create: create,
+    open: open,
+    save: save,
+    NEW_SCRIPT_TEXT: NEW_SCRIPT_TEXT,
+    settings: settings,
     imageUrl: imageUrl,
     saveScript: saveScript,
     saveImage: saveImage
   };
 
   $(document).ready(function() {
-    process.nextTick(openOnStartup);
+    openOnStartup(function() {
+      console.log('done with startup');
+    });
   });
 
 }).call(this);

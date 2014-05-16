@@ -198,4 +198,53 @@
     });
   });
 
+  $(document).ready(function() {
+    var gui = require('nw.gui');
+    var menu = new gui.Menu();
+
+    menu.append(new gui.MenuItem({
+      label: 'New',
+      click: function() {
+        currentFile.create(function() {});
+      }
+    }));
+    menu.append(new gui.MenuItem({
+      label: 'Open...',
+      click: function() {
+        var chooser = $('#open-file-input');
+        chooser.change(function(evt) {
+          var path = $(this).val();
+          console.log(path);
+          var source = {
+            type: 'local',
+            filename: path + '/config.json'
+          };
+          currentFile.open(source, function() {});
+        });
+        chooser.trigger('click');
+      }
+    }));
+    menu.append(new gui.MenuItem({
+      label: 'Save as...',
+      click: function() {
+        var chooser = $('#save-file-input');
+        chooser.change(function(evt) {
+          var path = $(this).val();
+          console.log(path);
+          var source = {
+            type: 'local',
+            filename: path + '/config.json'
+          };
+          currentFile.save(source, function() {});
+        });
+        chooser.trigger('click');
+      }
+    }));
+
+    var win = gui.Window.get();
+    var menubar = new gui.Menu({type: 'menubar'});
+    menubar.append(new gui.MenuItem({label: 'File', submenu: menu}));
+    win.menu = menubar;
+  });
+
 }).call(this);
