@@ -139,13 +139,16 @@
       undoPosition++;
     }
     if (undoStack.length-undoPosition > 0) {
+      
+      console.log(undoStack.length);
+
       undoPosition++;
       var undoState = undoStack[undoStack.length-undoPosition];
       contexts[undoState[1]].putImageData(undoState[0], 0,0);
     } else {
     }
 
-    console.log(undoStack)
+    //console.log(undoStack)
   };
 
   var redo = function() {
