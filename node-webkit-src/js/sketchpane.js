@@ -18,7 +18,7 @@
 
   var currentLayer = 1;
   var currentColor = [[240,240,255], [210,210,250],[0,0,0]];
-  var brushProperties = {size: 1, opacity: 0};
+  var brushProperties = {size: window.devicePixelRatio, opacity: 0};
   var contexts = [];
   var copyLayers = [];
 
@@ -68,13 +68,17 @@
       brushCanvas.width = 30;
       brushCanvas.height = 30;
       var brushContext = brushCanvas.getContext('2d');
-      var grd=brushContext.createRadialGradient(15,15,7,15,15,15);
+      var grd=brushContext.createRadialGradient(
+        brushCanvas.width / 2, brushCanvas.height / 2,
+        brushCanvas.width / 4,
+        brushCanvas.width / 2, brushCanvas.height / 2,
+        brushCanvas.width / 2);
       var greyval = 255-Math.floor((i/brushCount)*255);
       grd.addColorStop(0,"rgba(" + greyval + "," + greyval + "," + greyval + ",1)");
       grd.addColorStop(1,"rgba(" + greyval + "," + greyval + "," + greyval + ",0)");
       brushContext.fillStyle=grd;
-      brushContext.fillRect(0,0,30,30);
-      var brushImage = new Image(30,30);
+      brushContext.fillRect(0,0,brushCanvas.width, brushCanvas.height);
+      var brushImage = new Image(brushCanvas.width, brushCanvas.height);
       brushImage.src = brushContext.canvas.toDataURL();
       brushImgs.push(brushImage);
     }
@@ -82,21 +86,28 @@
     $(".drawing-canvas").mousedown(function(e){
       if (locked || noCanvas) {
       } else {
+        // window resizing scaling factor 
         mult = parseInt($(".drawing-canvas .canvas").css('width')) / canvasSize[0];
         var wacom = getWacomPlugin();
         if (usingWacom()) {
-          var pt = getWacomPoint();
+          var pt = getWacomPoint(e);
+          // the pen location (px)
           var tabX = pt.x;
           var tabY = pt.y;
-          log('penX', e.pageX, wacom.penAPI.posX, wacom.penAPI.sysX, wacom.penAPI.tabX)
-          log('penY', e.pageY, wacom.penAPI.posY, wacom.penAPI.sysY, wacom.penAPI.tabY)
+          // canvas position on page (px)
           var canvasX = (e.pageX-$(contexts[0].canvas).offset().left);
           var canvasY = (e.pageY-$(contexts[0].canvas).offset().top);
+          // pen location on canvas (scaled px)
           penOffset = [tabX - canvasX, tabY - canvasY];
+          // pen location on canvas (unscaled px)
           previousLoc = [[(tabX - penOffset[0])/mult, (tabY - penOffset[1])/mult]];
           penDown = true;
           var angle = Math.atan2(wacom.penAPI.tiltY, wacom.penAPI.tiltX) * (180 / Math.PI);
           var tilt = Math.max(Math.abs(wacom.penAPI.tiltY),Math.abs(wacom.penAPI.tiltX) );
+          // if tilt is not supported, fake it
+          if (tilt == 0) {
+            tilt = 0.5;
+          }
           var pressure = 0;
           var eraser = wacom.penAPI.isEraser;
         } else {
@@ -109,7 +120,7 @@
           penDown = true;
 
           var angle = 0;
-          var tilt = 0;
+          var tilt = 0.5;
           var blend = 1/3;
           var pressure = 0;
           var eraser = e.shiftKey;
@@ -200,7 +211,7 @@
       var blend = 0;
       if (eraser) {
         contexts[currentLayer].globalCompositeOperation = 'destination-out';
-        var size = (36 * pressure);
+        var size = (36 * window.devicePixelRatio * pressure);
         contexts[currentLayer].globalAlpha = 1;
         blend = 1;
       } else {
@@ -238,12 +249,21 @@
     }
   };
 
-  var getWacomPoint = function() {
+  var getWacomPoint = function(e) {
     var wacom = getWacomPlugin();
-    var x = ((wacom.penAPI.posX)-600)/((60000-(600*2))/1920);
-    var y = ((wacom.penAPI.posY)-400)/((33874-(400*2))/1080);
-    //x = ((wacom.penAPI.posX)-600)/((60000-(600*2))/screen.width);
-    //y = ((wacom.penAPI.posY)-400)/((33874-(400*2))/screen.height);
+    var x, y;
+    // right now, we only support the two models we have to test
+    if (wacom.penAPI.tabletModel == 'Intuos PT S') {
+      x = (wacom.penAPI.posX)/(15200)*screen.width;
+      y = (wacom.penAPI.posY)/(9500)*screen.height;
+      x -= e.screenX - e.pageX;
+      y -= e.screenY - e.pageY;
+    }
+    else {
+      // assume cintiq
+      x = ((wacom.penAPI.posX)-600)/((60000-(600*2))/1920);
+      y = ((wacom.penAPI.posY)-400)/((33874-(400*2))/1080);
+    }
     return {x: x, y: y};
   };
 
@@ -252,22 +272,9 @@
       if (penDown == true && locked == false && noCanvas == false) {
         var wacom;
         wacom = getWacomPlugin();
-        if (usingWacom()) {
-          var angle = Math.atan2(wacom.penAPI.tiltY, wacom.penAPI.tiltX) * (180 / Math.PI);
-          var tilt = Math.max(Math.abs(wacom.penAPI.tiltY),Math.abs(wacom.penAPI.tiltX) );
-          var pressure = wacom.penAPI.pressure;
-          var eraser = wacom.penAPI.isEraser;
-        } else {
-          var angle = 0;
-          var tilt = 0;
-          //var blend = 1/3;
-          var pressure = fakePressure;
-          var eraser = e.shiftKey;
-        }
-        penAttributes = {angle: angle, tilt: tilt, pressure: pressure, eraser: eraser};
         var tabX, tabY;
         if (usingWacom()) {
-          var pt = getWacomPoint();
+          var pt = getWacomPoint(e);
           tabX = pt.x;
           tabY = pt.y;
         }
@@ -275,8 +282,30 @@
           tabX = e.pageX;
           tabY = e.pageY;
         }
+        // distance from last pen position (unscaled px?)
         var currentPoint = [(tabX - penOffset[0])/mult, (tabY - penOffset[1])/mult];
+        // floor(distance pen traveled)
         var dist = Math.floor(Math.sqrt(Math.pow(previousLoc[previousLoc.length-1][0]-currentPoint[0],2)+Math.pow(previousLoc[previousLoc.length-1][1]-currentPoint[1],2)));
+
+        if (usingWacom()) {
+          var angle = Math.atan2(wacom.penAPI.tiltY, wacom.penAPI.tiltX) * (180 / Math.PI);
+          var tilt = Math.max(Math.abs(wacom.penAPI.tiltY),Math.abs(wacom.penAPI.tiltX) );
+          // if tilt isn't supported, fake it. should probably try and fake angle, too, but the simplest version doesn't seem to work well.
+          if (tilt == 0) {
+            //angle = Math.atan2(previousLoc[previousLoc.length-1][1]-currentPoint[1], previousLoc[previousLoc.length-1][0]-currentPoint[0]) * (180 / Math.PI);
+            tilt = 0.5;
+          }
+          var pressure = wacom.penAPI.pressure;
+          var eraser = wacom.penAPI.isEraser;
+        } else {
+          var angle = 0;//Math.atan2(previousLoc[previousLoc.length-1][1]-currentPoint[1], previousLoc[previousLoc.length-1][0]-currentPoint[0]) * (180 / Math.PI);
+          var tilt = 0.5;
+          //var blend = 1/3;
+          var pressure = fakePressure;
+          var eraser = e.shiftKey;
+        }
+        penAttributes = {angle: angle, tilt: tilt, pressure: pressure, eraser: eraser};
+
         if (dist > 0 && (currentPoint[0] !== previousLoc[previousLoc.length-1][0])) {
           if (previousLoc.length > 1 && dist > 2) {
             var curve = [];
