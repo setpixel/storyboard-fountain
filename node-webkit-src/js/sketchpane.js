@@ -12,6 +12,7 @@
   'use strict';
 
   var TO_RADIANS = Math.PI/180; 
+  var TO_DEGREES = 1 / TO_RADIANS;
 
   var layerNames = ["layer-1-ink", "layer-1-pencil", "layer-1-pen"];
   var drawCanvasNames = ["layer-1-active", "layer-1-active-visible"];
@@ -102,7 +103,7 @@
           // pen location on canvas (unscaled px)
           previousLoc = [[(tabX - penOffset[0])/mult, (tabY - penOffset[1])/mult]];
           penDown = true;
-          var angle = Math.atan2(wacom.penAPI.tiltY, wacom.penAPI.tiltX) * (180 / Math.PI);
+          var angle = Math.atan2(wacom.penAPI.tiltY, wacom.penAPI.tiltX) * TO_DEGREES;
           var tilt = Math.max(Math.abs(wacom.penAPI.tiltY),Math.abs(wacom.penAPI.tiltX) );
           // if tilt is not supported, fake it
           if (tilt == 0) {
@@ -111,8 +112,8 @@
           var pressure = 0;
           var eraser = wacom.penAPI.isEraser;
         } else {
-          var tabX = e.pageX;//((wacom.penAPI.posX)-600)/((60000-(600*2))/1920);
-          var tabY = e.pageY;//((wacom.penAPI.posY)-400)/((33874-(400*2))/1080);
+          var tabX = e.pageX;
+          var tabY = e.pageY;
           var canvasX = (e.pageX-$(contexts[0].canvas).offset().left);
           var canvasY = (e.pageY-$(contexts[0].canvas).offset().top);
           penOffset = [tabX - canvasX, tabY - canvasY];
@@ -254,10 +255,8 @@
     var x, y;
     // right now, we only support the two models we have to test
     if (wacom.penAPI.tabletModel == 'Intuos PT S') {
-      x = (wacom.penAPI.posX)/(15200)*screen.width;
-      y = (wacom.penAPI.posY)/(9500)*screen.height;
-      x -= e.screenX - e.pageX;
-      y -= e.screenY - e.pageY;
+      x = (wacom.penAPI.posX / 15200) * screen.width - (e.screenX - e.pageX);
+      y = (wacom.penAPI.posY / 9500) * screen.height - (e.screenY - e.pageY);
     }
     else {
       // assume cintiq
@@ -288,17 +287,17 @@
         var dist = Math.floor(Math.sqrt(Math.pow(previousLoc[previousLoc.length-1][0]-currentPoint[0],2)+Math.pow(previousLoc[previousLoc.length-1][1]-currentPoint[1],2)));
 
         if (usingWacom()) {
-          var angle = Math.atan2(wacom.penAPI.tiltY, wacom.penAPI.tiltX) * (180 / Math.PI);
+          var angle = Math.atan2(wacom.penAPI.tiltY, wacom.penAPI.tiltX) * TO_DEGREES;
           var tilt = Math.max(Math.abs(wacom.penAPI.tiltY),Math.abs(wacom.penAPI.tiltX) );
           // if tilt isn't supported, fake it. should probably try and fake angle, too, but the simplest version doesn't seem to work well.
           if (tilt == 0) {
-            //angle = Math.atan2(previousLoc[previousLoc.length-1][1]-currentPoint[1], previousLoc[previousLoc.length-1][0]-currentPoint[0]) * (180 / Math.PI);
+            //angle = Math.atan2(previousLoc[previousLoc.length-1][1]-currentPoint[1], previousLoc[previousLoc.length-1][0]-currentPoint[0]) * TO_DEGREES;
             tilt = 0.5;
           }
           var pressure = wacom.penAPI.pressure;
           var eraser = wacom.penAPI.isEraser;
         } else {
-          var angle = 0;//Math.atan2(previousLoc[previousLoc.length-1][1]-currentPoint[1], previousLoc[previousLoc.length-1][0]-currentPoint[0]) * (180 / Math.PI);
+          var angle = 0;//Math.atan2(previousLoc[previousLoc.length-1][1]-currentPoint[1], previousLoc[previousLoc.length-1][0]-currentPoint[0]) * TO_DEGREES;
           var tilt = 0.5;
           //var blend = 1/3;
           var pressure = fakePressure;

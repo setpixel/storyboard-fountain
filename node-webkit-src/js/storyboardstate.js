@@ -304,10 +304,11 @@
     } else {
       sketchpane.loadFlatImage(checkUpdated(id + "-large.jpeg"));
     }
-    $(".boards-list div.selected").removeClass( "selected" );
+    $(".boards-list img.selected").removeClass( "selected" );
     $("#" + id).addClass( "selected" );
     fountainManager.preloadAround();
     $('.boards-list').finish();
+    // this sometimes/always competes with selectandscroll in fountainmanager
     $('.boards-list').animate({scrollTop: ($('.boards-list div').outerHeight()*(index-2)+100)}, 100);
   };
 

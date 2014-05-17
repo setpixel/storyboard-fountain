@@ -12,15 +12,6 @@
     parseFountain(config.script);
   }
 
-  /*
-  var loadURL = function (url) {
-    var xmlhttp = new XMLHttpRequest();
-    xmlhttp.open("GET", url, false);
-    xmlhttp.send();
-    parseFountain(xmlhttp.responseText);
-  };
-  */
-      
   var parseFountain = function (fountainText) {
     var tokens = "";
     fountain.parse(fountainText, true, function (output) {
@@ -38,32 +29,65 @@
 
     $("#script").html(renderScript());
 
-
-
     $(".module.selectable img").click(imageClickHandler);
 
-
-    $(".module.selectable").click(function(){
-      $(".module.selectable").filter('.selected').removeClass('selected');
-      $(this).addClass('selected');
+    $(".module.selectable").click(function(e){
+      e.stopPropagation();
       var newIndex = parseInt($(this).attr('id').split("-")[2]);
-      if (scriptCursorIndex !== newIndex) {
-        scriptCursorIndex = newIndex;
-        scriptImageCursorIndex = 0;
-        if (scriptChunks[scriptCursorIndex].images) {
-          //storyboardState.loadFlatBoard(scriptChunks[scriptCursorIndex].images[0][0].file,false,scriptChunks[scriptCursorIndex].text);
-        } else {
-          sketchpane.noImage(scriptChunks[scriptCursorIndex].text);
-        }
-      }
+      selectChunk(newIndex);
     });
 
-
-    //console.log(stats)
+    // load initial selection
+    scriptCursorIndex = parseInt(localStorage.getItem('scriptCursorIndex') || 0);
+    scriptImageCursorIndex = parseInt(localStorage.getItem('scriptImageCursorIndex') || 0);
+    selectChunkAndBoard(scriptCursorIndex, scriptImageCursorIndex, true);
   };
+
+  // TODO: skipSelect is needed b/c we can't select the chunk on initial load without causing an error
+  var selectChunkAndBoard = function(chunkIndex, boardIndex, skipSelect) {
+    scriptCursorIndex = chunkIndex;
+    scriptImageCursorIndex = boardIndex;
+    localStorage.setItem('scriptCursorIndex', scriptCursorIndex);
+    localStorage.setItem('scriptImageCursorIndex', scriptImageCursorIndex);
+    var chunk = scriptChunks[scriptCursorIndex];
+    if (chunk) {
+      if (!skipSelect) {
+        selectAndScroll(scriptCursorIndex);
+      }
+      if (chunk.images && chunk.images.length > 0) {
+        var image = chunk.images[scriptImageCursorIndex];
+        if (image) {
+          storyboardState.loadFlatBoard(image[0].file, false, chunk.text);
+        }
+        else {
+          console.log('should not be here');
+          sketchpane.noImage(chunk.text);
+        }
+      }
+      else {
+        sketchpane.noImage(chunk.text);
+      }
+
+      if (scriptImageCursorIndex > 0 && chunk.images && chunk.images.length > scriptImageCursorIndex) {
+        var image = chunk.images[scriptImageCursorIndex-1];
+        storyboardState.loadLightboxImage(image[0].file);
+      } else {
+        storyboardState.clearLightboxImage();
+      }
+    }
+  };
+
+  var selectChunk = function(chunkIndex) {
+    selectChunkAndBoard(chunkIndex, 0);
+  };
+
+  var updateSelection = function() {
+    selectChunkAndBoard(scriptCursorIndex, scriptImageCursorIndex);
+  }
 
   var imageClickHandler = function(e) {
     e.preventDefault();
+    e.stopPropagation(); // prevents separate chunk selection
     var id = this.id;
     storyboardState.loadFlatBoard(id.split("-")[2],false,scriptChunks[scriptCursorIndex].text);
     scriptCursorIndex = parseInt($(this).parent().attr('id').split("-")[2]);
@@ -75,21 +99,10 @@
       }
     }
 
-    if (scriptImageCursorIndex > 0) {
-      storyboardState.loadLightboxImage(chunk.images[scriptImageCursorIndex-1][0].file);
-    } else {
-      storyboardState.clearLightboxImage();
-    }
-
-
-    log("image:"+scriptImageCursorIndex)
-    log("cursor:"+scriptCursorIndex)
-
+    selectChunkAndBoard(scriptCursorIndex, scriptImageCursorIndex);
   };
 
-
   var insertBoardAt = function(loc) {
-    
     var file = new Date().getTime().toString();
 
     var newBoard = {
@@ -181,9 +194,6 @@
 
   };
 
-
-
-
   var newBoard = function() {
     insertBoardAt(scriptCursorIndex)
     selectAndScroll(scriptCursorIndex);
@@ -202,8 +212,7 @@
       log("current image:  " + scriptImageCursorIndex);
     } else {
     }
-   }
-
+  }
 
   var getPositionAtTempIndex = function(tempIndex) {
     for (var i=0; i<script.length; i++) {
@@ -253,7 +262,7 @@
     //return html.join('');  
 
     $("#module-script-" + index).html(html.join(''));
-    $("#module-script-" + index + " img").click(imageClickHandler);
+    //$("#module-script-" + index + " img").click(imageClickHandler);
   }
 
 
@@ -1201,155 +1210,98 @@ options.append($("<option />").val("").text("Everyone"));
     }
   }
 
+  var indexInBounds = function(index) {
+    return index >= 0 && index < scriptChunks.length;
+  }
 
-  var goNext = function(increment) {
-
-    if (increment > 0) {
-
-     if (scriptChunks[scriptCursorIndex].images && (scriptChunks[scriptCursorIndex].images.length > 0)) {
-        if (scriptImageCursorIndex < scriptChunks[scriptCursorIndex].images.length-1){
-          scriptImageCursorIndex++;
-          storyboardState.loadFlatBoard(scriptChunks[scriptCursorIndex].images[scriptImageCursorIndex][0].file,false,scriptChunks[scriptCursorIndex].text)
-          if (scriptImageCursorIndex > 0) {
-            storyboardState.loadLightboxImage(scriptChunks[scriptCursorIndex].images[scriptImageCursorIndex-1][0].file);
-          } else {
-            storyboardState.clearLightboxImage();
-          }
-
-        } else {
-          scriptImageCursorIndex = 0;
-          if (scriptChunks[scriptCursorIndex+1].type == 'scene_heading') {
-            scriptCursorIndex = scriptCursorIndex + 2;
-          } else {
-            scriptCursorIndex++;
-          }
-          if (scriptChunks[scriptCursorIndex].images && (scriptChunks[scriptCursorIndex].images.length > 0)) {
-            storyboardState.loadFlatBoard(scriptChunks[scriptCursorIndex].images[scriptImageCursorIndex][0].file,false,scriptChunks[scriptCursorIndex].text)
-          if (scriptImageCursorIndex > 0) {
-            storyboardState.loadLightboxImage(scriptChunks[scriptCursorIndex].images[scriptImageCursorIndex-1][0].file);
-          } else {
-            storyboardState.clearLightboxImage();
-          }
-
-          } else {
-            sketchpane.noImage(scriptChunks[scriptCursorIndex].text);
-          }
-        }
-
-
-        //console.log(scriptChunks[scriptCursorIndex].images)
-      } else {
-          if (scriptChunks[scriptCursorIndex+1].type == 'scene_heading') {
-            scriptCursorIndex = scriptCursorIndex + 2;
-          } else {
-            scriptCursorIndex++;
-          }
-        if (scriptChunks[scriptCursorIndex].images && (scriptChunks[scriptCursorIndex].images.length > 0)) {
-          storyboardState.loadFlatBoard(scriptChunks[scriptCursorIndex].images[scriptImageCursorIndex][0].file,false,scriptChunks[scriptCursorIndex].text)
-          if (scriptImageCursorIndex > 0) {
-            storyboardState.loadLightboxImage(scriptChunks[scriptCursorIndex].images[scriptImageCursorIndex-1][0].file);
-          } else {
-            storyboardState.clearLightboxImage();
-          }
-
-        } else {
-          sketchpane.noImage(scriptChunks[scriptCursorIndex].text);
-        }
-      }        
-
- 
-
-    } else {
-      
-      if (scriptCursorIndex > 0) {
-
-      }
-
-      if (scriptChunks[scriptCursorIndex].images && (scriptChunks[scriptCursorIndex].images.length > 0)) {
-        if (scriptImageCursorIndex > 0){
-          scriptImageCursorIndex--;
-          storyboardState.loadFlatBoard(scriptChunks[scriptCursorIndex].images[scriptImageCursorIndex][0].file,false,scriptChunks[scriptCursorIndex].text)
-          if (scriptImageCursorIndex > 0) {
-            storyboardState.loadLightboxImage(scriptChunks[scriptCursorIndex].images[scriptImageCursorIndex-1][0].file);
-          } else {
-            storyboardState.clearLightboxImage();
-          }
-        } else {
-          if (scriptChunks[scriptCursorIndex-1].type == 'scene_heading') {
-            scriptCursorIndex = scriptCursorIndex - 2;
-            sketchpane.noImage(scriptChunks[scriptCursorIndex].text);
-          } else {
-            scriptCursorIndex--;
-            sketchpane.noImage(scriptChunks[scriptCursorIndex].text);
-          }
-
-          if (scriptChunks[scriptCursorIndex].images && (scriptChunks[scriptCursorIndex].images.length > 0)) {
-            scriptImageCursorIndex = scriptChunks[scriptCursorIndex].images.length-1;
-            storyboardState.loadFlatBoard(scriptChunks[scriptCursorIndex].images[scriptImageCursorIndex][0].file,false,scriptChunks[scriptCursorIndex].text)
-          if (scriptImageCursorIndex > 0) {
-            storyboardState.loadLightboxImage(scriptChunks[scriptCursorIndex].images[scriptImageCursorIndex-1][0].file);
-          } else {
-            storyboardState.clearLightboxImage();
-          }
-          }
-        }
-
-
-        //console.log(scriptChunks[scriptCursorIndex].images)
-      } else {
-          if (scriptChunks[scriptCursorIndex-1].type == 'scene_heading') {
-            scriptCursorIndex = scriptCursorIndex - 2;
-          } else {
-            scriptCursorIndex--;
-          }
-
-        if (scriptChunks[scriptCursorIndex].images && (scriptChunks[scriptCursorIndex].images.length > 0)) {
-          scriptImageCursorIndex = scriptChunks[scriptCursorIndex].images.length-1;
-          storyboardState.loadFlatBoard(scriptChunks[scriptCursorIndex].images[scriptImageCursorIndex][0].file,false,scriptChunks[scriptCursorIndex].text)
-            if (scriptImageCursorIndex > 0) {
-            storyboardState.loadLightboxImage(scriptChunks[scriptCursorIndex].images[scriptImageCursorIndex-1][0].file);
-          } else {
-            storyboardState.clearLightboxImage();
-          }
-      } else {
-          sketchpane.noImage(scriptChunks[scriptCursorIndex].text);
-        }
-
-        
-      }
-
-
-
-
-    }
-
-    selectAndScroll(scriptCursorIndex);
-
-
-
-    log("current cursor: " + scriptCursorIndex);
-    log("current image:  " + scriptImageCursorIndex);
-
-    
-
-    // var index = scriptData.indexOf(currentBoard);
-    // index = index + increment;
-    // index = Math.max(Math.min(scriptData.length - 1, index), 0);
-    // var id = scriptData[index];
-    // loadFlatBoard(id);
+  var canSelectChunk = function(index) {
+    return (
+      indexInBounds(index) && 
+      scriptChunks[index].type != 'scene_heading'
+    );
   };
 
+  /**
+   * direction must be 1 or -1
+   * will return the index of the next selectable chunk in the 
+   * specified direction or null
+   */
+  var findNextSelectableChunk = function(direction) {
+    var i = 1;
+    while (true) {
+      if (!indexInBounds(scriptCursorIndex + i * direction)) {
+        // base case: reached the beginning/end, no selection
+        return null;
+      }
+      if (canSelectChunk(scriptCursorIndex + i * direction)) {
+        // base case: found a chunk we can select
+        return scriptCursorIndex + i * direction;
+      }
+      // iterative case: try prev/next chunk
+      i += 1 * direction;
+    }
+  }
+
+  var chunkHasImages = function(index) {
+    return scriptChunks[index].images && 
+      scriptChunks[index].images.length > 0;
+  }
+
+  // increment should be positive or negative to indicate direction
+  var goNext = function(increment) {
+    if (increment > 0) {
+      if (chunkHasImages(scriptCursorIndex) && 
+        scriptImageCursorIndex < scriptChunks[scriptCursorIndex].images.length-1
+      ) {
+        // move to the next image in this chunk
+        scriptImageCursorIndex++;
+        updateSelection();
+      }
+      else {
+        // move to the next selectable chunk
+        var index = findNextSelectableChunk(1);
+        if (index != null) {
+          selectChunk(index);
+        }
+      }        
+    }
+    else {
+      if (chunkHasImages(scriptCursorIndex) &&
+        scriptImageCursorIndex > 0
+      ) {
+        // move to the previous image in this chunk
+        scriptImageCursorIndex--;
+        updateSelection();
+      } 
+      else {
+        // move to the previous selectable chunk
+        var index = findNextSelectableChunk(-1);
+        if (index != null) {
+          scriptCursorIndex = index;
+          // choose the last image, or 0/none
+          if (chunkHasImages(scriptCursorIndex)) {
+            scriptImageCursorIndex = scriptChunks[scriptCursorIndex].images.length - 1;
+          }
+          else {
+            scriptImageCursorIndex = 0;
+          }
+          updateSelection();
+        }
+      }
+    }
+  };
 
   var selectAndScroll = function(index) {
     $(".module.selectable").filter('.selected').removeClass('selected');
-    $("#module-script-" + index).addClass('selected');
+    var $chunk = $("#module-script-" + index);
+    $chunk.addClass('selected');
     $("#script").finish();
-    if (($("#module-script-" + index).offset().top+$("#module-script-" + index).outerHeight())> $("#script").height()) {
-      var difference = ($("#module-script-" + index).offset().top+$("#module-script-" + index).outerHeight()) - $("#script").height();
+    if (($chunk.offset().top+$chunk.outerHeight())> $("#script").height()) {
+      var difference = ($chunk.offset().top+$chunk.outerHeight()) - $("#script").height();
       $("#script").animate({scrollTop: $("#script").scrollTop() + difference}, 100);
     }
-    if (($("#module-script-" + index).offset().top) < (0 + 100)) {
-      var difference = $("#module-script-" + index).offset().top - 100;
+    if (($chunk.offset().top) < (0 + 100)) {
+      var difference = $chunk.offset().top - 100;
       $("#script").animate({scrollTop: $("#script").scrollTop() + difference}, 100);
     }
   };
