@@ -1,4 +1,4 @@
-TODO:
+###TODO:
 
 - [ ] Kill clearing of the boards if no board exists in the element - UNLESS: there is no board for that scene. More work when going backwards.
 - [ ] Hook up event dispatches that the ui can listen to for toggling items: brush, color, lightbox, etc.
@@ -7,138 +7,96 @@ TODO:
 - [ ] standalone stripped player to load boards and show playback. can limit to only one scene.
 - [ ] guide overlays
 
-lighter visualizer tools
+------
 
-arrow key defined bounds
+- [ ] arrow key defined bounds
+- [ ] stats:
+  - [ ] for need for boards
+  - [ ] boards per scene
+  - [ ] max boards per scene
+- [ ] show board:
+  - [ ] timing
+  - [ ] caption
+  - [ ] notes
+- [ ] combine parenthetical and 1
+- [ ] drop down scene selector
+- [ ] overall scene and timeline view
+- [ ] rollover preload
+- [ ] raw fountain script edit
+- [ ] switch between tabs
+- [ ] image paste?
+  - [ ] paste onto bg layer?
+  - [ ] fit
+- [ ] video capture?
+- [ ] export final cut xml cuepoints
+- [ ] record timing
+- [ ] record audio a scene at a time
+- [ ] playback
+- [ ] package into a node server for download and use
 
-stats:
-	for need for boards
-	boards per scene
-	max boards per scene
+------
 
-show board:
-	timing
-	caption
-	notes
+- [ ] ui review
+- [ ] fountain strategy thoughts
+- [ ] Fountain lib
+- [ ] Fountain save
+- [ ] Script view
+- [ ] use of photos
+- [ ] check why saving slow
+- [ ] profile memory
+- [ ] remove unnecesary creation of imgs
+- [ ] make work without wacom
+- [ ] Load img list
+- [ ] duplicate board
+- [ ] Ui top bar
+- [ ] Lamp mode
+- [ ] bottom bar script view
+- [ ] undo bug on different layers
 
-combine parenthetical and 1
+### DONE:
 
-drop down scene selector
-
-overall scene and timeline view
-
-rollover preload
-
-raw fountain script edit
-
-switch between tabs
-
-image paste?
-	paste onto bg layer?
-	fit
-
-video capture?
-
-export final cut xml cuepoints
-
-record timing
-
-record audio a scene at a time
-
-playback
-
-package into a node server for download and use
-
-
-----
-
-ui review
-
-fountain strategy thoughts
-
-Fountain lib
-
-Fountain save
-
-Script view
-
-use of photos
-
-check why saving slow
-
-profile memory
-
-remove unnecesary creation of imgs
-
-
-make work without wacom
-
-
-
-
-Load img list
-
-duplicate board
-
-Ui top bar
-
-Lamp mode
-
-bottom bar script view
-
-
-
-Kitkat
-Appjs
-
-
-undo bug on different layers
-
-
-DONE
-
-	Arrowkeys
-	Preload next 2 and back 1 img
-	save alias bug
-	new image
-		go to that new image
-		dont load poster
-		side side url as white
-	kill pen drop nubs
-	on save
-		create a dirty list
-		save in cookies?
-	Query string on dirty
-	save pen colors17
-	if switch while loading, stop loading
-	update mini source on side
-	Update thumbs on dirty
-	BLOCK DRAWING UNTIL ALL LAYERS LOADED IN
-	Lock until all layers loaded
-	remove consolelogs
-	----
-	fix bug on advancing not loading images
-load caption in on sketchpane
-onclick bugs
-	number for loc
-	load caption
-decrement position
-scroll to right location
-show board/script view properly
-tie board/script view items with correct script index
-clicking should have a cursor position
-insert board into the model correctly
-insert board into the view correctly
-save script
-make sure script export is good (brs, full title page, dual dialogue, notes)
-copy paste
-	ccopy if not in edit mode
-	create canvas if none?
-	clear existing canvases?
-	undo
-lightboxc
-	load in previous image
-delete/remove board
-	confirm
-	delete in script
-	delete in ui
+- [X] Arrowkeys
+- [X] Preload next 2 and back 1 img
+- [X] save alias bug
+- [X] new image
+- [X] go to that new image
+  - [X] dont load poster
+  - [X] side side url as white
+- [X] kill pen drop nubs
+- [X] on save
+  - [X] create a dirty list
+  - [X] save in cookies?
+- [X] Query string on dirty
+- [X] save pen colors17
+- [X] if switch while loading, stop loading
+- [X] update mini source on side
+- [X] Update thumbs on dirty
+- [X] BLOCK DRAWING UNTIL ALL LAYERS LOADED IN
+- [X] Lock until all layers loaded
+- [X] remove consolelogs
+- [X] fix bug on advancing not loading images
+- [X] load caption in on sketchpane
+- [X] onclick bugs
+  - [X] number for loc
+  - [X] load caption
+- [X] decrement position
+- [X] scroll to right location
+- [X] show board/script view properly
+- [X] tie board/script view items with correct script index
+- [X] clicking should have a cursor position
+- [X] insert board into the model correctly
+- [X] insert board into the view correctly
+- [X] save script
+- [X] make sure script export is good (brs, full title page, dual dialogue, notes)
+- [X] copy paste
+  - [X] ccopy if not in edit mode
+  - [X] create canvas if none?
+  - [X] clear existing canvases?
+- [X] undo
+- [X] lightboxc
+  - [X] load in previous image
+- [X] delete/remove board
+- [X] confirm
+- [X] delete in script
+- [X] delete in ui
+- [X] lighter visualizer tools
