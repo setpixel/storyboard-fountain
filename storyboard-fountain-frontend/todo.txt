@@ -1,14 +1,16 @@
 TODO:
 
-make project roadmap
+1. Kill clearing of the boards if no board exists in the element - UNLESS: there is no board for that scene. More work when going backwards.
 
-ui
+2. Hook up event dispatches that the ui can listen to for toggling items: brush, color, lightbox, etc.
 
-clear blanks
+3. Add metadata for boards: photography, notes. UI to enter it.
 
-guide overlays
+4. Recording and playback of board timing.
 
-clear
+5. standalone stripped player to load boards and show playback. can limit to only one scene.
+
+6. guide overlays
 
 lighter visualizer tools
 
