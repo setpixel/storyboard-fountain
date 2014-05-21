@@ -1,0 +1,1 @@
+create table shares (id serial, "key" varchar(12) not null, "password" varchar(255), allow_comments bool not null, created_at timestamp not null);

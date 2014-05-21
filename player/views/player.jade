@@ -1,0 +1,61 @@
+extend layout
+
+block content
+  .toolbar
+    .toolbar-button-group
+      #bttn-back.toolbar-button.undo(title="Go back to the beginning [key: ?]")
+      //#bttn-previous.toolbar-button.previous(title="Previous board [key: left arrow or up arrow]")
+      #bttn-play.toolbar-button.play(title="Play back board timing [key: space]")
+      #bttn-pause.toolbar-button.next(title="Pause playback [key: space]", style="display: none")
+      //#bttn-next.toolbar-button.next(title="Next board [key: right arrow or down arrow]")
+
+    .toolbar-button-group(style="color: white;")
+      div Time
+      #current-time
+    .toolbar-button-group(style="color: white;")
+      div Duration
+      #current-duration
+
+  div
+    .drawing-canvas
+      .canvas.white-bg
+      img#current-image(style="z-index: 106;")
+      #current-text.caption
+
+  script(src="/js/modernizr-2.6.2-respond-1.1.0.min.js")
+  //script(src="/js/coffee-script.js")
+  script(src="/lib/js/jquery.js")
+  script(src="/lib/js/bootstrap.js")
+  script(src="/lib/js/underscore.js")
+  script(src="/lib/js/handlebars.js")
+  script(src="/js/fountain.js")
+  script(src="/app/display.js")
+  script(src="/app/player.js")
+  script(src="/app/playstate.js")
+  script(src="/app/script.js")
+  script.
+    window.key = !{JSON.stringify(share.key)};
+    window.dataUrl = !{JSON.stringify(dataUrl)};
+  script
+    :coffee
+      window.IMAGE_URL_BASE = window.dataUrl + key + "/images/"
+      player.loadShare(key)
+
+  script#title-template(type="text/x-handlebars-template").
+    div {{text}}
+
+  script#transition-template(type="text/x-handlebars-template").
+    div {{text}}
+
+  script#action-template(type="text/x-handlebars-template").
+    div {{text}}
+
+  script#paranthetical-template(type="text/x-handlebars-template").
+    div {{text}}
+
+  script#dialogue-template(type="text/x-handlebars-template").
+    {{#each texts}}
+    p
+      div {{character}}
+      div {{text}}
+    {{/each}}

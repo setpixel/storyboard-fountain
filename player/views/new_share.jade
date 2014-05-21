@@ -1,0 +1,6 @@
+extend layout
+
+block content
+  form(action="/shares", method="post", enctype="multipart/form-data")
+    input(type="file", name="files[]", accepts="*.zip")
+    input(type="submit", value="Upload")
