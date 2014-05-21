@@ -119,16 +119,58 @@
     </div>
 
     <script src="js/libs/jquery.min.js"></script>
+    <script src="js/libs/bootstrap.min.js"></script>
+    <script src="js/libs/handlebars-v1.3.0.js"></script>
     <script src="js/libs/jsBezier.js"></script>
     <script src="js/util.js"></script>
     <script src="js/sketchpane.js"></script>
     <script src="js/storyboardstate.js"></script>
     <script src="js/libs/fountain.js"></script>
     <script src="js/fountainmanager.js"></script>
+    <script src="js/sharing.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/localsource.js"></script>
     <script src="js/s3source.js"></script>
     <script src="js/main.js"></script>
+
+    <div id="creating-share-link" class="modal fade">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Creating a share link&hellip;</h4>
+          </div>
+          <div class="modal-body">
+            <p>Please wait&hellip;</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="share-links" class="modal fade">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Share links</h4>
+          </div>
+          <div class="modal-body">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script id="share-links-template" type="text/x-handlebars-template">
+      <ul>
+        {{#each links}}
+        <li>
+          <a class="share-link" href="#" data-href="{{url}}">
+            {{name}}
+          </a>
+        </li>
+        {{/each}}
+      </ul>
+    </script>
    
     <svg width="1" height="1">
       <defs>

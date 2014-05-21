@@ -200,50 +200,87 @@
 
   $(document).ready(function() {
     var gui = require('nw.gui');
-    var menu = new gui.Menu();
 
-    menu.append(new gui.MenuItem({
-      label: 'New',
-      click: function() {
-        currentFile.create(function() {});
-      }
-    }));
-    menu.append(new gui.MenuItem({
-      label: 'Open...',
-      click: function() {
-        var chooser = $('#open-file-input');
-        chooser.change(function(evt) {
-          var path = $(this).val();
-          console.log(path);
-          var source = {
-            type: 'local',
-            filename: path + '/config.json'
-          };
-          currentFile.open(source, function() {});
-        });
-        chooser.trigger('click');
-      }
-    }));
-    menu.append(new gui.MenuItem({
-      label: 'Save as...',
-      click: function() {
-        var chooser = $('#save-file-input');
-        chooser.change(function(evt) {
-          var path = $(this).val();
-          console.log(path);
-          var source = {
-            type: 'local',
-            filename: path + '/config.json'
-          };
-          currentFile.save(source, function() {});
-        });
-        chooser.trigger('click');
-      }
-    }));
+    var fileMenu = function() {
+      var menu = new gui.Menu();
+      menu.append(new gui.MenuItem({
+        label: 'New',
+        click: function() {
+          currentFile.create(function() {});
+        }
+      }));
+      menu.append(new gui.MenuItem({
+        label: 'Open...',
+        click: function() {
+          var chooser = $('#open-file-input');
+          chooser.change(function(evt) {
+            var path = $(this).val();
+            console.log(path);
+            var source = {
+              type: 'local',
+              filename: path + '/config.json'
+            };
+            currentFile.open(source, function() {});
+          });
+          chooser.trigger('click');
+        }
+      }));
+      menu.append(new gui.MenuItem({
+        label: 'Save as...',
+        click: function() {
+          var chooser = $('#save-file-input');
+          chooser.change(function(evt) {
+            var path = $(this).val();
+            console.log(path);
+            var source = {
+              type: 'local',
+              filename: path + '/config.json'
+            };
+            currentFile.save(source, function() {});
+          });
+          chooser.trigger('click');
+        }
+      }));
+      return menu;
+    };
+
+    var source = $('#share-links-template').html();
+    var shareLinksTemplate = Handlebars.compile(source);
+    var showShareLinks = function() {
+      var html = shareLinksTemplate({links: sharing.getLinks()});
+      $('#share-links .modal-body').html(html);
+      $('#share-links').modal('show');
+      $('.share-link').click(function() {
+        gui.Shell.openExternal($(this).attr('data-href'));
+      });
+    };
+
+    var shareMenu = function() {
+      var menu = new gui.Menu();
+      menu.append(new gui.MenuItem({
+        label: 'Create Player Link',
+        click: function() {
+          $('#creating-share-link').modal('show');
+          sharing.createPlayerLink(function(err, url) {
+            $('#creating-share-link').modal('hide');
+            if (err) return;
+            showShareLinks();
+          });
+        }
+      }));
+      menu.append(new gui.MenuItem({
+        label: 'Shared Links',
+        click: function() {
+          showShareLinks();
+        }
+      }));
+      return menu;
+    };
 
     var win = gui.Window.get();
     var menubar = new gui.Menu({type: 'menubar'});
-    menubar.append(new gui.MenuItem({label: 'File', submenu: menu}));
+    menubar.append(new gui.MenuItem({label: 'File', submenu: fileMenu()}));
+    menubar.append(new gui.MenuItem({label: 'Share', submenu: shareMenu()}));
     win.menu = menubar;
   });
 

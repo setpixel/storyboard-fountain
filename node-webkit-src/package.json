@@ -9,7 +9,8 @@
     "co": "~3.0.6",
     "thunkify": "~2.1.1",
     "co-fs": "~1.2.0",
-    "ncp": "~0.5.1"
+    "ncp": "~0.5.1",
+    "request": "~2.36.0"
   },
   "window": {
     "toolbar": true,
