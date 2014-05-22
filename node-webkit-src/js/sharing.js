@@ -14,7 +14,7 @@
       // TODO: make this work with s3
       var path = localSource.localPath();
       var exec = require('child_process').exec;
-      var cmd = "cd " + path + " && zip -r -X " + tmpPath + " .";
+      var cmd = "cd " + path + " && zip -r -X " + tmpPath + " config.json script.fountain images/*-large.jpeg";
       console.log('zipping', cmd);
       exec(cmd, function _zippedFile(err) {
         if (err) return next(err);

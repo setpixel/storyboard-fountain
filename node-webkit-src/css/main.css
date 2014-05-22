@@ -275,6 +275,10 @@ svg {
   background-color: #555;
 }
 
+.toolbar-button.selected {
+  background-color: #666;
+}
+
 
 
 .toolbar-button.new-board {

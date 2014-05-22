@@ -93,34 +93,71 @@
 
     $("#bttn-lightbox").click(sketchpane.toggleLightboxMode);
 
-    $("#bttn-paint").click(function() {
-      sketchpane.setLayer(0);
-      sketchpane.setBrush({size: 20, opacity: 15});
+    sketchpane.emitter.on('lightboxmode:change', function(mode) {
+      if (mode) {
+        $("#bttn-lightbox").addClass('selected');
+      }
+      else {
+        $("#bttn-lightbox").removeClass('selected');
+      }
     });
 
-    $("#bttn-pencil").click(function() {
-      sketchpane.setLayer(1);
-      sketchpane.setBrush({size: 1, opacity: 0});
+    var penButtons = [
+      {selector: '#bttn-paint', fn: function() {
+        sketchpane.setLayer(0);
+        sketchpane.setBrush({size: 20, opacity: 15});
+      }},
+      {selector: '#bttn-pencil', fn: function() {
+        sketchpane.setLayer(1);
+        sketchpane.setBrush({size: 1, opacity: 0});
+      }},
+      {selector: '#bttn-pen', fn: function() {
+        sketchpane.setLayer(2);
+        sketchpane.setBrush({size: 4, opacity: 60});
+      }}
+    ];
+
+    $.each(penButtons, function(layer, data) {
+      $(data.selector).click(data.fn);
     });
 
-    $("#bttn-pen").click(function() {
-      sketchpane.setLayer(2);
-      sketchpane.setBrush({size: 4, opacity: 60});
+    sketchpane.emitter.on('layer:change', function(newLayer, oldLayer) {
+      $(penButtons[oldLayer].selector).removeClass('selected');
+      $(penButtons[newLayer].selector).addClass('selected');
     });
 
-    $("#bttn-color-1").click(function() { sketchpane.setColor([206,201,255]); });
-    $("#bttn-color-2").click(function() { sketchpane.setColor([221,218,255]); });
-    $("#bttn-color-3").click(function() { sketchpane.setColor([241,239,255]); });
+    var colorButtons = {
+      '#bttn-color-1': [206,201,255],
+      '#bttn-color-2': [221,218,255],
+      '#bttn-color-3': [241,239,255],
+      '#bttn-color-4': [0,0,0],
+      '#bttn-color-5': [152,152,152],
+      '#bttn-color-6': [188,188,188],
+      '#bttn-color-7': [228,228,228],
+      '#bttn-color-8': [255,255,255],
+      '#bttn-color-9': [255,92,92],
+      '#bttn-color-10': [132,198,121],
+      '#bttn-color-11': [85,77,184]
+    };
 
-    $("#bttn-color-4").click(function() { sketchpane.setColor([0,0,0]); });
-    $("#bttn-color-5").click(function() { sketchpane.setColor([152,152,152]); });
-    $("#bttn-color-6").click(function() { sketchpane.setColor([188,188,188]); });
-    $("#bttn-color-7").click(function() { sketchpane.setColor([228,228,228]); });
-    $("#bttn-color-8").click(function() { sketchpane.setColor([255,255,255]); });
+    $.each(colorButtons, function(selector, color) {
+      $(selector).click(function() { sketchpane.setColor(color) });
+    });
 
-    $("#bttn-color-9").click(function() { sketchpane.setColor([255,92,92]); });
-    $("#bttn-color-10").click(function() { sketchpane.setColor([132,198,121]); });
-    $("#bttn-color-11").click(function() { sketchpane.setColor([85,77,184]); });
+    var colorEquals = function(a, b) {
+      return a[0] == b[0] && a[1] == b[1] && a[2] == b[2];
+    };
+
+    sketchpane.emitter.on('color:change', function(newColor, oldColor) {
+      $.each(colorButtons, function(selector, color) {
+        if (colorEquals(newColor, color)) {
+          $(selector).addClass('selected');
+        }
+        else if (colorEquals(oldColor, color)) {
+          $(selector).removeClass('selected');
+        }
+      });
+    });
 
     $(window).keydown(function(e){
       console.log(e.keyCode);

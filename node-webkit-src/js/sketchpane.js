@@ -11,6 +11,10 @@
 ;(function() {
   'use strict';
 
+  var events = require('events');
+
+  var emitter = new events.EventEmitter();
+
   var TO_RADIANS = Math.PI/180; 
   var TO_DEGREES = 1 / TO_RADIANS;
 
@@ -18,7 +22,7 @@
   var drawCanvasNames = ["layer-1-active", "layer-1-active-visible"];
 
   var currentLayer = 1;
-  var currentColor = [[240,240,255], [210,210,250],[0,0,0]];
+  var currentColor = [[241,239,255], [206,201,255], [0,0,0]];
   var brushProperties = {size: window.devicePixelRatio, opacity: 0};
   var contexts = [];
   var copyLayers = [];
@@ -360,14 +364,20 @@
   };
 
   var setLayer = function(layer) {
+    var oldColor = getColor();
+    var oldLayer = currentLayer;
     currentLayer = layer;
     $("#layer-1-active-visible").css('z-index', 100 + (layer*2+1));
+    emitter.emit('color:change', currentColor[currentLayer], oldColor);
+    emitter.emit('layer:change', currentLayer, oldLayer);
   };
 
   var getLayer = function() { return currentLayer; };
 
   var setColor = function(color) {
+    var oldColor = currentColor[currentLayer];
     currentColor[currentLayer] = color;
+    emitter.emit('color:change', currentColor[currentLayer], oldColor);
   };
 
   var getColor = function() { return currentColor[currentLayer]; };
@@ -585,9 +595,11 @@
       lightboxMode = true;
       $("#lightbox-image").css("display", "block");
     }
+    emitter.emit('lightboxmode:change', lightboxMode);
   }
 
   var sketchpane = window.sketchpane = {
+    emitter: emitter,
     setLayer: setLayer,
     getLayer: getLayer,
     setColor: setColor,
@@ -608,5 +620,14 @@
     getLighboxMode: getLighboxMode,
     toggleLightboxMode: toggleLightboxMode
   };
+
+  // force initial event fires
+  $(document).ready(function() {
+    process.nextTick(function() {
+      setColor(getColor());
+      setLayer(getLayer());
+      toggleLightboxMode(); toggleLightboxMode();
+    });
+  });
 
 }).call(this);
