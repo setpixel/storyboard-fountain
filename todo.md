@@ -1,6 +1,5 @@
 ###TODO:
 
-- [ ] Kill clearing of the boards if no board exists in the element - UNLESS: there is no board for that scene. More work when going backwards.
 - [ ] Hook up event dispatches that the ui can listen to for toggling items: brush, color, lightbox, etc.
 - [ ] Add metadata for boards: photography, notes. UI to enter it.
 - [ ] Recording and playback of board timing.
@@ -100,3 +99,4 @@
 - [X] delete in script
 - [X] delete in ui
 - [X] lighter visualizer tools
+- [X] Kill clearing of the boards if no board exists in the element - UNLESS: there is no board for that scene. More work when going backwards.

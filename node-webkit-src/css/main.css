@@ -41,6 +41,11 @@ body {
   height: 38px;
   width: 89px;
   background-color: rgb(255,255,255);
+  transition: outline linear 0.1s;
+}
+
+.boards-list img.selected {
+  outline: 2px solid #aaa;
 }
 
 .boards-list div {

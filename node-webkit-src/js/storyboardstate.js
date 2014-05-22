@@ -7,10 +7,6 @@
 ;(function() {
   'use strict';
 
-  //var AUTO_UPLOAD_LAYER_TIME = 2;
-  //var AUTO_UPLOAD_FLAT_TIME = 6;
-  //var URL_STRING = "https://s3-us-west-2.amazonaws.com/storyboard.setpixel.com/";
-
   var scriptData = [];
   var updatedImgData = {};
 
@@ -29,35 +25,16 @@
       updatedImgList = {};
     }
 
-  /*
-  var loadURL = function (url) {
-
-    var xmlhttp = new XMLHttpRequest();
-    xmlhttp.open("GET", url, false);
-    xmlhttp.send();
-    parseScript(xmlhttp.responseText);
-    fillBoardsList();
-    loadFlatBoard(currentBoard);
-  };
-
-  var parseScript = function(script) {
-    scriptData = script.split(",");
-    currentBoard = scriptData[0];
-  };
-  */
-
   var checkUpdated = function(filename) {
     if (updatedImgList[filename]) {
 
       if (updatedImgData[filename]) {
         return updatedImgData[filename];
       } else {
-        //var value = URL_STRING + filename + "?" + updatedImgList[filename];
         var value = currentFile.imageUrl(filename + "?" + updatedImgList[filename]);
         return value;
       }
     } else {
-      //return URL_STRING + filename;
       return currentFile.imageUrl(filename);
     }
   };
@@ -131,15 +108,6 @@
 
   var saveScript = function(next) {
     currentFile.saveScript(next);
-    /*
-    $.ajax({
-      type: "POST", 
-      url:"http://localhost:3000/save-script", 
-      data: {
-        filename: 'test.fountain', 
-        content: fountainManager.exportScriptText()
-      }}).done(function(o){log("yes")});
-    */
   };
 
   var setLayerDirty = function(layer) {
@@ -176,21 +144,6 @@
         var filename = currentBoard + "-layer-" + i + ".png";
         var imageData = sketchpane.getLayerImage(i);
         saveImage(filename, imageData, 'image/png');
-        /*
-        var ajaxReq = {
-          type: "POST", 
-          url: "http://localhost:3000/save-img", 
-          data: {
-            imgBase64: sketchpane.getLayerImage(i),
-            filename: currentBoard + "-layer-" + i + ".png",
-            contentType: 'image/png'
-          }};
-        addUpdatedImageData(ajaxReq.data.filename, ajaxReq.data.imgBase64);
-        $.ajax(ajaxReq).done(function(filename){
-          addUpdatedImage(filename);
-        }(ajaxReq.data.filename));
-        $.ajax(ajaxReq).fail(function(o){alert("problem solving. this is a big deal.")});
-        */
         dirtyLayer[i] = 0;
       }
     }
@@ -211,34 +164,6 @@
     filename = currentBoard + "-small.jpeg";
     imageData = flatImages[1];
     saveImage(filename, imageData, 'image/jpeg');
-
-    /*
-    var ajaxReq = {
-      type: "POST", 
-      url: "http://localhost:3000/save-img", 
-      data: {
-        imgBase64: flatImages[0],
-        filename: currentBoard + "-large.jpeg",
-        contentType: 'image/jpeg'
-      }};
-    setThumb(flatImages[1]);
-    addUpdatedImageData(ajaxReq.data.filename, flatImages[0]);
-    $.ajax(ajaxReq).done(function(filename){
-      addUpdatedImage(filename);
-    }(ajaxReq.data.filename)).fail(function(o){alert("problem solving. this is a big deal.")});
-    ajaxReq = {
-      type: "POST", 
-      url: "http://localhost:3000/save-img", 
-      data: {
-        imgBase64: flatImages[1],
-        filename: currentBoard + "-small.jpeg",
-        contentType: 'image/jpeg'
-      }};
-    addUpdatedImageData(ajaxReq.data.filename, flatImages[1]);
-    $.ajax(ajaxReq).done(function(filename){
-      addUpdatedImage(filename);
-    }(ajaxReq.data.filename)).fail(function(o){alert("problem solving. this is a big deal.")});
-    */
   };
 
   var getDirty = function getDirty() {
@@ -339,7 +264,6 @@
   };
 
   var storyboardState = window.storyboardState = {
-    //loadURL: loadURL,
     newBoard: newBoard,
     setLayerDirty: setLayerDirty,
     getDirty: getDirty,

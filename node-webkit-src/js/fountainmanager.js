@@ -54,22 +54,19 @@
       if (!skipSelect) {
         selectAndScroll(scriptCursorIndex);
       }
-      if (chunk.images && chunk.images.length > 0) {
-        var image = chunk.images[scriptImageCursorIndex];
-        if (image) {
-          storyboardState.loadFlatBoard(image[0].file, false, chunk.text);
-        }
-        else {
-          console.log('should not be here');
-          sketchpane.noImage(chunk.text);
-        }
+      $(".module.selectable img").filter('.selected').removeClass('selected');
+      var imageLoc = boardForCursor();
+      if (imageLoc) {
+        var image = scriptChunks[imageLoc.chunk].images[imageLoc.image];
+        storyboardState.loadFlatBoard(image[0].file, false, chunk.text);
+        $("#script-image-" + image[0].file).addClass('selected');
       }
       else {
         sketchpane.noImage(chunk.text);
       }
 
-      if (scriptImageCursorIndex > 0 && chunk.images && chunk.images.length > scriptImageCursorIndex) {
-        var image = chunk.images[scriptImageCursorIndex-1];
+      if (imageLoc && imageLoc.image > 0 && chunkHasImages(imageLoc.chunk)) {
+        var image = scriptChunks[imageLoc.chunk].images[imageLoc.image - 1];
         storyboardState.loadLightboxImage(image[0].file);
       } else {
         storyboardState.clearLightboxImage();
@@ -1238,7 +1235,7 @@ options.append($("<option />").val("").text("Everyone"));
         return scriptCursorIndex + i * direction;
       }
       // iterative case: try prev/next chunk
-      i += 1 * direction;
+      i += 1;
     }
   }
 
@@ -1307,6 +1304,38 @@ options.append($("<option />").val("").text("Everyone"));
   };
 
   var getScriptChunks = function(){ return scriptChunks;};
+
+  var boardForCursor = function() {
+    var chunk = scriptCursorIndex;
+    var fail = false;
+
+    while (true) {
+      if (scriptChunks[chunk].type == 'scene_heading') {
+        fail = true;
+        break;
+      }
+      else if (chunkHasImages(chunk)) {
+        break;
+      }
+      else if (chunk > 0) {
+        chunk -= 1;
+      }
+      else {
+        fail = true;
+        break;
+      }
+    }
+
+    if (fail) {
+      return null;
+    }
+    else if (chunk == scriptCursorIndex) {
+      return {chunk: chunk, image: scriptImageCursorIndex};
+    }
+    else {
+      return {chunk: chunk, image: scriptChunks[chunk].images.length - 1};
+    }
+  };
 
   var fountainManager = window.fountainManager = {
     load: load,
