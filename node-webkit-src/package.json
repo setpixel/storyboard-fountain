@@ -13,7 +13,7 @@
     "request": "~2.36.0"
   },
   "window": {
-    "toolbar": true,
+    "toolbar": false,
     "frame": true,
     "width": 1350,
     "height": 800,
@@ -27,5 +27,6 @@
     "plugin": true
   },
   "node-remote": "localhost:8081",
-  "js-flags": "--harmony"
+  "js-flags": "--harmony",
+  "chromium-args": "--enable-experimental-canvas-features"
 }

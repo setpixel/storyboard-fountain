@@ -21,8 +21,8 @@
 
   var settings = function() {
     return {
-      AUTO_UPLOAD_LAYER_TIME: 2,
-      AUTO_UPLOAD_FLAT_TIME: 6
+      AUTO_UPLOAD_LAYER_TIME: 20,
+      AUTO_UPLOAD_FLAT_TIME: 60
     }
   };
 
