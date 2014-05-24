@@ -46,6 +46,9 @@
       $(".drawing-canvas .caption").css('top', ((canvasDim[1] - canvasHeight)/2)-captionHeight+toolbarHeight+canvasHeight);
       $(".drawing-canvas .caption").css('width', canvasWidth);
     }
+
+    var scriptHeight = windowHeight - toolbarHeight - $('.tabs').height();
+    $('#script').css('height', scriptHeight + 'px');
   }
 
   var confirmExit = function() {
