@@ -568,17 +568,35 @@
     image.crossOrigin = '';
     image.src = layers[i];
     image.onload = function() {
+      loadedLayer++;
       contexts[i].drawImage(image, 0, 0, canvasSize[0], canvasSize[1]);
+      if (loadedLayer == totalLayers) {
+        console.log("disappear")
+        $("#flat-image").css("display", "none");
+      }
     };
+    image.onerror = function() {
+      loadedLayer++;
+      if (loadedLayer == totalLayers) {
+        console.log("disappear")
+        $("#flat-image").css("display", "none");
+      }
+    }
+
   };
+
+  var loadedLayer = 0;
+  var totalLayers = 0;
 
   var allLoaded = function(layers, currentBoard, copyAfter) {
     if (currentBoard === storyboardState.getCurrentBoard()){
       locked = false;
+      loadedLayer = 0;
+      totalLayers = layers.length;
       for (var i=0;i<layers.length;i++) {
         drawOnCanvas(layers, i);
       }
-      $("#flat-image").css("display", "none");
+      
     }
     if (copyAfter) { copy(); };
   };
