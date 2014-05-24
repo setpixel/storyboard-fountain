@@ -20,6 +20,7 @@ Storyboard software that allows anyone to visualize a screenplay as fast they ca
 2. Make sure you have node installed. If not: [nodejs.org and install](http://nodejs.org/).
 3. In terminal, in the storyboard-fountain directory run: `npm install`
 4. `cd node-webkit-src`
+5. `npm install`
 5. `cd ..`
 6. Make sure you have grunt-cli installed. If not: run: `npm install -g grunt-cli`
 6. `grunt nodewebkit`
