@@ -1,9 +1,8 @@
 ###TODO:
 
-- [ ] Hook up event dispatches that the ui can listen to for toggling items: brush, color, lightbox, etc.
 - [ ] Add metadata for boards: photography, notes. UI to enter it.
 - [ ] Recording and playback of board timing.
-- [ ] standalone stripped player to load boards and show playback. can limit to only one scene.
+- [ ] can limit player to only one scene.
 - [ ] guide overlays
 
 ------
@@ -100,3 +99,5 @@
 - [X] delete in ui
 - [X] lighter visualizer tools
 - [X] Kill clearing of the boards if no board exists in the element - UNLESS: there is no board for that scene. More work when going backwards.
+- [X] Hook up event dispatches that the ui can listen to for toggling items: brush, color, lightbox, etc.
+- [X] standalone stripped player to load boards and show playback. 

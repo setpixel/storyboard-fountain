@@ -1,3 +1,47 @@
+@font-face {
+  font-family: 'Courier Prime';
+  src: url('../fonts/courier_prime_bold_italic-webfont.eot');
+  src: url('../fonts/courier_prime_bold_italic-webfont.eot?#iefix') format('embedded-opentype'),
+       url('../fonts/courier_prime_bold_italic-webfont.woff') format('woff'),
+       url('../fonts/courier_prime_bold_italic-webfont.ttf') format('truetype'),
+       url('../fonts/courier_prime_bold_italic-webfont.svg#courier_primebold_italic') format('svg');
+  font-weight: bold;
+  font-style: italic;
+}
+
+@font-face {
+  font-family: 'Courier Prime';
+  src: url('../fonts/courier_prime_bold-webfont.eot');
+  src: url('../fonts/courier_prime_bold-webfont.eot?#iefix') format('embedded-opentype'),
+       url('../fonts/courier_prime_bold-webfont.woff') format('woff'),
+       url('../fonts/courier_prime_bold-webfont.ttf') format('truetype'),
+       url('../fonts/courier_prime_bold-webfont.svg#courier_primebold') format('svg');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Courier Prime';
+  src: url('../fonts/courier_prime_italic-webfont.eot');
+  src: url('../fonts/courier_prime_italic-webfont.eot?#iefix') format('embedded-opentype'),
+       url('../fonts/courier_prime_italic-webfont.woff') format('woff'),
+       url('../fonts/courier_prime_italic-webfont.ttf') format('truetype'),
+       url('../fonts/courier_prime_italic-webfont.svg#courier_primeitalic') format('svg');
+  font-weight: normal;
+  font-style: italic;
+}
+
+@font-face {
+    font-family: 'Courier Prime';
+    src: url('../fonts/courier_prime-webfont.eot');
+    src: url('../fonts/courier_prime-webfont.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/courier_prime-webfont.woff') format('woff'),
+         url('../fonts/courier_prime-webfont.ttf') format('truetype'),
+         url('../fonts/courier_prime-webfont.svg#courier_primeregular') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}
+
 body {
   cursor: arrow;
   -webkit-touch-callout: none;
@@ -10,6 +54,8 @@ body {
 }
 
 .toolbar {
+  position: absolute;
+  top: 0;
   width: 100%;
   height:50px;
   background-color: rgb(50,50,50);
@@ -42,6 +88,21 @@ body {
   position: absolute;
   display: block;
   left: 0;
+}
+
+.drawing-canvas .canvas {
+  position: absolute;
+  display: block;
+  left: 0;
+}
+
+#current-image-text {
+  position: relative;
+  display: block;
+  color: rgb(0,0,0);
+  width: 100%;
+  text-align: center;
+  font-size: 200%;
 }
 
 .tabs {
@@ -100,69 +161,118 @@ body {
   -webkit-filter: url(#script-image-filter);
 }
 
-.toolbar-button-group {
-  margin-right: 10px;
-  display: block;
-  position: relative;
-  float: left;
+.mono-font {
+  font-family: "Courier Prime";
 }
 
-
-.toolbar-button {
-  background-color: #3e3e3e;
-  border-radius: 0px;
-  width: 44px;
-  height: 36px;
-  background-image:url('../img/spritesheet.png');
-  float: left;
-  margin-right: 1px;
+.nonmono-font {
+  font-family: sans-serif;
 }
 
-.toolbar-button-group .toolbar-button:first-child {
-  border-radius: 3px 0 0 3px;
+.caption .bold, #current-image-text .bold {
+  font-weight: bold;
 }
 
-.toolbar-button-group .toolbar-button:last-child {
-  border-radius: 0 3px 3px 0;
-}
-
-
-.toolbar-button:hover {
-  background-color: #555;
-}
-
-
-
-
-.toolbar-button.previous {
-  background-position: -405px 0px;
-}
-
-.toolbar-button.play {
-  background-position: -450px 0px;
-}
-
-.toolbar-button.next {
-  background-position: -495px 0px;
-}
-
-.toolbar-button.undo {
-  background-position: -765px 0px;
-}
-
-
-.caption {
-  font-family: "Courier New";
-}
-
-.caption .bold {
-  font-weight: 800;
-}
-
-.caption .underline {
+.caption .underline, #current-image-text .underline {
   text-decoration: underline;
 }
 
-.caption .italic {
+.caption .italic, #current-image-text .italic {
   font-style: italic;
+}
+
+/* controls */
+
+.control-bar-container {
+  position: absolute;
+  bottom: 0;
+  z-index: 107;
+  width: 100%;
+  height: 60px;
+}
+
+.control-bar.off {
+  top: 70px;
+  -webkit-transition: top .5s;
+  transition: top .5s;
+}
+
+.control-bar {
+  position: relative;
+  top: 25px;
+  background-color: #3e3e3e;
+  width: 100%;
+  height: 35px;
+  color: #888;
+  -webkit-transition: top .3s;
+  transition: top .3s;
+}
+
+.scrubber {
+  z-index: 110;
+  width: 100%;
+  height: 8px;
+  background-color: #888;
+}
+
+.playhead-bar {
+  width: 0;
+  height: 100%;
+  background-color: red;
+}
+
+.dragger-container {
+  position: relative;
+  left: -5px;
+  width: 100%;
+  height: 8px;
+}
+
+.current-location {
+  position: absolute;
+  border-radius: 50%;
+  width: 15px;
+  height: 15px;
+  left: -5px;
+  top: -3.5px;
+  background-color: #555;
+  border: 5px solid #aaa;
+}
+
+.controls .play-button {
+  float: left;
+  width: 50px;
+  font-size: 150%;
+  text-align: center;
+  border-right: 1px dotted #888;
+}
+
+.controls .volume-button {
+  float: left;
+  width: 50px;
+  font-size: 150%;
+  text-align: center;
+}
+
+.controls .timing {
+  float: left;
+  color: #777;
+  padding-top: .3em;
+}
+
+.controls .divider {
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+.controls .playhead-time {
+  color: #aaa;
+}
+
+.controls .font-button {
+  float: right;
+  width: 50px;
+  font-size: 150%;
+  text-align: center;
+  border-left: 1px dotted #888;
 }

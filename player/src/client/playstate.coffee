@@ -18,6 +18,7 @@ update = (time) ->
         duration = atomDuration(atom)
         console.log('atom duration:', duration, ' type:', atom.type)
         switch atom.type
+
           when 'title'
             console.log('atom is title. setting text')
             text = {type: 'title', text: atom.text, duration, time: currentTime}
@@ -57,6 +58,12 @@ update = (time) ->
             console.log('images.length:', images.length)
             text = {}
 
+          when 'scene_heading'
+            text = {}
+            images = []
+            buildingImages = no
+            duration = 0
+
           else
             duration = 0
 
@@ -86,11 +93,14 @@ update = (time) ->
 show = ->
   if images.length > 0
     display.setImage(images[0])
+    display.setImageText('')
   else
     display.setImage()
+    display.setImageText('[NO IMAGE]')
   switch text.type
     when 'title'
       display.setText(text)
+      display.setImageText(text.text)
     when 'transition'
       display.setText(text)
     when 'action'

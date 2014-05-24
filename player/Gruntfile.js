@@ -62,9 +62,8 @@ module.exports = function(grunt) {
         files = components[name];
         files = grunt.util.kindOf(files) == 'string' ? [files] : files;
         files.forEach(function (file) {
-          var basename = path.basename(file)
-            , extname  = path.extname(file).slice(1)
-            , destname = path.join(dest, extname, basename);
+          var filepath = file.split('bower_components/')[1];
+          var destname = path.join(dest, filepath);
           grunt.file.copy(file, destname);
           grunt.log.writeln(file + ' -> ' + destname.cyan);
         });

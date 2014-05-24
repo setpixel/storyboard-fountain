@@ -17,16 +17,16 @@
       var cmd = "cd " + path + " && zip -r -X " + tmpPath + " config.json script.fountain images/*-large.jpeg";
       console.log('zipping', cmd);
       exec(cmd, function _zippedFile(err) {
+        console.log('zipped', err, path);
         if (err) return next(err);
-        console.log('zipped', path);
 
         // post to player service
         var fs = require('fs');
         var request = require('request');
         var playerServiceUrl = 'http://storyboardplayer.com/shares';
         var r = request.post(playerServiceUrl, function _posted(err, httpResponse, body) {
+          console.log('posted', err, body);
           if (err) return next(err);
-          console.log('posted', body);
 
           // get the url
           try {
