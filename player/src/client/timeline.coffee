@@ -1,4 +1,5 @@
 updates = []
+scriptDuration = 0
 
 buildUpdates = ->
   atomDuration = (atom) ->
@@ -91,6 +92,7 @@ buildUpdates = ->
           duration = 0
 
       return yes
+  scriptDuration = updates[updates.length - 1].time + updates[updates.length - 1].duration
       
 state = 'paused'
 # used when paused
@@ -101,7 +103,6 @@ startAt = Date.now()
 
 updateIndex = 0
 done = no
-scriptDuration = 0
 
 update = -> updates[updateIndex]
 
@@ -144,6 +145,7 @@ play = ->
         else
           done = yes
           pause()
+          break
       show()
       display.setTime(getPlayhead())
       unless done
@@ -160,12 +162,14 @@ pause = ->
 setPlayhead = (time) ->
   time = Math.max(0, Math.min(scriptDuration, time))
   updateIndex = 0
+  done = no
   while time >= update().time + update().duration
     if updates.length > updateIndex + 1
       updateIndex += 1
     else
       done = yes
       state = 'paused'
+      break
   playheadTime = time
   if state is 'playing'
     play()  
@@ -177,7 +181,7 @@ init = ->
   setPlayhead(0)
   display.setState(state)
   display.setTime(getPlayhead())
-  display.setDuration(scriptDuration = script.getDuration())
+  display.setDuration(scriptDuration)
 
 getPlayhead = ->
   if state is 'playing'

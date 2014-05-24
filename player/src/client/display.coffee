@@ -57,12 +57,14 @@ timeDigits = (ms) ->
   if minutes > 60
     hours = Math.floor(minutes / 60)
     minutes = minutes - hours * 60
-  digits = 1
-  digits += 1  if seconds > 9
-  digits += 1  if minutes > 0
-  digits += 1  if minutes > 9
-  digits += 1  if hours > 0
-  digits += 1  if hours > 9
+  if hours > 9
+    digits = 6
+  else if hours > 0
+    digits = 5
+  else if minutes > 9
+    digits = 4
+  else
+    digits = 3
   return digits
 
 formatTime = (ms) ->
@@ -85,10 +87,13 @@ formatTime = (ms) ->
   seconds = doubleDigit(seconds)  if maxDigits > 1
   return hoursOut + "#{minutes}:#{seconds}"
 
+scrubberWidth = -> $('.scrubber').width() - 10
+xToTime = (x) -> (x - 5) / (scrubberWidth() - 5) * totalDuration
+
 setTime = (time) ->
   $('#current-time').text(formatTime(time))
   $('.playhead-time').text(formatTime(time))
-  width = Math.ceil((time / totalDuration) * $('.scrubber').width())
+  width = Math.ceil((time / totalDuration) * scrubberWidth())
   $('.playhead-bar').css('width', width + 'px')
   unless dragging
     $('.current-location').css('left', (width - 5) + 'px')
@@ -182,11 +187,11 @@ $(document).ready ->
       timeline.pause()
 
   $('.scrubber').mousedown (e) ->
+    console.log('scrubberNOW')
     return  if Date.now() - wasDraggingAt < 100
-    do (x = e.pageX - $(this).offset().left,
-        width = $('.scrubber').width()) ->
-      timeline.setPlayhead(x / width * totalDuration)
-      setTime(x / width * totalDuration)
+    do (time = xToTime(e.pageX - $(this).offset().left)) ->
+      timeline.setPlayhead(time)
+      setTime(time)
 
   wasDraggingAt = Date.now()
   lastUpdateAt = Date.now()
@@ -195,17 +200,18 @@ $(document).ready ->
 
   updateWhileDragging = ->
     return  unless dragging
-    do (x = $('.current-location').offset().left + 5,
-        width = $('.scrubber').width()) ->
-      if Math.abs(lastDragTime - x / width * totalDuration) > 1
-        timeline.setPlayhead(x / width * totalDuration)
+    do (time = xToTime($('.current-location').offset().left + 5)) ->
+      if Math.abs(lastDragTime - time) > 1
+        timeline.setPlayhead(time)
     setTimeout updateWhileDragging, 100
 
   $('.current-location').draggable({
     axis: 'x', 
     containment: '.dragger-container',
     scroll: no,
+    cursor: 'pointer',
     start: (e) ->
+      e.stopImmediatePropagation()
       console.log 'start current location drag'
       wasPlaying = currentState is 'playing'
       timeline.pause()
@@ -214,17 +220,15 @@ $(document).ready ->
       updateWhileDragging()
     drag: ->
       console.log 'drag'
-      do (x = $('.current-location').offset().left + 5,
-          width = $('.scrubber').width()) ->
+      do (time = xToTime($('.current-location').offset().left + 5)) ->
         if Date.now() - lastUpdateAt > 100
-          timeline.setPlayhead(x / width * totalDuration)
-        setTime(x / width * totalDuration)
+          timeline.setPlayhead(time)
+        setTime(time)
       lastUpdateAt = Date.now()
     stop: ->
       console.log 'dragstop'
-      do (x = $('.current-location').offset().left + 5,
-          width = $('.scrubber').width()) ->
-        timeline.setPlayhead(x / width * totalDuration)
+      do (time = xToTime($('.current-location').offset().left + 5)) ->
+        timeline.setPlayhead(time)
       dragging = no
       timeline.play()  if wasPlaying
       wasDraggingAt = Date.now()
@@ -237,13 +241,19 @@ $(document).ready ->
     if $('.control-bar').hasClass('off')
       $('.control-bar').removeClass('off')
 
+  lastActionAt = Date.now()
   goaway = ->
     return  if dragging
     return  if cancelGoAway
-    unless $('.control-bar').hasClass('off')
-      $('.control-bar').addClass('off')
+    timeLeft = 3000 - (Date.now() - lastActionAt)
+    if timeLeft <= 0
+      unless $('.control-bar').hasClass('off')
+        $('.control-bar').addClass('off')
+    else
+      setTimeout goaway, timeLeft
 
   $('.control-bar-container').mouseout ->
+    lastActionAt = Date.now()
     return  if dragging
     cancelGoAway = no
     setTimeout goaway, 3000
@@ -255,11 +265,16 @@ $(document).ready ->
     cancelGoAway = yes
     $('.control-bar').removeClass('off')
 
-  $(window).focus ->
+  $(window).focus -> showControls()
+
+  $(window).mousemove -> showControls()
+
+  showControls = ->
+    lastActionAt = Date.now()
     $('.control-bar').removeClass('off')
     return  if dragging
     cancelGoAway = no
-    setTimeout goaway, 1000
+    setTimeout goaway, 3000
 
   $(window).keydown (e) ->
     switch e.which
@@ -268,6 +283,7 @@ $(document).ready ->
           timeline.pause()
         else
           timeline.play()
+        showControls()
 
 window.display = {
   setState,
