@@ -57,7 +57,7 @@
 
   var usingWacom = function() {
     var wacom = getWacomPlugin();
-    return wacom.penAPI.pointerType == 1 || wacom.penAPI.pointerType == 3;
+    return wacom && wacom.penAPI && (wacom.penAPI.pointerType == 1 || wacom.penAPI.pointerType == 3);
   }
 
   $(document).ready(function() {
