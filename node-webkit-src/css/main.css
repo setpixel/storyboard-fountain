@@ -349,4 +349,26 @@ svg {
   background-position: -1125px 0px;
 }
 
+#scriptpane {
+  float: left;
+  background-color: rgb(0,0,0);
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
 
+#scripttext {
+  position: relative;
+  background-color: white;
+  padding: 80px 10px;
+  margin: 40px auto;
+  overflow-x: scroll;
+}
+
+.CodeMirror {
+  height: auto;
+}
+
+.CodeMirror-scroll {
+  overflow-y: hidden;
+  overflow-x: auto;
+}

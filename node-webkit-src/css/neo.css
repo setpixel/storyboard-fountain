@@ -1,0 +1,131 @@
+/* neo theme for codemirror */
+
+/* Color scheme */
+
+.cm-s-neo.CodeMirror {
+  margin: auto;
+  font-size: 18px;
+  background-color:#ffffff;
+  color: #000;
+  line-height:1.4375;
+  width: 62ch;
+}
+
+.cm-s-neo .cm-markup {
+  color: #ddd;
+}
+
+.cm-s-neo .parenthetical {
+  font-style: italic;
+  color: #444;
+  padding-left: 15ch;
+}
+
+.cm-s-neo .dialogue {
+  color: #444;
+  padding-left: 10ch;
+}
+
+.cm-s-neo .scene_heading {
+  font-weight: bold;
+  color: #666;
+}
+
+.cm-s-neo .title_page {
+}
+
+.cm-s-neo .note {
+  font-style: italic;
+  color: #aaa;
+}
+
+.cm-s-neo .transition {
+  text-align: right;
+}
+
+.cm-s-neo .character {
+  padding-left: 20ch;
+}
+
+.cm-s-neo .act {
+  font-weight: bold;
+  color: #000;
+}
+
+.cm-s-neo .sequence {
+  font-weight: bold;
+  color: #222;
+}
+
+.cm-s-neo .scene {
+  font-weight: bold;
+  color: #444;
+}
+
+.cm-s-neo .synopsis {
+  color: #aaa;
+}
+
+.cm-s-neo .centered {
+  text-align: center;
+}
+
+
+.cm-s-neo .cm-title_key {
+}
+
+
+.cm-s-neo .cm-bold {
+  font-weight: bold;
+}
+
+.cm-s-neo .cm-italic {
+  font-style: italic;
+}
+
+.cm-s-neo .cm-underline {
+  text-decoration: underline;
+}
+
+.cm-s-neo .cm-underline_start,
+.cm-s-neo .cm-underline_end,
+.cm-s-neo .cm-bold_start,
+.cm-s-neo .cm-bold_end,
+.cm-s-neo .cm-italic_start,
+.cm-s-neo .cm-italic_end,
+.cm-s-neo .cm-bolditalic_start,
+.cm-s-neo .cm-bolditalic_end {
+  color: #aaa;
+}
+
+
+.cm-s-neo .cm-comment {color:#75787b}
+.cm-s-neo .cm-keyword, .cm-s-neo .cm-property {color:#1d75b3}
+.cm-s-neo .cm-atom,.cm-s-neo .cm-number {color:#75438a}
+.cm-s-neo .cm-node,.cm-s-neo .cm-tag {color:#9c3328}
+.cm-s-neo .cm-string {color:#b35e14}
+.cm-s-neo .cm-variable,.cm-s-neo .cm-qualifier {color:#047d65}
+
+
+/* Editor styling */
+
+.cm-s-neo pre {
+  padding:0;
+}
+
+.cm-s-neo .CodeMirror-gutters {
+  border:none;
+  border-right:10px solid transparent;
+  background-color:transparent;
+}
+
+.cm-s-neo .CodeMirror-linenumber {
+  padding:0;
+  color:#e0e2e5;
+}
+
+.cm-s-neo div.CodeMirror-cursor {
+  width: 2px;
+  border: 1px solid black;
+  z-index: 99;
+}

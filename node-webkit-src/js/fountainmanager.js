@@ -1,5 +1,11 @@
 ;(function() {
   
+  var events = require('events');
+
+  var emitter = new events.EventEmitter();
+
+  var scriptText = '';
+
   var stats = {};
   var script = [];
   var scriptChunks = [];
@@ -9,6 +15,9 @@
   var scriptImageCursorIndex = 0;
 
   var load = function(config) {
+    var oldScriptText = scriptText;
+    scriptText = config.script;
+    emitter.emit('script:change', scriptText, oldScriptText);
     parseFountain(config.script);
   }
 
@@ -1240,7 +1249,8 @@ options.append($("<option />").val("").text("Everyone"));
   }
 
   var chunkHasImages = function(index) {
-    return scriptChunks[index].images && 
+    return scriptChunks[index] &&
+      scriptChunks[index].images && 
       scriptChunks[index].images.length > 0;
   }
 
@@ -1346,7 +1356,9 @@ options.append($("<option />").val("").text("Everyone"));
     goNext: goNext,
     newBoard: newBoard,
     preloadAround: preloadAround,
-    deleteBoard: deleteBoard
+    deleteBoard: deleteBoard,
+    getScript: function() { return scriptText; },
+    emitter: emitter
   };
 
 }).call(this);

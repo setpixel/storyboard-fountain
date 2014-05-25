@@ -1,6 +1,8 @@
 ;(function() {
   'use strict';
 
+  var editor = null;
+
   var resizeView = function() {
     var toolbarHeight = 50;
     var timelineHeight = 0;
@@ -49,6 +51,27 @@
 
     var scriptHeight = windowHeight - toolbarHeight - $('.tabs').height();
     $('#script').css('height', scriptHeight + 'px');
+
+    $("#scriptpane").css('width', canvasDim[0]);
+    $("#scriptpane").css('height', canvasDim[1]);
+
+    var canvasWidth = (canvasDim[0] - (canvasSidePadding * 2));
+    $("#scripttext").css('width', canvasWidth + 'px');
+
+    var calcEditorWidth = function() {
+      var o = $('<div>' + 'x' + '</div>')
+        .css({'position': 'absolute', 'left': 0, 'white-space': 'nowrap', 'visibility': 'hidden', 'font': 'Courier New', 'font-size': '18px', 'width': '62ch'})
+        .appendTo($('body'))
+      var w = o.width();
+      o.remove();
+      return w;
+    }
+    var editorWidth = calcEditorWidth();
+    var editorSpace = canvasDim[0] - canvasSidePadding * 2 - 20;
+    console.log('editor resize', editorSpace, editorWidth, Math.floor(18 * editorSpace / editorWidth) + 'px');
+    if (editorSpace < editorWidth) {
+      $('.CodeMirror').css('font-size', Math.floor(18 * editorSpace / editorWidth) + 'px');
+    }
   }
 
   var confirmExit = function() {
@@ -70,13 +93,34 @@
     $('#tab-script').click(function(){
       $('#script').show();
       $('#boards').hide();
+      $('#scriptpane').hide();
+      $('#drawpane').show();
     })
 
     $('#tab-boardlist').click(function(){
       $('#script').hide();
       $('#boards').show();
+      $('#scriptpane').hide();
+      $('#drawpane').show();
     })
    
+    $('#tab-scripttext').click(function() {
+      $('#scriptpane').show();
+      $('#drawpane').hide();
+      if (editor) editor.refresh();
+    });
+
+    fountainManager.emitter.once('script:change', function(text) {
+      console.log('script:change', text)
+      window.editor = editor = CodeMirror($('#scripttext')[0], {
+        value: text,
+        mode: 'fountain',
+        viewportMargin: Infinity,
+        theme: 'neo',
+        lineWrapping: true
+      })
+      console.log('script:change done')
+    });
 
     $(window).resize(resizeView);
 
