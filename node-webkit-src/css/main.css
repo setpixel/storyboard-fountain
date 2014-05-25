@@ -168,6 +168,11 @@ svg {
   opacity: 0.3;
 }
 
+.toolbar {
+  min-width: 1333px;
+  overflow: hidden;
+}
+
 .toolbar-button-group {
   margin-right: 10px;
   display: block;

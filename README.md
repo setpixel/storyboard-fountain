@@ -41,7 +41,7 @@ Feel free to submit pull requests!
 
 Please [create new issues](https://github.com/setpixel/storyboard-fountain/issues/new) in issues. You can also see the milestones for what we are looking to develop next.
 
-# Contributors
+## Contributors
 
 Storyboard Fountain was created by [Charles Forman](http://setpixel.com/) and significant work done by [Chris Smoak](https://github.com/cesmoak) (Putting it into node-webkit, node dev, player, etc.)
 
