@@ -257,10 +257,14 @@
   var getWacomPoint = function(e) {
     var wacom = getWacomPlugin();
     var x, y;
-    // right now, we only support the two models we have to test
+    // right now, we only support the models we have been able to test
     if (wacom.penAPI.tabletModel == 'Intuos PT S') {
       x = (wacom.penAPI.posX / 15200) * screen.width - (e.screenX - e.pageX);
       y = (wacom.penAPI.posY / 9500) * screen.height - (e.screenY - e.pageY);
+    }
+    else if (wacom.penAPI.tabletModel == 'Intuos3 9x12') {
+      x = (wacom.penAPI.posX / 51006) * screen.width - (e.screenX - e.pageX);
+      y = (wacom.penAPI.posY / 38440) * screen.height - (e.screenY - e.pageY);
     }
     else {
       // assume cintiq
