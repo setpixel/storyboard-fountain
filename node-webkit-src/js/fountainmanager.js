@@ -21,6 +21,14 @@
     parseFountain(config.script);
   }
 
+  var loadChange = function(text) {
+    var oldScriptText = scriptText;
+    scriptText = text;
+    emitter.emit('script:change', scriptText, oldScriptText, true);
+    parseFountain(text);
+    storyboardState.saveScript();
+  }
+
   var parseFountain = function (fountainText) {
     var tokens = "";
     fountain.parse(fountainText, true, function (output) {
@@ -183,7 +191,6 @@
     renderScriptModule(scriptCursorIndex);
 
     if (scriptChunks[scriptCursorIndex].images.length > 0) {
-      log(scriptChunks[scriptCursorIndex].images[scriptImageCursorIndex][0])
       storyboardState.loadFlatBoard(scriptChunks[scriptCursorIndex].images[scriptImageCursorIndex][0].file);
     } else {
       sketchpane.noImage(scriptChunks[scriptCursorIndex].text);
@@ -204,9 +211,10 @@
     insertBoardAt(scriptCursorIndex)
     selectAndScroll(scriptCursorIndex);
     storyboardState.saveScript();
-    log("current cursor: " + scriptCursorIndex);
-    log("current image:  " + scriptImageCursorIndex);
-   }
+    var oldScriptText = scriptText;
+    scriptText = exportScriptText();
+    emitter.emit('script:change', scriptText, oldScriptText);
+  }
 
   var deleteBoard = function() {
     var r = confirm("Are you sure you want to delete? You can not undo!");
@@ -214,8 +222,9 @@
       removeBoardAt(scriptCursorIndex)
       selectAndScroll(scriptCursorIndex);
       storyboardState.saveScript();
-      log("current cursor: " + scriptCursorIndex);
-      log("current image:  " + scriptImageCursorIndex);
+      var oldScriptText = scriptText;
+      scriptText = exportScriptText();
+      emitter.emit('script:change', scriptText, oldScriptText);
     } else {
     }
   }
@@ -273,7 +282,7 @@
 
 
   var renderScript = function() {
-    log(script);
+    console.log('renderScript', script);
     var objects = [];
 
     var imageCollection = null;
@@ -291,7 +300,6 @@
           var object = objects.push(script[i]);
             objects[object-1]['scriptIndex'] = i;
           if (imageCollection) {
-            log("IMAGES")
             objects[object-1]['images'] = imageCollection;
             imageCollection = null;
           }
@@ -301,7 +309,6 @@
           var object = objects.push(script[i]);
             objects[object-1]['scriptIndex'] = i;
           if (imageCollection) {
-            log("IMAGES")
             objects[object-1]['images'] = imageCollection;
             imageCollection = null;
           }
@@ -311,7 +318,6 @@
           var object = objects.push(script[i]);
             objects[object-1]['scriptIndex'] = i;
           if (imageCollection) {
-            log("IMAGES")
             objects[object-1]['images'] = imageCollection;
             imageCollection = null;
           }
@@ -333,9 +339,8 @@
 
     scriptChunks = objects;
 
-    log("SHOTS: " + shots)
-
-    log(objects);
+    console.log("SHOTS: " + shots);
+    console.log(objects);
     var html = [];
 
     for (var i=0; i<objects.length; i++) {
@@ -347,7 +352,6 @@
           html.push('<div class="module selectable" id="module-script-' + i + '">')
           if (objects[i].images) {
             for (var i2=0; i2<objects[i].images.length; i2++) {
-              log(objects[i].images[i2])
               html.push("<img id='script-image-" + objects[i].images[i2][0].file + "' src='" + storyboardState.checkUpdated(objects[i].images[i2][0].file + "-small.jpeg") + "'>");
             }
           }
@@ -358,7 +362,6 @@
           html.push('<div class="module selectable" id="module-script-' + i + '">')
           if (objects[i].images) {
             for (var i2=0; i2<objects[i].images.length; i2++) {
-              log(objects[i].images[i2])
               html.push("<img id='script-image-" + objects[i].images[i2][0].file + "' src='" + storyboardState.checkUpdated(objects[i].images[i2][0].file + "-small.jpeg") + "'>");
             }
           }
@@ -367,7 +370,6 @@
       }
     }
 
-    log(imageList)
     return html.join('');  
   };
 
@@ -416,10 +418,6 @@
     stats['totalPages'] = currentPage+1;
   }
 
-  //vPageCount = currentPage+1;
-
-  //console.log("page count: " + vPageCount);
- 
   function linesForText(text, charWidth) {
     var splitText = text.split(" ");
     var line = 0;
@@ -462,8 +460,6 @@
     var inDualDialogue = 0;
 
     for (var i=0; i<tokens.length; i++) {
-      log(tokens[i])
-
       switch (tokens[i].type) {
         case 'title':
           var atom = {
@@ -675,12 +671,7 @@
           vCurrentTime += 0;
           vScript.push(atom);
           break;
-
       }
-
-      
-      //console.log(tokens[i]);
-
     }
 
     script = vScript;
@@ -716,8 +707,6 @@
   vCharacterListCount = [];
   vMainChars = []
 
-  log(script)
-
   for (var i=0; i<tokens.length; i++) {
     if (tokens[i].type == "dialogue") {
       if (vCharacters.hasOwnProperty(tokens[i].character.split(" (")[0])) {
@@ -743,18 +732,14 @@
     vMainChars.push(vCharacterListCount[1][0])
   }
 
-  //console.log("total scenes: " + vSceneCount);
-  log(vCharacterListCount);
-  //console.log("pages per scene: " + (vPageCount / vSceneCount));
-
+  console.log(vCharacterListCount);
 
   var options = $('#characters');
   options.empty();
-options.append($("<option />").val("").text("Everyone"));
+  options.append($("<option />").val("").text("Everyone"));
   for (var i = 0; i < Math.min(vCharacterListCount.length,5); i++) {
-    log(vCharacterListCount[i][0])
-  options.append($("<option />").val(vCharacterListCount[i][0]).text(vCharacterListCount[i][0]));
-}
+    options.append($("<option />").val(vCharacterListCount[i][0]).text(vCharacterListCount[i][0]));
+  }
   // $.each(result, function() {
   //     options.append($("<option />").val(this.ImageFolderID).text(this.Name));
   // });
@@ -815,8 +800,6 @@ options.append($("<option />").val("").text("Everyone"));
         sceneCount++;
         timeMarkIn = script[i].time;
 
-        //console.log(script[i].text + " - " + recentSection);
-
         recentSection = recentSynopsis = "";
       }
     }
@@ -824,10 +807,7 @@ options.append($("<option />").val("").text("Everyone"));
     outline[outline.length-1].dialogue = dialogueCount;
     outline[outline.length-1].duration = script[script.length-1].time - timeMarkIn;
 
-
-    //console.log(outline);
     return outline;
-
   }
 
 
@@ -866,16 +846,13 @@ options.append($("<option />").val("").text("Everyone"));
       }
     }
 
-    log(vSceneListColors);
-    log(vSceneList);
-    log(vScenes);
-
-
-    log("total scenes: " + vSceneCount);
-    log("unique locations: " + vSceneList.length);
-    //console.log("pages per scene: " + (vPageCount / vSceneCount));
-
-
+    console.log('getUniqueLocations', {
+      colors: vSceneListColors,
+      list: vSceneList,
+      scenes: vScenes,
+      "total scenes": vSceneCount,
+      "unique locations": vSceneList.length
+    });
   }
 
   var renderScenes = function(outline, vertical) {
@@ -910,16 +887,9 @@ options.append($("<option />").val("").text("Everyone"));
 
 
   var renderOutline = function(outline) {
-    log(outline);
+    console.log('renderOutline', outline);
 
     html = [];
-
-    log(vSceneListColors);
-
-
-
-
-
 
     for (var i=0; i<outline.length; i++) {
 
@@ -1023,8 +993,6 @@ options.append($("<option />").val("").text("Everyone"));
     }
     return finalString;
   }
-
-  log(recursiveMarkdown("asdfdfa kdfhjak sdfjhakjdhf <span class='underline'>adfasdf<span class='bold'>adsfadsf</span>adfadsfadF</span>"));
 
   var exportScriptText = function() {
     scriptText = [];
@@ -1349,7 +1317,7 @@ options.append($("<option />").val("").text("Everyone"));
 
   var fountainManager = window.fountainManager = {
     load: load,
-    //loadURL: loadURL,
+    loadChange: loadChange,
     getScript: getScript,
     getScriptChunks: getScriptChunks,
     exportScriptText: exportScriptText,

@@ -102,16 +102,10 @@
     $('#tab-scripttext').click(function() {
       $('#scriptpane').show();
       $('#drawpane').hide();
-      if (editor) editor.refresh();
+      scriptEditor.refresh();
       $('#boards-toolbar').hide();
       $('#script-toolbar').show();
       activeState = 'script';
-    });
-
-    fountainManager.emitter.once('script:change', function(text) {
-      console.log('script:change', text)
-      window.editor = editor = scriptEditor.init(text);
-      console.log('script:change done')
     });
 
     $(window).resize(resizeView);
@@ -133,6 +127,10 @@
     scriptEditor.emitter.on('expandNotes:change', function(value) {
       $('#bttn-expand-notes').toggleClass('selected', value);
     });
+
+    // kidna a hack but need to force the UI to update for now
+    scriptEditor.toggleAutoIndent(scriptEditor.getAutoIndent());
+    scriptEditor.toggleExpandNotes(scriptEditor.getExpandNotes());
 
     $("#bttn-new-board").click(fountainManager.newBoard);
     $("#bttn-remove-board").click(fountainManager.deleteBoard);
@@ -213,6 +211,8 @@
       console.log(e.keyCode);
 
       if (activeState == 'boards') {
+        // board editor
+
         switch (e.keyCode) {
           // shade
           case 49:  // 1
@@ -290,14 +290,16 @@
         }
       }
       else {
+        // script editor
+
         switch (e.keyCode) {
           case 69:  // e
-            if (e.metaKey) {
+            if (e.metaKey) {  // cmd + e
               scriptEditor.toggleExpandNotes();
             }
             break;
           case 78:  // n
-            if (e.metaKey) {
+            if (e.metaKey) {  // cmd + n
               scriptEditor.toggleAutoIndent();
             }
             break;
@@ -305,7 +307,7 @@
       }
     });
   });
-
+  
   $(document).ready(function() {
     var gui = require('nw.gui');
 

@@ -8,6 +8,24 @@
   var expandNotes = false;
   var autoIndent = true;
 
+  // from: http://davidwalsh.name/javascript-debounce-function
+  // Returns a function, that, as long as it continues to be invoked, will not
+  // be triggered. The function will be called after it stops being called for
+  // N milliseconds. If `immediate` is passed, trigger the function on the
+  // leading edge, instead of the trailing.
+  var debounce = function(func, wait, immediate) {
+    var timeout;
+    return function() {
+      var context = this, args = arguments;
+      clearTimeout(timeout);
+      timeout = setTimeout(function() {
+        timeout = null;
+        if (!immediate) func.apply(context, args);
+      }, wait);
+      if (immediate && !timeout) func.apply(context, args);
+    };
+  };
+
   var toggleExpandNotes = function(value) {
     if (typeof(value) !== 'undefined') {
       expandNotes = value;
@@ -40,9 +58,15 @@
     emitter.emit('autoIndent:change', autoIndent);
   };
 
-  var init = function(text) {
+  var propagate = function() {
+    fountainManager.loadChange(editor.getDoc().getValue());
+  };
+
+  var toEdit = ' ';
+
+  var init = function() {
     window.editor = editor = CodeMirror($('#scripttext')[0], {
-      value: text,
+      value: toEdit,
       mode: 'fountain',
       viewportMargin: Infinity,
       theme: 'neo',
@@ -54,22 +78,39 @@
       minFoldSize: 0,
       scanUp: false
     };
+    editor.on('change', debounce(propagate, 250));
     toggleExpandNotes(false);
     toggleAutoIndent(true);
-    return editor;
+  };
+
+  fountainManager.emitter.on('script:change', function(text, oldText, fromScriptEditor) {
+    if (fromScriptEditor) return;
+    console.log('script:change');
+    if (editor) {
+      editor.getDoc().setValue(text);
+      toggleExpandNotes(expandNotes);
+    }
+    else {
+      toEdit = text;
+    }
+  });
+
+  var refresh = function() {
+    if (editor) editor.refresh();
   };
 
   var scriptEditor = window.scriptEditor = {
     emitter: emitter,
-    init: init,
     toggleAutoIndent: toggleAutoIndent,
-    toggleExpandNotes: toggleExpandNotes
+    getAutoIndent: function() { return autoIndent; },
+    toggleExpandNotes: toggleExpandNotes,
+    getExpandNotes: function() { return expandNotes; },
+    refresh: refresh
   };
 
   // force initial event fires
   $(document).ready(function() {
-    process.nextTick(function() {
-    });
+    init();
   });
 
 }).call(this);

@@ -35,12 +35,6 @@
 "sup\n"+
 "";
 
-  //storyboardState.loadURL("https://s3-us-west-2.amazonaws.com/storyboard.setpixel.com/test.fountain");
-
-  //fountainManager.loadURL("https://dl.dropboxusercontent.com/u/10266/sketch/data/steel.fountain");
-  
-  //fountainManager.loadURL("https://s3-us-west-2.amazonaws.com/storyboard.setpixel.com/test.fountain");
-
   var currentSource = null;
   var currentConfig = null;
   var sourceModule = null;
@@ -89,7 +83,7 @@
       console.log('sourceModule = ', currentSource.type, sourceModule);
       sourceModule.load(source, function(err, result) {
         if (err) {
-          log('failed to load', err);
+          console.log('failed to load', err);
           localStorage.removeItem("editing");
           create(next);
         }
@@ -114,15 +108,15 @@
     else {
       type = 'local';
     }
-    log('create', type);
+    console.log('create', type);
     SOURCES[type].create(function(err, result) {
-      log('created', err, result);
+      console.log('created', err, result);
       if (err) {
         next(err);
       }
       else {
         open(result.source, next);
-        log('opened');
+        console.log('opened');
       }
     });
   };
