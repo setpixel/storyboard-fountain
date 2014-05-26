@@ -354,6 +354,18 @@ svg {
   background-position: -1125px 0px;
 }
 
+.toolbar-button.expand-notes {
+  background-position: -1395px 0px;
+}
+
+.toolbar-button.auto-indent {
+  background-position: -1440px 0px;
+}
+
+.toolbar-button.fountain-help {
+  background-position: -1485px 0px;
+}
+
 #scriptpane {
   float: left;
   background-color: rgb(0,0,0);
@@ -364,7 +376,7 @@ svg {
 #scripttext {
   position: relative;
   background-color: white;
-  padding: 80px 10px;
+  padding: 80px 20px;
   margin: 40px auto;
   overflow-x: scroll;
 }

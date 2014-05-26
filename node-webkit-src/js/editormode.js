@@ -135,4 +135,24 @@ $(document).ready(function() {
       }
     };
   });
+
+  CodeMirror.registerHelper("fold", "note", function(cm, start) {
+    function hasNote(line) {
+      if (line < cm.firstLine() || line > cm.lastLine()) return null;
+      var start = cm.getTokenAt(CodeMirror.Pos(line, 1));
+      if (start.type == 'line-note') {
+        return 0;
+      }
+    }
+
+    var start = start.line, has = hasNote(start);
+    if (has == null || hasNote(start - 1) != null) return null;
+    for (var end = start;;) {
+      var next = hasNote(end + 2);
+      if (next == null) break;
+      end += 2;
+    }
+    return {from: CodeMirror.Pos(start, has),
+            to: cm.clipPos(CodeMirror.Pos(end))};
+  });
 });

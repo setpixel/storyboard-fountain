@@ -16,10 +16,11 @@
         <link rel="stylesheet" media="all" href="css/neo.css">
         <script src="js/libs/modernizr-2.6.2-respond-1.1.0.min.js"></script>
         <script src="bower_components/codemirror/lib/codemirror.js"></script>
+        <script src="bower_components/codemirror/addon/fold/foldcode.js"></script>
     </head>
     <body ondragstart="return false;" ondrop="return false;">
 
-    <div class="toolbar">
+    <div id="boards-toolbar" class="toolbar">
 
       <div class="toolbar-button-group">
         <div class="toolbar-button stats" id="bttn-stats" title="Show stats"></div>
@@ -83,6 +84,19 @@
 
     </div>
 
+    <div id="script-toolbar" class="toolbar" style="display: none;">
+      <div class="toolbar-button-group">
+        <div class="toolbar-button stats" id="bttn-stats" title="Show stats"></div>
+        <div class="toolbar-button export" id="bttn-export" title="Export boards to Final Cut XML or to Share"></div>
+      </div>
+      <div class="toolbar-button-group">
+        <div class="toolbar-button expand-notes" id="bttn-expand-notes" title="Toggle notes [key: Cmd + E]"></div>
+        <div class="toolbar-button auto-indent" id="bttn-auto-indent" title="Toggle auto-indent [key: Cmd + N]"></div>
+      </div>
+      <div class="toolbar-button-group" style="display: none;">
+        <div class="toolbar-button fountain-help" id="bttn-fountain-help" title="Show fountain help [key: Cmd + ?]"></div>
+      </div>
+    </div>
 
     <div>
       <div class="boards-list">

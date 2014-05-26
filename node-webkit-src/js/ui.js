@@ -67,7 +67,7 @@
       return w;
     }
     var editorWidth = calcEditorWidth();
-    var editorSpace = canvasDim[0] - canvasSidePadding * 2 - 20;
+    var editorSpace = canvasDim[0] - canvasSidePadding * 2 - 20 * 2;
     console.log('editor resize', editorSpace, editorWidth, Math.floor(18 * editorSpace / editorWidth) + 'px');
     if (editorSpace < editorWidth) {
       $('.CodeMirror').css('font-size', Math.floor(18 * editorSpace / editorWidth) + 'px');
@@ -91,23 +91,18 @@
     })
 
     $('#tab-script').click(function(){
-      $('#script').show();
-      $('#boards').hide();
       $('#scriptpane').hide();
       $('#drawpane').show();
+      $('#boards-toolbar').show();
+      $('#script-toolbar').hide();
     })
 
-    $('#tab-boardlist').click(function(){
-      $('#script').hide();
-      $('#boards').show();
-      $('#scriptpane').hide();
-      $('#drawpane').show();
-    })
-   
     $('#tab-scripttext').click(function() {
       $('#scriptpane').show();
       $('#drawpane').hide();
       if (editor) editor.refresh();
+      $('#boards-toolbar').hide();
+      $('#script-toolbar').show();
     });
 
     fountainManager.emitter.once('script:change', function(text) {
@@ -119,12 +114,43 @@
         theme: 'neo',
         lineWrapping: true
       })
+      editor.options.foldOptions = {
+        rangeFinder: CodeMirror.fold.note,
+        widget: "[[Storyboards]]",
+        minFoldSize: 0,
+        scanUp: false
+      };
+      editor.execCommand("foldAll");
+      $('.CodeMirror').addClass('auto-indent');
+      $('#bttn-auto-indent').addClass('selected');
       console.log('script:change done')
     });
 
     $(window).resize(resizeView);
 
     window.onbeforeunload = confirmExit;
+
+    $('#bttn-auto-indent').click(function() {
+      if ($('#bttn-auto-indent').hasClass('selected')) {
+        $('.CodeMirror').removeClass('auto-indent')
+        $('#bttn-auto-indent').removeClass('selected')
+      }
+      else {
+        $('.CodeMirror').addClass('auto-indent')
+        $('#bttn-auto-indent').addClass('selected')
+      }
+    });
+
+    $('#bttn-expand-notes').click(function() {
+      if ($('#bttn-expand-notes').hasClass('selected')) {
+        editor.execCommand('foldAll');
+        $('#bttn-expand-notes').removeClass('selected');
+      }
+      else {
+        editor.execCommand('unfoldAll');
+        $('#bttn-expand-notes').addClass('selected');
+      }
+    });
 
     $("#bttn-new-board").click(fountainManager.newBoard);
     $("#bttn-remove-board").click(fountainManager.deleteBoard);

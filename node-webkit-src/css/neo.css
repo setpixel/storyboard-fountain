@@ -18,11 +18,17 @@
 .cm-s-neo .parenthetical {
   font-style: italic;
   color: #444;
+}
+
+.cm-s-neo.auto-indent .parenthetical {
   padding-left: 15ch;
 }
 
 .cm-s-neo .dialogue {
   color: #444;
+}
+
+.cm-s-neo.auto-indent .dialogue {
   padding-left: 10ch;
 }
 
@@ -39,11 +45,11 @@
   color: #aaa;
 }
 
-.cm-s-neo .transition {
+.cm-s-neo.auto-indent .transition {
   text-align: right;
 }
 
-.cm-s-neo .character {
+.cm-s-neo.auto-indent .character {
   padding-left: 20ch;
 }
 
@@ -66,7 +72,7 @@
   color: #aaa;
 }
 
-.cm-s-neo .centered {
+.cm-s-neo.auto-indent .centered {
   text-align: center;
 }
 
@@ -128,4 +134,10 @@
   width: 2px;
   border: 1px solid black;
   z-index: 99;
+}
+
+.cm-s-neo .CodeMirror-foldmarker {
+  color: #88f;
+  font-style: italic;
+  cursor: pointer;
 }
