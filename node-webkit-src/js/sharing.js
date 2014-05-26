@@ -23,7 +23,7 @@
         // post to player service
         var fs = require('fs');
         var request = require('request');
-        var playerServiceUrl = 'http://storyboardplayer.com/shares';
+        var playerServiceUrl = 'http://player.storyboardfountain.com/shares';
         var r = request.post(playerServiceUrl, function _posted(err, httpResponse, body) {
           console.log('posted', err, body);
           if (err) return next(err);

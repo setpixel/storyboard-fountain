@@ -7,7 +7,7 @@ shortId = require('shortid')
 class Share
   @id: null
   constructor: (data) ->
-    {@key, @password, @allowComments} = data  if data?
+    {@key, @password, @allowComments, @createdAt} = data  if data?
     @key = shortId.generate()  unless @key?
 
 module.exports = {
@@ -56,8 +56,31 @@ module.exports = {
       id: row.id
       key: row.key
       password: row.password
-      allowComments: row.allowComments
-      createdAt: Date.parse(row.created_at)
+      allowComments: row.allow_comments
+      createdAt: row.created_at
     }
     next(null, new Share(data))
+
+  list: (next) ->
+    sql = """
+    SELECT *
+    FROM shares
+    ORDER BY created_at DESC
+    """
+    fields = []
+    await pg.query sql, fields, defer(err, result)
+    return next(err)  if err?
+
+    shares = []
+    for row in result.rows
+      data = {
+        id: row.id
+        key: row.key
+        password: row.password
+        allowComments: row.allow_comments
+        createdAt: row.created_at
+      }
+      shares.push new Share(data)
+
+    next(null, shares)
 }
