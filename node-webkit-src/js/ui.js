@@ -2,6 +2,7 @@
   'use strict';
 
   var editor = null;
+  var activeState = 'boards';
 
   var resizeView = function() {
     var toolbarHeight = 50;
@@ -95,6 +96,7 @@
       $('#drawpane').show();
       $('#boards-toolbar').show();
       $('#script-toolbar').hide();
+      activeState = 'boards';
     })
 
     $('#tab-scripttext').click(function() {
@@ -103,26 +105,12 @@
       if (editor) editor.refresh();
       $('#boards-toolbar').hide();
       $('#script-toolbar').show();
+      activeState = 'script';
     });
 
     fountainManager.emitter.once('script:change', function(text) {
       console.log('script:change', text)
-      window.editor = editor = CodeMirror($('#scripttext')[0], {
-        value: text,
-        mode: 'fountain',
-        viewportMargin: Infinity,
-        theme: 'neo',
-        lineWrapping: true
-      })
-      editor.options.foldOptions = {
-        rangeFinder: CodeMirror.fold.note,
-        widget: "[[Storyboards]]",
-        minFoldSize: 0,
-        scanUp: false
-      };
-      editor.execCommand("foldAll");
-      $('.CodeMirror').addClass('auto-indent');
-      $('#bttn-auto-indent').addClass('selected');
+      window.editor = editor = scriptEditor.init(text);
       console.log('script:change done')
     });
 
@@ -131,25 +119,19 @@
     window.onbeforeunload = confirmExit;
 
     $('#bttn-auto-indent').click(function() {
-      if ($('#bttn-auto-indent').hasClass('selected')) {
-        $('.CodeMirror').removeClass('auto-indent')
-        $('#bttn-auto-indent').removeClass('selected')
-      }
-      else {
-        $('.CodeMirror').addClass('auto-indent')
-        $('#bttn-auto-indent').addClass('selected')
-      }
+      scriptEditor.toggleAutoIndent();
+    });
+
+    scriptEditor.emitter.on('autoIndent:change', function(value) {
+      $('#bttn-auto-indent').toggleClass('selected', value);
     });
 
     $('#bttn-expand-notes').click(function() {
-      if ($('#bttn-expand-notes').hasClass('selected')) {
-        editor.execCommand('foldAll');
-        $('#bttn-expand-notes').removeClass('selected');
-      }
-      else {
-        editor.execCommand('unfoldAll');
-        $('#bttn-expand-notes').addClass('selected');
-      }
+      scriptEditor.toggleExpandNotes();
+    });
+
+    scriptEditor.emitter.on('expandNotes:change', function(value) {
+      $('#bttn-expand-notes').toggleClass('selected', value);
     });
 
     $("#bttn-new-board").click(fountainManager.newBoard);
@@ -167,12 +149,7 @@
     $("#bttn-lightbox").click(sketchpane.toggleLightboxMode);
 
     sketchpane.emitter.on('lightboxmode:change', function(mode) {
-      if (mode) {
-        $("#bttn-lightbox").addClass('selected');
-      }
-      else {
-        $("#bttn-lightbox").removeClass('selected');
-      }
+      $("#bttn-lightbox").toggleClass('selected', mode);
     });
 
     var penButtons = [
@@ -235,81 +212,97 @@
     $(window).keydown(function(e){
       console.log(e.keyCode);
 
-      switch (e.keyCode) {
-        // shade
-        case 49:  // 1
-          sketchpane.setLayer(0);
-          sketchpane.setBrush({size: 20, opacity: 15});
-          break;
-        // pencil
-        case 50:  // 2
-          sketchpane.setLayer(1);
-          sketchpane.setBrush({size: 1, opacity: 0});
-          break;
-        // pen
-        case 51:  // 3
-          sketchpane.setLayer(2);
-          sketchpane.setBrush({size: 4, opacity: 60});
-          break;
-        case 55:  // 7
-        case 103:  // #7
-          sketchpane.setColor([0,0,0]);
-          break;
-        case 56:  // 8
-        case 104:  // #8
-          sketchpane.setColor([188,188,188]);
-          break;
-        case 57:  // 9
-        case 105:  // #9
-          sketchpane.setColor([255,255,255]);
-          break;
-        case 52:  // 4
-        case 100:  // #4
-          sketchpane.setColor([255,92,92]);
-          break;
-        case 53:  // 5
-        case 101:  // #5
-          sketchpane.setColor([132,198,121]);
-          break;
-        case 54:  // 6
-        case 102:  // #6
-          sketchpane.setColor([85,77,184]);
-          break;
-        case 90:  // z
-          sketchpane.undo();
-          break;
-        case 88:  // x
-          sketchpane.redo();
-          break;
-        // n
-        case 78:
-          fountainManager.newBoard();
-          break;
-        // up and back
-        case 37:  // left
-        case 38:  // up
-          e.preventDefault();
-          fountainManager.goNext(-1);
-          break;
-        // next and forward
-        case 39:  // right
-        case 40:  // down
-          e.preventDefault();
-          fountainManager.goNext(1);
-          break;
-        case 67:  // c
-          sketchpane.copy();
-          break;
-        case 86:  // v
-          sketchpane.paste();
-          break;
-        case 76:  // l
-          sketchpane.toggleLightboxMode();
-          break;
-        case 46:  // delete
-          fountainManager.deleteBoard();
-          break;
-       }
+      if (activeState == 'boards') {
+        switch (e.keyCode) {
+          // shade
+          case 49:  // 1
+            sketchpane.setLayer(0);
+            sketchpane.setBrush({size: 20, opacity: 15});
+            break;
+          // pencil
+          case 50:  // 2
+            sketchpane.setLayer(1);
+            sketchpane.setBrush({size: 1, opacity: 0});
+            break;
+          // pen
+          case 51:  // 3
+            sketchpane.setLayer(2);
+            sketchpane.setBrush({size: 4, opacity: 60});
+            break;
+          case 55:  // 7
+          case 103:  // #7
+            sketchpane.setColor([0,0,0]);
+            break;
+          case 56:  // 8
+          case 104:  // #8
+            sketchpane.setColor([188,188,188]);
+            break;
+          case 57:  // 9
+          case 105:  // #9
+            sketchpane.setColor([255,255,255]);
+            break;
+          case 52:  // 4
+          case 100:  // #4
+            sketchpane.setColor([255,92,92]);
+            break;
+          case 53:  // 5
+          case 101:  // #5
+            sketchpane.setColor([132,198,121]);
+            break;
+          case 54:  // 6
+          case 102:  // #6
+            sketchpane.setColor([85,77,184]);
+            break;
+          case 90:  // z
+            sketchpane.undo();
+            break;
+          case 88:  // x
+            sketchpane.redo();
+            break;
+          // n
+          case 78:
+            fountainManager.newBoard();
+            break;
+          // up and back
+          case 37:  // left
+          case 38:  // up
+            e.preventDefault();
+            fountainManager.goNext(-1);
+            break;
+          // next and forward
+          case 39:  // right
+          case 40:  // down
+            e.preventDefault();
+            fountainManager.goNext(1);
+            break;
+          case 67:  // c
+            sketchpane.copy();
+            break;
+          case 86:  // v
+            sketchpane.paste();
+            break;
+          case 76:  // l
+            sketchpane.toggleLightboxMode();
+            break;
+          case 46:  // delete
+            fountainManager.deleteBoard();
+            break;
+        }
+      }
+      else {
+        switch (e.keyCode) {
+          case 69:  // e
+            if (e.metaKey) {
+              scriptEditor.toggleExpandNotes();
+            }
+            break;
+          case 78:  // n
+            if (e.metaKey) {
+              scriptEditor.toggleAutoIndent();
+            }
+            break;
+        }
+      }
     });
   });
 

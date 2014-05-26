@@ -147,12 +147,14 @@ $(document).ready(function() {
 
     var start = start.line, has = hasNote(start);
     if (has == null || hasNote(start - 1) != null) return null;
-    for (var end = start;;) {
+    for (var end = start; ;) {
       var next = hasNote(end + 2);
       if (next == null) break;
       end += 2;
     }
-    return {from: CodeMirror.Pos(start, has),
-            to: cm.clipPos(CodeMirror.Pos(end))};
+    return {
+      from: CodeMirror.Pos(start, has),
+      to: cm.clipPos(CodeMirror.Pos(end))
+    };
   });
 });
