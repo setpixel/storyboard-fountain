@@ -18,7 +18,7 @@
         <script src="bower_components/codemirror/lib/codemirror.js"></script>
         <script src="js/libs/foldcode-modified.js"></script>
     </head>
-    <body ondragstart="return false;" ondrop="return false;">
+    <body ondragstart="return false;" ondrop="return false;" onselectstart="return false;">
 
     <div id="boards-toolbar" class="toolbar">
 
@@ -133,7 +133,7 @@
         
     <div class="timeline"></div>
 
-    <div style="width: 0; height: 0;">
+    <div style="width: 0; height: 0; position: absolute;">
       <!--[if IE]>
       <object id='wtPlugin' classid='CLSID:092dfa86-5807-5a94-bf3b-5a53ba9e5308'>
       </object>

@@ -31,5 +31,5 @@
   },
   "node-remote": "localhost:8081",
   "js-flags": "--harmony",
-  "chromium-args": "--enable-experimental-canvas-features"
+  "chromium-args": "--enable-experimental-canvas-features --show-fps-counter"
 }

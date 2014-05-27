@@ -138,32 +138,44 @@
   };
 
   var uploadLayer = function() {
-    timeoutLayerID = null;
-    for (var i = 0; i < dirtyLayer.length; i ++) {
-      if (dirtyLayer[i]) {
-        var filename = currentBoard + "-layer-" + i + ".png";
-        var imageData = sketchpane.getLayerImage(i);
-        saveImage(filename, imageData, 'image/png');
-        dirtyLayer[i] = 0;
+    if (sketchpane.getPenDown()) {
+      timeoutLayerID = window.setTimeout(
+        uploadLayer, 
+        currentFile.settings().AUTO_UPLOAD_LAYER_TIME * 1000);
+    } else {
+      timeoutLayerID = null;
+      for (var i = 0; i < dirtyLayer.length; i ++) {
+        if (dirtyLayer[i]) {
+          var filename = currentBoard + "-layer-" + i + ".png";
+          var imageData = sketchpane.getLayerImage(i);
+          saveImage(filename, imageData, 'image/png');
+          dirtyLayer[i] = 0;
+        }
       }
+      dirty[0] = 0;
     }
-    dirty[0] = 0;
   };
 
   var uploadFlat = function() {
-    timeoutFlatID = null;
-    dirty[1] = 0;
-    var flatImages = sketchpane.getFlatImage();
+    if (sketchpane.getPenDown()) {
+      timeoutFlatID = window.setTimeout(
+        uploadFlat, 
+        currentFile.settings().AUTO_UPLOAD_FLAT_TIME * 1000);
+    } else {
+      timeoutFlatID = null;
+      dirty[1] = 0;
+      var flatImages = sketchpane.getFlatImage();
 
-    var filename = currentBoard + "-large.jpeg";
-    var imageData = flatImages[0];
-    saveImage(filename, imageData, 'image/jpeg');
-    
-    setThumb(flatImages[1]);
+      var filename = currentBoard + "-large.jpeg";
+      var imageData = flatImages[0];
+      saveImage(filename, imageData, 'image/jpeg');
+      
+      setThumb(flatImages[1]);
 
-    filename = currentBoard + "-small.jpeg";
-    imageData = flatImages[1];
-    saveImage(filename, imageData, 'image/jpeg');
+      filename = currentBoard + "-small.jpeg";
+      imageData = flatImages[1];
+      saveImage(filename, imageData, 'image/jpeg');
+    }
   };
 
   var getDirty = function getDirty() {

@@ -1254,6 +1254,7 @@
     loadChange: loadChange,
     getScript: getScript,
     getScriptChunks: getScriptChunks,
+    getCursorHasImages: function() { return chunkHasImages(scriptCursorIndex); },
     exportScriptText: exportScriptText,
     goNext: goNext,
     newBoard: newBoard,

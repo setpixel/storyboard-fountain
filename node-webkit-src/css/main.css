@@ -1,11 +1,5 @@
 body {
   cursor: arrow;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
   overflow: hidden;
 }
 
@@ -41,11 +35,14 @@ body {
   height: 38px;
   width: 89px;
   background-color: rgb(255,255,255);
-  transition: outline linear 0.1s;
-}
+  opacity: 0.8;
+/*  transition: outline linear 0.1s;
+*/}
 
 .boards-list img.selected {
   outline: 2px solid #aaa;
+  opacity: 1;
+
 }
 
 .boards-list div {
