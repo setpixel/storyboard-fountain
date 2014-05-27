@@ -132,6 +132,14 @@
     scriptEditor.toggleAutoIndent(scriptEditor.getAutoIndent());
     scriptEditor.toggleExpandNotes(scriptEditor.getExpandNotes());
 
+    $('#bttn-play').click(player.play);
+    $('#bttn-pause').click(player.pause);
+
+    player.emitter.on('state:change', function(state) {
+      $('#bttn-play')[state == 'playing' ? 'hide' : 'show']();
+      $('#bttn-pause')[state == 'paused' ? 'hide' : 'show']();
+    });
+
     $("#bttn-new-board").click(fountainManager.newBoard);
     $("#bttn-remove-board").click(fountainManager.deleteBoard);
 
@@ -287,6 +295,10 @@
           case 46:  // delete
             fountainManager.deleteBoard();
             break;
+          case 32:  // space
+            player.toggleState();
+            e.preventDefault();
+            break;
         }
       }
       else {
@@ -393,5 +405,9 @@
     menubar.append(new gui.MenuItem({label: 'Share', submenu: shareMenu()}));
     win.menu = menubar;
   });
+
+  window.ui = {
+    getActiveState: function() { return activeState; }
+  };
 
 }).call(this);

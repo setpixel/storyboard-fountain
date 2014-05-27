@@ -143,6 +143,11 @@ body {
   padding: 15px 6px;
 }
 
+#script .module:not(.selectable) {
+  border-right: 10px solid rgb(80, 80, 80);
+  background-color: rgb(60, 60, 60);
+}
+
 #script .module.selectable:hover {
   background-color: rgb(40,40,40);
 }
@@ -316,6 +321,10 @@ svg {
 
 .toolbar-button.next {
   background-position: -495px 0px;
+}
+
+.toolbar-button.pause {
+  background-position: -540px 0px;
 }
 
 .toolbar-button.undo {

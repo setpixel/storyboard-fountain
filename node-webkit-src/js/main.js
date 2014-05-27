@@ -5,6 +5,9 @@
   'use strict';
 
   var util = require('util');
+  require('coffee-script/register');
+  window.timeline = require('./js/timeline');
+  window.player = require('./js/player');
 
   var NEW_SCRIPT_TEXT = "Title: **THE LAST BIRTHDAY CARD**\n"+
 "Credit: Written by\n"+
@@ -83,7 +86,7 @@
       console.log('sourceModule = ', currentSource.type, sourceModule);
       sourceModule.load(source, function(err, result) {
         if (err) {
-          console.log('failed to load', err);
+          console.log('failed to load', require('util').inspect(err));
           localStorage.removeItem("editing");
           create(next);
         }

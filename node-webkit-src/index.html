@@ -36,6 +36,7 @@
         <div class="toolbar-button record" id="bttn-record" title="Live record timing for boards"></div>
         <div class="toolbar-button previous" id="bttn-previous" title="Previous board [key: left arrow or up arrow]"></div>
         <div class="toolbar-button play" id="bttn-play" title="Play back board timing [key: space]"></div>
+        <div class="toolbar-button pause" id="bttn-pause" title="Pause playback [key: space]" style="display: none;"></div>
         <div class="toolbar-button next" id="bttn-next" title="Next board [key: right arrow or down arrow]"></div>
       </div>
 
@@ -151,6 +152,11 @@
     <script src="js/libs/fountain.js"></script>
     <script src="js/fountainmanager.js"></script>
     <script src="js/sharing.js"></script>
+    <script>
+      require('coffee-script/register');
+      window.timeline = require('./js/timeline');
+      window.player = require('./js/player');
+    </script>
     <script src="js/editormode.js"></script>
     <script src="js/scripteditor.js"></script>
     <script src="js/ui.js"></script>

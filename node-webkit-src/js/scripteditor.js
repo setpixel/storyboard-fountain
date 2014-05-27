@@ -42,7 +42,10 @@
 
   var propagate = function() {
     toggleExpandNotes(expandNotes);
-    fountainManager.loadChange(editor.getDoc().getValue());
+    // total hack. don't propagate a board change back to fountain manager
+    if (ui.getActiveState() == 'script') {
+      fountainManager.loadChange(editor.getDoc().getValue());
+    }
   };
 
   var toEdit = ' ';

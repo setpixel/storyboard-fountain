@@ -30,7 +30,7 @@
 
   var create = function(next) {
     co(function *() {
-      try {
+      //try {
         var path = yield tmpDir();
         log('new script', path);
         pathname = path;
@@ -51,10 +51,10 @@
         // write the script file
         yield cofs.writeFile(pathname + '/' + config.script, cfg.script, 'utf8');
         next(null, {source: {type: 'local', filename: filename}, config: cfg});
-      }
-      catch (e) {
-        next(e);
-      }
+      //}
+      //catch (e) {
+      //  next(e);
+      //}
     })();
   };
 

@@ -33,13 +33,11 @@ buildUpdates = ->
       switch atom.type
 
         when 'title'
-          console.log('atom is title. setting text')
           text = {type: 'title', text: atom.text, duration}
           addUpdates()
           buildingImages = no
 
         when 'transition'
-          console.log('atom is transition. setting text')
           if buildingImages  # if we were just adding images, ignore this duration
             duration = 0
           text = {type: 'transition', text: atom.text, duration}
@@ -47,7 +45,6 @@ buildUpdates = ->
           buildingImages = no
 
         when 'action'
-          console.log('atom is action. setting text')
           if buildingImages  # if we were just adding images, ignore this duration
             duration = 0
           text = {type: 'action', text: atom.text, duration}
@@ -55,19 +52,16 @@ buildUpdates = ->
           buildingImages = no
 
         when 'dialogue'
-          console.log('atom is dialogue. setting text')
           text = {type: 'dialogue', texts: [], duration: 0}  unless text.type is 'dialogue' and atom.dual
           if buildingImages  # if we were just adding images, ignore this duration
             duration = 0
           else
             text.duration += duration
           text.texts.push {character: atom.character, text: atom.text, duration}
-          console.log('duration:', text.duration, ' texts.length:', text.texts.length)
           addUpdates()
           buildingImages = no
 
         when 'parenthetical'
-          console.log('atom is parenthetical. setting text')
           if buildingImages  # if we were just adding images, ignore this duration
             duration = 0
           text = {type: 'parenthetical', text: atom.text, duration}
@@ -75,7 +69,6 @@ buildUpdates = ->
           buildingImages = no
 
         when 'image'
-          console.log('atom is image. setting image')
           images = []  unless buildingImages
           buildingImages = yes
           images.push {file: atom.file, duration}
@@ -93,7 +86,7 @@ buildUpdates = ->
 
       return yes
   scriptDuration = updates[updates.length - 1].time + updates[updates.length - 1].duration
-      
+
 state = 'paused'
 # used when paused
 playheadTime = 0
