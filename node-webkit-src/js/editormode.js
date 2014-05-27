@@ -1,3 +1,9 @@
+/*
+TODO: boneyard, inline notes, multi-line notes, 
+  correct behavior for markup with preceding spaces, page breaks, lyrics, 
+  dual dialogue, other?
+*/
+
 $(document).ready(function() {
   CodeMirror.defineMode('fountain', function(config, parserConfig) {
     return {
@@ -23,6 +29,8 @@ $(document).ready(function() {
           if (stream.eatSpace()) return null;
         }
         
+        var match = null;
+
         if (!state.line) {
           // haven't figured out what this line is yet
           if (state.inDialogue) {
@@ -34,44 +42,36 @@ $(document).ready(function() {
               state.line = 'dialogue';
             }
           }
-          else if (stream.match(/^(\..*|(?:INT|int|EXT|ext|EST|est|INT|int\.\/EXT|ext|INT|int\/EXT|ext|I\/E|i\/e)(?:\.| ))(.*)$/)) {
+          else if (stream.match(/^(?!\!)(\..*|(?:INT|int|EXT|ext|EST|est|INT|int\.\/EXT|ext|INT|int\/EXT|ext|I\/E|i\/e)(?:\.| ))(.*)$/)) {
             return 'line-scene_heading';
           }
           else if (stream.match(/^(title|credit|authors?|source|draft date|contact|copyright|notes):/i)) {
             state.line = 'title_page';
             return 'line-title_page title_key';
           }
-          else if (stream.match(/^\[\[[^\]]*\]\]$/)) {
+          else if (stream.match(/^\[\[.*\]\]$/)) {
             return 'line-note';
           }
           else if (stream.match(/^[^a-z]* TO:$/)) {
             return 'line-transition';
           }
-          else if (stream.match(/^[A-Z0-9][^a-z]+$/)) {
+          else if (stream.match(/^(?!\!)[A-Z0-9][^a-z]+$/) || stream.match(/^@.*$/)) {
             state.inDialogue = true;
             return 'line-character';
           }
-          else if (stream.match(/# /)) {
-            state.line = 'act';
-            return 'line-act markup';
+          else if (match = stream.match(/(#+)/)) {
+            state.line = 'section';
+            return 'line-section line-depth-' + match[0].length + ' markup';
           }
-          else if (stream.match(/## /)) {
-            state.line = 'sequence';
-            return 'line-sequence markup';
-          }
-          else if (stream.match(/### /)) {
-            state.line = 'scene';
-            return 'line-scene markup';
-          }
-          else if (stream.match(/= /)) {
+          else if (stream.match(/=/)) {
             state.line = 'synopsis';
             return 'line-synopsis markup';
           }
-          else if (stream.match(/>(?=\s.*\s<$)/)) {
+          else if (stream.match(/>(?=.*<$)/)) {
             state.line = 'centered';
             return 'line-centered markup';
           }
-          else if (stream.match(/> /)) {
+          else if (stream.match(/>/)) {
             state.line = 'transition';
             return 'line-transition markup';
           }

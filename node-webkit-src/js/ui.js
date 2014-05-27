@@ -1,8 +1,16 @@
 ;(function() {
   'use strict';
 
+  var events = require('events');
+
+  var emitter = new events.EventEmitter();
   var editor = null;
   var activeState = 'boards';
+
+  var setActiveState = function(state) {
+    activeState = state;
+    emitter.emit('activeState:change', activeState);
+  };
 
   var resizeView = function() {
     var toolbarHeight = 50;
@@ -96,16 +104,15 @@
       $('#drawpane').show();
       $('#boards-toolbar').show();
       $('#script-toolbar').hide();
-      activeState = 'boards';
+      setActiveState('boards');
     })
 
     $('#tab-scripttext').click(function() {
       $('#scriptpane').show();
       $('#drawpane').hide();
-      scriptEditor.refresh();
       $('#boards-toolbar').hide();
       $('#script-toolbar').show();
-      activeState = 'script';
+      setActiveState('script');
     });
 
     $(window).resize(resizeView);
@@ -407,7 +414,8 @@
   });
 
   window.ui = {
-    getActiveState: function() { return activeState; }
+    getActiveState: function() { return activeState; },
+    emitter: emitter
   };
 
 }).call(this);
