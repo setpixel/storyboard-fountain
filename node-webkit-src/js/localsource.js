@@ -22,7 +22,7 @@
   var settings = function() {
     return {
       AUTO_UPLOAD_LAYER_TIME: 20,
-      AUTO_UPLOAD_FLAT_TIME: 60
+      AUTO_UPLOAD_FLAT_TIME: 30
     }
   };
 
