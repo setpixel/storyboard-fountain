@@ -50,6 +50,8 @@
     
     characters = extractCharacters(script);
 
+    $("#scene-colorbars").html(renderScenes(outline));
+
     $("#script").html(renderScript());
 
     $(".module.selectable img").click(imageClickHandler);
@@ -355,14 +357,23 @@
 
     for (var i=0; i<objects.length; i++) {
       var chunk = objects[i];
+      var outlineChunk = outline[parseInt(chunk.scene)-1];
+      var sceneColor = vSceneListColors[outlineChunk.slugline.split(" - ")[0]].color;
+      sceneColor = hexToRgb(sceneColor);
+
+      var headerStyleText = 'background: -webkit-linear-gradient(left, rgba(' + sceneColor.r + ',' + sceneColor.g + ',' + sceneColor.b + ', 0.5) 10px, rgba(' + sceneColor.r + ',' + sceneColor.g + ',' + sceneColor.b + ', 0.1) 10px);';
+      var mainStyleText = 'background: -webkit-linear-gradient(left, rgba(' + sceneColor.r + ',' + sceneColor.g + ',' + sceneColor.b + ', 0.5) 10px, rgba(0,0,0,0) 10px);';
+
+      //col = vSceneListColors[outline[i].slugline.split(" - ")[0]].color;
 
       switch (chunk.type) {
         case 'scene_heading':
-          html.push('<div class="module" id="module-script-' + chunk.id + '">' + chunk.text + '</div>')
+          
+          html.push('<div class="module" id="module-script-' + chunk.id + '" style="' + headerStyleText + '"><div class="slug">' + outlineChunk.slugline + '</div><div class="title">' + outlineChunk.title + '</div><div class="synopsis">' + outlineChunk.synopsis + '</div></div>')
           break;
 
         case 'action':
-          html.push('<div class="module selectable" id="module-script-' + chunk.id + '">')
+          html.push('<div class="module selectable" id="module-script-' + chunk.id + '" style="' + mainStyleText + '">')
           if (chunk.images) {
             for (var i2=0; i2<chunk.images.length; i2++) {
               html.push("<img id='script-image-" + chunk.images[i2][0].file + "' src='" + storyboardState.checkUpdated(chunk.images[i2][0].file + "-small.jpeg") + "'>");
@@ -373,7 +384,7 @@
 
         case 'parenthetical':
         case 'dialogue':      
-          html.push('<div class="module selectable" id="module-script-' + chunk.id + '">')
+          html.push('<div class="module selectable" id="module-script-' + chunk.id + '" style="' + mainStyleText + '">')
           if (chunk.images) {
             for (var i2=0; i2<chunk.images.length; i2++) {
               html.push("<img id='script-image-" + chunk.images[i2][0].file + "' src='" + storyboardState.checkUpdated(chunk.images[i2][0].file + "-small.jpeg") + "'>");
@@ -387,6 +398,21 @@
     return html.join('');  
   };
 
+
+function hexToRgb(hex) {
+    // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+    var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+    hex = hex.replace(shorthandRegex, function(m, r, g, b) {
+        return r + r + g + g + b + b;
+    });
+
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : null;
+}
 
   var paginator = function (tokens) {
     var currentPage = 0;
@@ -758,36 +784,22 @@
     });
   }
 
-  var renderScenes = function(outline, vertical) {
+  var renderScenes = function(outline) {
     var length;
-    if (vertical == true) {
-      length = $( window ).height();
-    } else {
-      length = $( window ).width();
-    }
-
+    length = $("#script").height();
     var x = 0;
-
     var previousTime = 0;
     var previousColor = "000";
-
     var html = [];
-
     for (var i=0; i<outline.length; i++) {
       x++;
-      if (vertical == true) {
-        pos = Math.floor((outline[i].time/this.fountain.visualize.stats['totalTime'])*length);
-        siz = Math.ceil((outline[i].duration/this.fountain.visualize.stats['totalTime'])*length);
-        col = vSceneListColors[outline[i].slugline.split(" - ")[0]].color
-
-        html.push("<div style='position: absolute; top: " + pos + "px; left: 0px; height: "+siz+"px; background-color: #" + col + "; width: 20px;'></div>")
-          
-      }
+      pos = Math.floor(((outline[i].time-outline[0].time)/(outline[outline.length-1].time+outline[outline.length-1].duration-outline[0].time))*length);
+      siz = Math.ceil((outline[i].duration/(outline[outline.length-1].time+outline[outline.length-1].duration-outline[0].time))*length);
+      col = vSceneListColors[outline[i].slugline.split(" - ")[0]].color
+      html.push("<div style='position: absolute; top: " + pos + "px; left: 0px; height: "+siz+"px; background-color: #" + col + "; width: 100%;'></div>")
     }
-
     return html.join('');
   }
-
 
   var renderOutline = function(outline) {
     console.log('renderOutline', outline);
@@ -959,7 +971,7 @@
             }
           }
           scriptText.push(script[i].text.replace(/(<br \/>)+/g, "\n").trim());
-          if (script[i+1].character === undefined || currentCharacter !== script[i+1].character) {
+          if (script.length > i+1 && (script[i+1].character === undefined || currentCharacter !== script[i+1].character)) {
             currentCharacter = "";
             scriptText.push('');
           }  
@@ -978,7 +990,7 @@
             }
           }
           scriptText.push(recursiveMarkdown(script[i].text.replace(/(<br \/>)+/g, "\n").trim()));
-          if (script[i+1] && (script[i+1].character === undefined || currentCharacter !== script[i+1].character)) {
+          if (script.length > i+1 && (script[i+1] && (script[i+1].character === undefined || currentCharacter !== script[i+1].character))) {
             currentCharacter = "";
             scriptText.push('');
           }          
@@ -1265,7 +1277,12 @@
     atoms: atoms,
     getAtomForCursor: getAtomForCursor,
     getCursorForAtom: getCursorForAtom,
-    selectChunkAndBoard: selectChunkAndBoard
+    selectChunkAndBoard: selectChunkAndBoard,
+    renderScenes: function() { 
+      if (typeof(outline) != "undefined") { 
+        $("#scene-colorbars").html(renderScenes(outline)); 
+      }
+    }
   };
 
 }).call(this);

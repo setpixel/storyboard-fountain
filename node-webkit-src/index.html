@@ -17,6 +17,10 @@
         <script src="js/libs/modernizr-2.6.2-respond-1.1.0.min.js"></script>
         <script src="bower_components/codemirror/lib/codemirror.js"></script>
         <script src="js/libs/foldcode-modified.js"></script>
+        <link href='http://fonts.googleapis.com/css?family=Roboto:400,500,300' rel='stylesheet' type='text/css'>
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600' rel='stylesheet' type='text/css'>
+        <script type="text/javascript" src="//use.typekit.net/lyg7zzn.js"></script>
+        <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
     </head>
     <body ondragstart="return false;" ondrop="return false;" onselectstart="return false;">
 
@@ -103,11 +107,14 @@
       <div class="boards-list">
         <div class="tabs">
           <div class="tab selected" id="tab-script">Boards</div>
+          <div class="tab" id="tab-outline">Outline</div>
           <div class="tab" id="tab-scripttext">Script Text</div>
         </div>
 
+        <div id="scene-colorbars-container" ><div id="scene-colorbars" style="position: relative;"></div></div>
         <div id="script"></div>
-        <div id="boards" style="display: none">these are just the boards</div>
+        
+        
       </div>
 
       <div id="mainpane">
@@ -134,12 +141,7 @@
     <div class="timeline"></div>
 
     <div style="width: 0; height: 0; position: absolute;">
-      <!--[if IE]>
-      <object id='wtPlugin' classid='CLSID:092dfa86-5807-5a94-bf3b-5a53ba9e5308'>
-      </object>
-      <![endif]--><!--[if !IE]> <-->
       <object id="wtPlugin" type="application/x-wacomtabletplugin"><param name="onload" value="pluginLoaded" /></object>
-      <!--> <![endif]-->
     </div>
 
     <script src="js/libs/jquery.min.js"></script>

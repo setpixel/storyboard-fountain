@@ -1,6 +1,11 @@
 body {
-  cursor: arrow;
+  cursor: default;
   overflow: hidden;
+  font-family: 'Proxima Nova', sans-serif;
+  font-weight: 400;
+  letter-spacing: 0;
+  font-size: 15px;
+  -webkit-font-smoothing: antialiased;
 }
 
 .toolbar {
@@ -34,15 +39,15 @@ body {
 .boards-list img {
   height: 38px;
   width: 89px;
+  width: 86px;
   background-color: rgb(255,255,255);
   opacity: 0.8;
 /*  transition: outline linear 0.1s;
 */}
 
 .boards-list img.selected {
-  outline: 2px solid #aaa;
+  outline: 1px solid #ccc;
   opacity: 1;
-
 }
 
 .boards-list div {
@@ -136,21 +141,46 @@ body {
   border-radius: 0 3px 3px 0;
 }
 
+#script {
+  padding-left: 10px;
+}
+
 #script .module {
   padding: 15px 6px;
+  padding-left: 16px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  border-bottom: 1px solid rgba(0,0,0,0.2);
 }
 
 #script .module:not(.selectable) {
-  border-right: 10px solid rgb(80, 80, 80);
-  background-color: rgb(60, 60, 60);
+  background-color: rgb(60, 60, 60) !important;
+  color: rgba(255,255,255,0.8);
 }
 
+#script .module .slug {
+  color: rgba(255,255,255,0.8) !important;
+  font-size: 12px !important;
+}
+
+#script .module .title {
+  color: rgba(255,255,255,1) !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+}
+
+#script .module .synopsis {
+  color: rgba(255,255,255,0.8) !important;
+  font-size: 12px !important;
+}
+
+
 #script .module.selectable:hover {
-  background-color: rgb(40,40,40);
+  background-color: rgb(40,40,40) !important;
 }
 
 #script .module.selected {
   background-color: rgb(30,30,30) !important;
+
 }
 
 #script .module img {
@@ -394,4 +424,17 @@ svg {
 .CodeMirror-scroll {
   overflow-y: hidden;
   overflow-x: auto;
+}
+
+#scene-colorbars-container {
+  width: 10px;
+  position: absolute;
+  transition: all ease-out 0.2s;
+  opacity: 0.7; 
+}
+
+#scene-colorbars-container:hover {
+  width: 20px;
+  border-right: 1px solid rgba(0,0,0,0.1);
+  opacity: 1; 
 }

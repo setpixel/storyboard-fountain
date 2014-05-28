@@ -50,7 +50,7 @@
       $(".drawing-canvas .caption").css('width', canvasWidth);
     }
 
-    var scriptHeight = windowHeight - toolbarHeight - $('.tabs').height();
+    var scriptHeight = windowHeight - toolbarHeight - $('.tabs').outerHeight();
     $('#script').css('height', scriptHeight + 'px');
 
     $("#scriptpane").css('width', canvasDim[0]);
@@ -69,10 +69,13 @@
     }
     var editorWidth = calcEditorWidth();
     var editorSpace = canvasDim[0] - canvasSidePadding * 2 - 20 * 2;
-    console.log('editor resize', editorSpace, editorWidth, Math.floor(18 * editorSpace / editorWidth) + 'px');
+    //console.log('editor resize', editorSpace, editorWidth, Math.floor(18 * editorSpace / editorWidth) + 'px');
     if (editorSpace < editorWidth) {
       $('.CodeMirror').css('font-size', Math.floor(18 * editorSpace / editorWidth) + 'px');
     }
+
+    fountainManager.renderScenes();
+    window.scrollTo(0);
   }
 
   var confirmExit = function() {
@@ -404,7 +407,15 @@
     menubar.append(new gui.MenuItem({label: 'File', submenu: fileMenu()}));
     menubar.append(new gui.MenuItem({label: 'Share', submenu: shareMenu()}));
     win.menu = menubar;
+
+    gui.Window.height = 100;
+
   });
+
+  window.setInterval(resizeView, 1000);
+
+  //window.setInterval(window.scrollTo(0), 1000);
+  //window.setInterval($('body').scrollTo(0), 1000);
 
   window.ui = {
     getActiveState: function() { return activeState; }
