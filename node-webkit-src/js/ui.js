@@ -355,6 +355,7 @@
       var atom = fountainManager.getAtomForCursor(chunkIndex, boardIndex);
       if (!atom) return;
       var update = timeline.getUpdateForAtom(atom);
+      if (!update) return;
       timer.setDuration(update.duration);
 
       var playerState = player.getFullState();

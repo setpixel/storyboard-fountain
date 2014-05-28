@@ -87,6 +87,7 @@
       sourceModule.load(source, function(err, result) {
         if (err) {
           console.log('failed to load', require('util').inspect(err));
+          throw err;
           process.exit();
           localStorage.removeItem("editing");
           create(next);

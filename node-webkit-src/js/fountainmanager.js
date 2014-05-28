@@ -1210,6 +1210,8 @@ function hexToRgb(hex) {
         break;
       }
       else if (chunkHasImages(chunk)) {
+        // fail if there is no image there
+        fail = !scriptChunks[chunk].images[scriptImageCursorIndex];
         break;
       }
       else if (chunk > 0) {
@@ -1249,7 +1251,12 @@ function hexToRgb(hex) {
     var chunk = scriptChunks[chunkIndex];
     if (!chunk) return null;
     if (chunkHasImages(chunkIndex)) {
-      return script[chunk.images[boardIndex || 0][0].scriptIndex];
+      if (script[chunk.images[boardIndex || 0]]) {
+        return script[chunk.images[boardIndex || 0][0].scriptIndex];
+      }
+      else {
+        return null;
+      }
     }
     else {
       return script[chunk.scriptIndex];
