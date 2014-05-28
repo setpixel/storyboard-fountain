@@ -22,6 +22,7 @@
 
 .cm-s-neo.auto-indent .parenthetical {
   padding-left: 15ch;
+  padding-right: 15ch;
 }
 
 .cm-s-neo .dialogue {
@@ -30,6 +31,7 @@
 
 .cm-s-neo.auto-indent .dialogue {
   padding-left: 10ch;
+  padding-right: 10ch;
 }
 
 .cm-s-neo .scene_heading {
