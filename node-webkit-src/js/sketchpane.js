@@ -658,7 +658,7 @@
     process.nextTick(function() {
       setColor(getColor());
       setLayer(getLayer());
-      toggleLightboxMode(); toggleLightboxMode();
+      toggleLightboxMode();
     });
   });
 
