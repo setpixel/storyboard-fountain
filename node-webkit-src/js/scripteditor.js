@@ -40,10 +40,16 @@
     emitter.emit('autoIndent:change', autoIndent);
   };
 
-  var propagate = function() {
+  var cancelDebouncePropagate = false;
+
+  var propagate = function(force) {
     toggleExpandNotes(expandNotes);
+    if (cancelDebouncePropagate) {
+      cancelDebouncePropagate = false;
+      return;
+    }
     // total hack. don't propagate a board change back to fountain manager
-    if (ui.getActiveState() == 'script') {
+    if (force || ui.getActiveState() == 'script') {
       fountainManager.loadChange(editor.getDoc().getValue());
     }
   };
@@ -67,7 +73,20 @@
       clearOnEnter: false,
       atomic: true
     };
-    editor.getDoc().on('change', debounce(propagate, 250));
+    editor.getDoc().on('change', debounce(propagate, 3000));
+    ui.emitter.on('activeState:change', function(state) {
+      switch (state) {
+        case 'boards':
+          cancelDebouncePropagate = true;
+          propagate(true);
+          break;
+
+        case 'script':
+          cancelDebouncePropagate = false;
+          refresh();
+          break;
+      }
+    });
     toggleExpandNotes(false);
     toggleAutoIndent(true);
   };

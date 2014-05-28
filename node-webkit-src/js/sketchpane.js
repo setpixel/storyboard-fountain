@@ -255,14 +255,19 @@
       x = (wacom.penAPI.posX / 15200) * screen.width - (e.screenX - e.pageX);
       y = (wacom.penAPI.posY / 9500) * screen.height - (e.screenY - e.pageY);
     }
+    /* removing for now since these numbers are actually wrong
     else if (wacom.penAPI.tabletModel == 'Intuos3 9x12') {
       x = (wacom.penAPI.posX / 51006) * screen.width - (e.screenX - e.pageX);
       y = (wacom.penAPI.posY / 38440) * screen.height - (e.screenY - e.pageY);
     }
-    else {
-      // assume cintiq
+    */
+    else if (wacom.penAPI.tabletModel = 'Cintiq 13HD') {  // tableModelID == "DTK-1300"
       x = ((wacom.penAPI.posX)-600)/((60000-(600*2))/1920);
       y = ((wacom.penAPI.posY)-400)/((33874-(400*2))/1080);
+    }
+    else {
+      x = e.pageX;
+      y = e.pageY;
     }
     return {x: x, y: y};
   };

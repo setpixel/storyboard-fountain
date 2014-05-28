@@ -134,6 +134,10 @@
             <div class="caption"></div>
           </div>
           <canvas id="layer-1-active" class="canvas" width="1600" height="680" style="display: none;"></canvas>
+          <div class="metadata">
+            <div class="timer-timeleft"></div>
+            <div class="timer-duration"><div></div></div>
+          </div>
         </div>
 
     </div>
@@ -158,6 +162,7 @@
       require('coffee-script/register');
       window.timeline = require('./js/timeline');
       window.player = require('./js/player');
+      window.timer = require('./js/timer');
     </script>
     <script src="js/editormode.js"></script>
     <script src="js/scripteditor.js"></script>
