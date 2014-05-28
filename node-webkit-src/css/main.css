@@ -395,3 +395,38 @@ svg {
   overflow-y: hidden;
   overflow-x: auto;
 }
+
+.metadata {
+  position: absolute;
+  bottom: 0;
+  height: 90px;
+  width: 100%;
+  z-index: 120;
+}
+
+.timer-timeleft {
+  position: absolute;
+  right: 0;
+  width: 50px;
+  height: 50px;
+  margin: 20px;
+  z-index: 121;
+}
+
+.timer-duration {
+  position: absolute;
+  right: 0;
+  width: 50px;
+  height: 50px;
+  margin: 20px;
+  text-align: center;
+  z-index: 122;
+  color: white;
+  font-weight: bold;
+}
+
+.timer-duration div {
+  position: relative;
+  top: 50%;
+  -webkit-transform: translateY(-50%);
+}

@@ -95,6 +95,7 @@
         storyboardState.clearLightboxImage();
       }
     }
+    emitter.emit('selection:change', scriptCursorIndex, scriptImageCursorIndex);
   };
 
   var selectChunk = function(chunkIndex) {
@@ -1234,6 +1235,7 @@
       boardIndex = scriptImageCursorIndex;
     }
     var chunk = scriptChunks[chunkIndex];
+    if (!chunk) return null;
     if (chunkHasImages(chunkIndex)) {
       return script[chunk.images[boardIndex || 0][0].scriptIndex];
     }

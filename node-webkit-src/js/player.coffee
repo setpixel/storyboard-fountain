@@ -9,6 +9,7 @@ startTime = 0
 startAt = Date.now()
 
 updateIndex = 0
+updateTimeLeft = 0
 done = no
 
 update = -> window.timeline.updates()[updateIndex]
@@ -45,6 +46,7 @@ play = ->
       show()
       unless done
         do (timeLeft = update().time + update().duration - updateTime) ->
+          updateTimeLeft = timeLeft
           setTimeout continuePlaying, timeLeft
     continuePlaying()
 
@@ -79,11 +81,18 @@ toggleState = ->
   else
     play()
 
+getFullState = -> {
+  state,
+  updateIndex,
+  updateTimeLeft
+}
+
 module.exports = {
   init,
   play,
   pause,
   toggleState,
   setPlayhead,
-  emitter
+  emitter,
+  getFullState
 }

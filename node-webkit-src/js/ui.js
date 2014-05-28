@@ -326,6 +326,53 @@
       }
     });
   });
+
+  $(document).ready(function() {
+    timer.init($('.timer-timeleft'), $('.timer-duration div'));
+    $('.timer-duration').click(function() {
+      var atom = fountainManager.getAtomForCursor();
+      if (!atom) return;
+      var sec = (atom.duration / 1000).toFixed(1);
+      var duration = prompt('Duration of this ' + atom.type, sec);
+      if (duration === null) {
+        return;
+      }
+      else if (parseFloat(duration) > 0) {
+        atom.duration = parseFloat(duration) * 1000;
+        timeline.buildUpdates();
+        timer.setDuration(atom.duration);
+        timer.setTimeLeft(atom.duration);
+      }
+      else {
+        return;
+      }
+    });
+    fountainManager.emitter.on('selection:change', function(chunkIndex, boardIndex) {
+      console.log('fountaManager selection:change', chunkIndex, boardIndex);
+      var atom = fountainManager.getAtomForCursor(chunkIndex, boardIndex);
+      if (!atom) return;
+      var update = timeline.getUpdateForAtom(atom);
+      timer.setDuration(update.duration);
+
+      var playerState = player.getFullState();
+      if (playerState.state == 'playing') {
+        timer.setTimeLeft(playerState.updateTimeLeft);
+        timer.play();
+      }
+      else {
+        timer.setTimeLeft(update.duration);
+        timer.pause();
+      }
+    });
+    player.emitter.on('state:change', function(state) {
+      if (state == 'paused') {
+        var playerState = player.getFullState();
+        var update = timeline.updates()[playerState.updateIndex];
+        timer.setTimeLeft(update.duration);
+        timer.pause();
+      }
+    });
+  });
   
   $(document).ready(function() {
     var gui = require('nw.gui');
