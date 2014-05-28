@@ -39,7 +39,7 @@
       tokens = output.tokens;
     });
 
-    paginator(tokens);
+    //paginator(tokens);
     script = createScript(tokens);
     
     timeline.buildUpdates();
