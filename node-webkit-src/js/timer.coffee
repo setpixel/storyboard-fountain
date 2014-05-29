@@ -53,7 +53,6 @@ play = ->
         timeLeft = Math.max(0, timeLeft)
         if timeLeft <= 0
           setTimeLeft(0)
-          pause()
         else
           window.requestAnimationFrame(continuePlaying)
           setTimeLeft(timeLeft)

@@ -150,6 +150,14 @@
       $('#bttn-pause')[state == 'paused' ? 'hide' : 'show']();
     });
 
+    $('#bttn-record').click(recorder.startRecording);
+    $('#bttn-recording').click(recorder.stopRecording);
+
+    recorder.emitter.on('state:change', function(state) {
+      $('#bttn-record')[state == 'recording' ? 'hide' : 'show']();
+      $('#bttn-recording')[state == 'paused' ? 'hide' : 'show']();
+    });
+
     $("#bttn-new-board").click(fountainManager.newBoard);
     $("#bttn-remove-board").click(fountainManager.deleteBoard);
 
@@ -225,90 +233,124 @@
       });
     });
 
+    $(window).keyup(function(e) {
+      if (activeState == 'boards') {
+        if (recorder.getState() == 'recording') {
+          switch (e.keyCode) {
+            case 27:  // esc
+              recorder.stopRecording();
+              break;
+          }
+        }
+      }
+    });
+
     $(window).keydown(function(e){
       console.log(e.keyCode);
 
       if (activeState == 'boards') {
-        // board editor
+        if (recorder.getState() == 'paused') {
+          // board editor
 
-        switch (e.keyCode) {
-          // shade
-          case 49:  // 1
-            sketchpane.setLayer(0);
-            sketchpane.setBrush({size: 20, opacity: 15});
-            break;
-          // pencil
-          case 50:  // 2
-            sketchpane.setLayer(1);
-            sketchpane.setBrush({size: 1, opacity: 0});
-            break;
-          // pen
-          case 51:  // 3
-            sketchpane.setLayer(2);
-            sketchpane.setBrush({size: 4, opacity: 60});
-            break;
-          case 55:  // 7
-          case 103:  // #7
-            sketchpane.setColor([0,0,0]);
-            break;
-          case 56:  // 8
-          case 104:  // #8
-            sketchpane.setColor([188,188,188]);
-            break;
-          case 57:  // 9
-          case 105:  // #9
-            sketchpane.setColor([255,255,255]);
-            break;
-          case 52:  // 4
-          case 100:  // #4
-            sketchpane.setColor([255,92,92]);
-            break;
-          case 53:  // 5
-          case 101:  // #5
-            sketchpane.setColor([132,198,121]);
-            break;
-          case 54:  // 6
-          case 102:  // #6
-            sketchpane.setColor([85,77,184]);
-            break;
-          case 90:  // z
-            sketchpane.undo();
-            break;
-          case 88:  // x
-            sketchpane.redo();
-            break;
-          // n
-          case 78:
-            fountainManager.newBoard();
-            break;
-          // up and back
-          case 37:  // left
-          case 38:  // up
-            e.preventDefault();
-            fountainManager.goNext(-1);
-            break;
-          // next and forward
-          case 39:  // right
-          case 40:  // down
-            e.preventDefault();
-            fountainManager.goNext(1);
-            break;
-          case 67:  // c
-            sketchpane.copy();
-            break;
-          case 86:  // v
-            sketchpane.paste();
-            break;
-          case 76:  // l
-            sketchpane.toggleLightboxMode();
-            break;
-          case 46:  // delete
-            fountainManager.deleteBoard();
-            break;
-          case 32:  // space
-            player.toggleState();
-            e.preventDefault();
-            break;
+          switch (e.keyCode) {
+            // shade
+            case 49:  // 1
+              sketchpane.setLayer(0);
+              sketchpane.setBrush({size: 20, opacity: 15});
+              break;
+            // pencil
+            case 50:  // 2
+              sketchpane.setLayer(1);
+              sketchpane.setBrush({size: 1, opacity: 0});
+              break;
+            // pen
+            case 51:  // 3
+              sketchpane.setLayer(2);
+              sketchpane.setBrush({size: 4, opacity: 60});
+              break;
+            case 55:  // 7
+            case 103:  // #7
+              sketchpane.setColor([0,0,0]);
+              break;
+            case 56:  // 8
+            case 104:  // #8
+              sketchpane.setColor([188,188,188]);
+              break;
+            case 57:  // 9
+            case 105:  // #9
+              sketchpane.setColor([255,255,255]);
+              break;
+            case 52:  // 4
+            case 100:  // #4
+              sketchpane.setColor([255,92,92]);
+              break;
+            case 53:  // 5
+            case 101:  // #5
+              sketchpane.setColor([132,198,121]);
+              break;
+            case 54:  // 6
+            case 102:  // #6
+              sketchpane.setColor([85,77,184]);
+              break;
+            case 90:  // z
+              sketchpane.undo();
+              break;
+            case 88:  // x
+              sketchpane.redo();
+              break;
+            // n
+            case 78:
+              fountainManager.newBoard();
+              break;
+            // up and back
+            case 37:  // left
+            case 38:  // up
+              e.preventDefault();
+              fountainManager.goNext(-1);
+              break;
+            // next and forward
+            case 39:  // right
+            case 40:  // down
+              e.preventDefault();
+              fountainManager.goNext(1);
+              break;
+            case 67:  // c
+              sketchpane.copy();
+              break;
+            case 86:  // v
+              sketchpane.paste();
+              break;
+            case 76:  // l
+              sketchpane.toggleLightboxMode();
+              break;
+            case 46:  // delete
+              fountainManager.deleteBoard();
+              break;
+            case 32:  // space
+              player.toggleState();
+              e.preventDefault();
+              break;
+            case 82:  // r
+              if (e.metaKey) {  // cmd + r
+                recorder.startRecording();
+              }
+              break;
+          }
+        }
+        else {
+          switch (e.keyCode) {
+            case 27:  // enter
+            case 32:  // space
+            case 39:  // right
+            case 40:  // down
+              recorder.advance();
+              break;
+            case 82:  // r
+              if (e.metaKey) {  // cmd + r
+                recorder.stopRecording();
+              }
+              break;
+          }          
         }
       }
       else {

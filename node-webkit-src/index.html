@@ -37,7 +37,8 @@
       </div>
 
       <div class="toolbar-button-group">
-        <div class="toolbar-button record" id="bttn-record" title="Live record timing for boards"></div>
+        <div class="toolbar-button record" id="bttn-record" title="Live record timing for boards [key: Cmd + R]"></div>
+        <div class="toolbar-button recording" id="bttn-recording" title="Stop recording [key: Esc]" style="display: none;"></div>
         <div class="toolbar-button previous" id="bttn-previous" title="Previous board [key: left arrow or up arrow]"></div>
         <div class="toolbar-button play" id="bttn-play" title="Play back board timing [key: space]"></div>
         <div class="toolbar-button pause" id="bttn-pause" title="Pause playback [key: space]" style="display: none;"></div>
@@ -163,6 +164,7 @@
       window.timeline = require('./js/timeline');
       window.player = require('./js/player');
       window.timer = require('./js/timer');
+      window.recorder = require('./js/recorder');
     </script>
     <script src="js/editormode.js"></script>
     <script src="js/scripteditor.js"></script>

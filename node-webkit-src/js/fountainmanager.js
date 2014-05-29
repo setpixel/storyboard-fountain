@@ -601,8 +601,7 @@ function hexToRgb(hex) {
         case 'note':
           var noteMetaData = parseNote(token.text);
           if (noteMetaData && 
-              parseInt(noteMetaData.file) + '' == noteMetaData.file && 
-              parseInt(noteMetaData.time) + '' == noteMetaData.time
+              parseInt(noteMetaData.file) + '' == noteMetaData.file
           ) {
             var atom = addAtom({type: 'image', file: noteMetaData.file, time: noteMetaData.time, duration: 1000});
             if (noteMetaData.caption) atom.caption = noteMetaData.caption;

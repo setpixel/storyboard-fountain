@@ -334,6 +334,10 @@ svg {
   background-position: -135px 0px;
 }
 
+.toolbar-button.recording {
+  background-position: -315px 0px;
+}
+
 .toolbar-button.record {
   background-position: -360px 0px;
 }

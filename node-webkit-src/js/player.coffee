@@ -37,7 +37,6 @@ play = ->
       return  unless startAt is startedAt  # we are being called for an old call to "play"
       return  unless state is 'playing'  # we are no longer playing
       updateTime = (Date.now() - startAt) + startTime
-      updateTimeAt = Date.now()
       while updateTime >= update().time + update().duration
         if window.timeline.updates().length > updateIndex + 1
           updateIndex += 1
@@ -49,6 +48,7 @@ play = ->
       unless done
         do (timeLeft = update().time + update().duration - updateTime) ->
           updateTimeLeft = timeLeft
+          updateTimeAt = Date.now()
           setTimeout continuePlaying, timeLeft
     continuePlaying()
 
