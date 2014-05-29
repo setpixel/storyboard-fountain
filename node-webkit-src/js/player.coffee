@@ -1,4 +1,5 @@
 events = require('events')
+timeline = window.timeline
 
 emitter = new events.EventEmitter()
 state = 'paused'
@@ -58,7 +59,7 @@ pause = ->
   emitter.emit 'state:change', state
 
 setPlayhead = (time) ->
-  time = Math.max(0, Math.min(scriptDuration, time))
+  time = Math.max(0, Math.min(timeline.scriptDuration, time))
   updateIndex = 0
   done = no
   while time >= update().time + update().duration

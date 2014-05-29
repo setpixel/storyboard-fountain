@@ -96,27 +96,71 @@
   $(document).ready(function() {
     resizeView();
 
+    recorder.emitter.on('state:change', function(state) {
+      if (state == 'recording') {
+        $('.disable-while-engaged').addClass('disabled')
+        $('#bttn-play, #bttn-pause').addClass('disabled')
+        $('#tab-script, #tab-scripttext').addClass('disabled')
+        $('.drawing-canvas').addClass('disabled')
+        $('.timer-duration').addClass('disabled')
+      }
+      else {
+        $('.disable-while-engaged').removeClass('disabled')
+        $('#bttn-play, #bttn-pause').removeClass('disabled')
+        $('#tab-script, #tab-scripttext').removeClass('disabled')
+        $('.drawing-canvas').removeClass('disabled')
+        $('.timer-duration').removeClass('disabled')
+      }
+    });
+
+    player.emitter.on('state:change', function(state) {
+      if (state == 'playing') {
+        $('.disable-while-engaged').addClass('disabled')
+        $('#bttn-record, #bttn-recording').addClass('disabled')
+        $('#tab-script, #tab-scripttext').addClass('disabled')
+        $('.drawing-canvas').addClass('disabled')
+        $('.timer-duration').addClass('disabled')
+      }
+      else {
+        $('.disable-while-engaged').removeClass('disabled')
+        $('#bttn-record, #bttn-recording').removeClass('disabled')
+        $('#tab-script, #tab-scripttext').removeClass('disabled')
+        $('.drawing-canvas').removeClass('disabled')
+        $('.timer-duration').removeClass('disabled')
+      }
+    });
+
+    var checkDisabled = function(fn) {
+      return function(e) {
+        if ($(this).hasClass('disabled')) {
+          return false;
+        }
+        else {
+          return fn(e);
+        }
+      };
+    }
 
     $('.tab').click(function(){
       $(this).parent().children().removeClass('selected');
       $(this).addClass('selected');
     })
 
-    $('#tab-script').click(function(){
+    $('#tab-script').click(checkDisabled(function(){
       $('#scriptpane').hide();
       $('#drawpane').show();
       $('#boards-toolbar').show();
       $('#script-toolbar').hide();
       setActiveState('boards');
-    })
+    }));
 
-    $('#tab-scripttext').click(function() {
+    $('#tab-scripttext').click(checkDisabled(function() {
       $('#scriptpane').show();
       $('#drawpane').hide();
       $('#boards-toolbar').hide();
       $('#script-toolbar').show();
       setActiveState('script');
-    });
+    }));
 
     $(window).resize(resizeView);
 
@@ -142,35 +186,35 @@
     scriptEditor.toggleAutoIndent(scriptEditor.getAutoIndent());
     scriptEditor.toggleExpandNotes(scriptEditor.getExpandNotes());
 
-    $('#bttn-play').click(player.play);
-    $('#bttn-pause').click(player.pause);
+    $('#bttn-play').click(checkDisabled(player.play));
+    $('#bttn-pause').click(checkDisabled(player.pause));
 
     player.emitter.on('state:change', function(state) {
       $('#bttn-play')[state == 'playing' ? 'hide' : 'show']();
       $('#bttn-pause')[state == 'paused' ? 'hide' : 'show']();
     });
 
-    $('#bttn-record').click(recorder.startRecording);
-    $('#bttn-recording').click(recorder.stopRecording);
+    $('#bttn-record').click(checkDisabled(recorder.startRecording));
+    $('#bttn-recording').click(checkDisabled(recorder.stopRecording));
 
     recorder.emitter.on('state:change', function(state) {
       $('#bttn-record')[state == 'recording' ? 'hide' : 'show']();
       $('#bttn-recording')[state == 'paused' ? 'hide' : 'show']();
     });
 
-    $("#bttn-new-board").click(fountainManager.newBoard);
-    $("#bttn-remove-board").click(fountainManager.deleteBoard);
+    $("#bttn-new-board").click(checkDisabled(fountainManager.newBoard));
+    $("#bttn-remove-board").click(checkDisabled(fountainManager.deleteBoard));
 
-    $("#bttn-previous").click(function() {fountainManager.goNext(-1);});
-    $("#bttn-next").click(function() {fountainManager.goNext(1);});
+    $("#bttn-previous").click(checkDisabled(function() {fountainManager.goNext(-1);}));
+    $("#bttn-next").click(checkDisabled(function() {fountainManager.goNext(1);}));
 
-    $("#bttn-undo").click(sketchpane.undo);
-    $("#bttn-redo").click(sketchpane.redo);
+    $("#bttn-undo").click(checkDisabled(sketchpane.undo));
+    $("#bttn-redo").click(checkDisabled(sketchpane.redo));
 
-    $("#bttn-copy").click(sketchpane.copy);
-    $("#bttn-paste").click(sketchpane.paste);
+    $("#bttn-copy").click(checkDisabled(sketchpane.copy));
+    $("#bttn-paste").click(checkDisabled(sketchpane.paste));
 
-    $("#bttn-lightbox").click(sketchpane.toggleLightboxMode);
+    $("#bttn-lightbox").click(checkDisabled(sketchpane.toggleLightboxMode));
 
     sketchpane.emitter.on('lightboxmode:change', function(mode) {
       $("#bttn-lightbox").toggleClass('selected', mode);
@@ -192,7 +236,7 @@
     ];
 
     $.each(penButtons, function(layer, data) {
-      $(data.selector).click(data.fn);
+      $(data.selector).click(checkDisabled(data.fn));
     });
 
     sketchpane.emitter.on('layer:change', function(newLayer, oldLayer) {
@@ -215,7 +259,7 @@
     };
 
     $.each(colorButtons, function(selector, color) {
-      $(selector).click(function() { sketchpane.setColor(color) });
+      $(selector).click(checkDisabled(function() { sketchpane.setColor(color) }));
     });
 
     var colorEquals = function(a, b) {
@@ -327,8 +371,8 @@
               fountainManager.deleteBoard();
               break;
             case 32:  // space
-              player.toggleState();
               e.preventDefault();
+              player.toggleState();
               break;
             case 82:  // r
               if (e.metaKey) {  // cmd + r
@@ -343,6 +387,7 @@
             case 32:  // space
             case 39:  // right
             case 40:  // down
+              e.preventDefault();
               recorder.advance();
               break;
             case 82:  // r
@@ -375,6 +420,7 @@
   $(document).ready(function() {
     timer.init($('.timer-timeleft'), $('.timer-duration div'));
     $('.timer-duration').click(function() {
+      if (player.getFullState().state == 'playing' || recorder.getState() == 'recording') return;
       var atom = fountainManager.getAtomForCursor();
       if (!atom) return;
       var sec = (atom.duration / 1000).toFixed(1);
@@ -393,6 +439,7 @@
     });
     var draggingDuration = false;
     $('.timer-duration').mousedown(function(e) {
+      if (player.getFullState().state == 'playing' || recorder.getState() == 'recording') return;
       var atom = fountainManager.getAtomForCursor();
       if (!atom) return;
 

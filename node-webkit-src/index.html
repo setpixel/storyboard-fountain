@@ -27,63 +27,63 @@
     <div id="boards-toolbar" class="toolbar">
 
       <div class="toolbar-button-group">
-        <div class="toolbar-button stats" id="bttn-stats" title="Show stats"></div>
-        <div class="toolbar-button export" id="bttn-export" title="Export boards to Final Cut XML or to Share"></div>
+        <div class="toolbar-button stats disable-while-engaged" id="bttn-stats" title="Show stats"></div>
+        <div class="toolbar-button export disable-while-engaged" id="bttn-export" title="Export boards to Final Cut XML or to Share"></div>
       </div>
 
       <div class="toolbar-button-group">
-        <div class="toolbar-button new-board" id="bttn-new-board" title="Create a new board [key: N]"></div>
-        <div class="toolbar-button remove-board" id="bttn-remove-board" title="Remove the current board... [key: Delete]"></div>
+        <div class="toolbar-button new-board disable-while-engaged" id="bttn-new-board" title="Create a new board [key: N]"></div>
+        <div class="toolbar-button remove-board disable-while-engaged" id="bttn-remove-board" title="Remove the current board... [key: Delete]"></div>
       </div>
 
       <div class="toolbar-button-group">
         <div class="toolbar-button record" id="bttn-record" title="Live record timing for boards [key: Cmd + R]"></div>
         <div class="toolbar-button recording" id="bttn-recording" title="Stop recording [key: Esc]" style="display: none;"></div>
-        <div class="toolbar-button previous" id="bttn-previous" title="Previous board [key: left arrow or up arrow]"></div>
+        <div class="toolbar-button previous disable-while-engaged" id="bttn-previous" title="Previous board [key: left arrow or up arrow]"></div>
         <div class="toolbar-button play" id="bttn-play" title="Play back board timing [key: space]"></div>
         <div class="toolbar-button pause" id="bttn-pause" title="Pause playback [key: space]" style="display: none;"></div>
-        <div class="toolbar-button next" id="bttn-next" title="Next board [key: right arrow or down arrow]"></div>
+        <div class="toolbar-button next disable-while-engaged" id="bttn-next" title="Next board [key: right arrow or down arrow]"></div>
       </div>
 
       <div class="toolbar-button-group">
-        <div class="toolbar-button undo" id="bttn-undo" title="Undo drawing [key: Z]"></div>
-        <div class="toolbar-button redo" id="bttn-redo" title="Redo drawing [key: X]"></div>
+        <div class="toolbar-button undo disable-while-engaged" id="bttn-undo" title="Undo drawing [key: Z]"></div>
+        <div class="toolbar-button redo disable-while-engaged" id="bttn-redo" title="Redo drawing [key: X]"></div>
       </div>
 
       <div class="toolbar-button-group">
-        <div class="toolbar-button copy" id="bttn-copy" title="Copy board [key: C]"></div>
-        <div class="toolbar-button paste" id="bttn-paste" title="Paste board [key: V]"></div>
+        <div class="toolbar-button copy disable-while-engaged" id="bttn-copy" title="Copy board [key: C]"></div>
+        <div class="toolbar-button paste disable-while-engaged" id="bttn-paste" title="Paste board [key: V]"></div>
       </div>
 
       <div class="toolbar-button-group">
-        <div class="toolbar-button guide" id="bttn-guide" title="Toggle guides [key: G]"></div>
-        <div class="toolbar-button lightbox" id="bttn-lightbox" title="Toggle lightbox mode [key: L]"></div>
+        <div class="toolbar-button guide disable-while-engaged" id="bttn-guide" title="Toggle guides [key: G]"></div>
+        <div class="toolbar-button lightbox disable-while-engaged" id="bttn-lightbox" title="Toggle lightbox mode [key: L]"></div>
       </div>
 
       <div class="toolbar-button-group">
-        <div class="toolbar-button paint" id="bttn-paint" title="Fat paint marker [key: 1]"></div>
-        <div class="toolbar-button pencil" id="bttn-pencil" title="Pencil [key: 2]"></div>
-        <div class="toolbar-button pen" id="bttn-pen" title="Pen [key: 3]"></div>
+        <div class="toolbar-button paint disable-while-engaged" id="bttn-paint" title="Fat paint marker [key: 1]"></div>
+        <div class="toolbar-button pencil disable-while-engaged" id="bttn-pencil" title="Pencil [key: 2]"></div>
+        <div class="toolbar-button pen disable-while-engaged" id="bttn-pen" title="Pen [key: 3]"></div>
       </div>
 
       <div class="toolbar-button-group">
-        <div class="toolbar-button toolbar-button-color" id="bttn-color-1" title="Visualizer color [key: numpad 1]"><div class="color-1"></div></div>
-        <div class="toolbar-button toolbar-button-color" id="bttn-color-2" title="Visualizer color [key: numpad 2]"><div class="color-2"></div></div>
-        <div class="toolbar-button toolbar-button-color" id="bttn-color-3" title="Visualizer color [key: numpad 3]"><div class="color-3"></div></div>
+        <div class="toolbar-button toolbar-button-color disable-while-engaged" id="bttn-color-1" title="Visualizer color [key: numpad 1]"><div class="color-1"></div></div>
+        <div class="toolbar-button toolbar-button-color disable-while-engaged" id="bttn-color-2" title="Visualizer color [key: numpad 2]"><div class="color-2"></div></div>
+        <div class="toolbar-button toolbar-button-color disable-while-engaged" id="bttn-color-3" title="Visualizer color [key: numpad 3]"><div class="color-3"></div></div>
       </div>
 
       <div class="toolbar-button-group">    
-        <div class="toolbar-button toolbar-button-color" id="bttn-color-4" title="Black [key: numpad 7]"><div class="color-4"></div></div>
-        <div class="toolbar-button toolbar-button-color" id="bttn-color-5" title="Dark Grey"><div class="color-5"></div></div>
-        <div class="toolbar-button toolbar-button-color" id="bttn-color-6" title="Mid Grey [key: numpad 8]"><div class="color-6"></div></div>
-        <div class="toolbar-button toolbar-button-color" id="bttn-color-7" title="Light Grey"><div class="color-7"></div></div>
-        <div class="toolbar-button toolbar-button-color" id="bttn-color-8" title="White [key: numpad 9]"><div class="color-8"></div></div>
+        <div class="toolbar-button toolbar-button-color disable-while-engaged" id="bttn-color-4" title="Black [key: numpad 7]"><div class="color-4"></div></div>
+        <div class="toolbar-button toolbar-button-color disable-while-engaged" id="bttn-color-5" title="Dark Grey"><div class="color-5"></div></div>
+        <div class="toolbar-button toolbar-button-color disable-while-engaged" id="bttn-color-6" title="Mid Grey [key: numpad 8]"><div class="color-6"></div></div>
+        <div class="toolbar-button toolbar-button-color disable-while-engaged" id="bttn-color-7" title="Light Grey"><div class="color-7"></div></div>
+        <div class="toolbar-button toolbar-button-color disable-while-engaged" id="bttn-color-8" title="White [key: numpad 9]"><div class="color-8"></div></div>
       </div>
 
       <div class="toolbar-button-group">    
-        <div class="toolbar-button toolbar-button-color" id="bttn-color-9" title="Red [key: numpad 4]"><div class="color-9"></div></div>
-        <div class="toolbar-button toolbar-button-color" id="bttn-color-10" title="Green [key: numpad 5]"><div class="color-10"></div></div>
-        <div class="toolbar-button toolbar-button-color" id="bttn-color-11" title="Blue [key: numpad 6]"><div class="color-11"></div></div>
+        <div class="toolbar-button toolbar-button-color disable-while-engaged" id="bttn-color-9" title="Red [key: numpad 4]"><div class="color-9"></div></div>
+        <div class="toolbar-button toolbar-button-color disable-while-engaged" id="bttn-color-10" title="Green [key: numpad 5]"><div class="color-10"></div></div>
+        <div class="toolbar-button toolbar-button-color disable-while-engaged" id="bttn-color-11" title="Blue [key: numpad 6]"><div class="color-11"></div></div>
       </div>
 
 
@@ -108,7 +108,7 @@
       <div class="boards-list">
         <div class="tabs">
           <div class="tab selected" id="tab-script">Boards</div>
-          <div class="tab" id="tab-outline">Outline</div>
+          <div class="tab" id="tab-outline" style="display: none;">Outline</div>
           <div class="tab" id="tab-scripttext">Script Text</div>
         </div>
 

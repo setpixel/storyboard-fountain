@@ -56,10 +56,18 @@
 
     $(".module.selectable img").click(imageClickHandler);
 
-    $(".module.selectable").click(function(e){
+    $(".module.selectable").click(function(e) {
       e.stopPropagation();
       var id = parseInt($(this).attr('id').split("-")[2]);
-      selectChunk(atomToChunk[id].chunkIndex);
+      if (player.getFullState().state == 'playing') {
+        selectChunk(atomToChunk[id].chunkIndex);
+        var atom = getAtomForCursor();
+        var update = timeline.getUpdateForAtom(atom);
+        player.setPlayhead(update.time);
+      }
+      else if (recorder.getState() == 'paused') {
+        selectChunk(atomToChunk[id].chunkIndex);
+      }
     });
 
     // load initial selection
@@ -123,7 +131,15 @@
       }
     }
 
-    selectChunkAndBoard(scriptCursorIndex, scriptImageCursorIndex);
+    if (player.getFullState().state == 'playing') {
+      selectChunkAndBoard(scriptCursorIndex, scriptImageCursorIndex);
+      var atom = getAtomForCursor();
+      var update = timeline.getUpdateForAtom(atom);
+      player.setPlayhead(update.time);
+    }
+    else if (recorder.getState() == 'paused') {
+      selectChunkAndBoard(scriptCursorIndex, scriptImageCursorIndex);
+    }
   };
 
   var insertBoardAt = function(chunkIndex, boardIndex) {
