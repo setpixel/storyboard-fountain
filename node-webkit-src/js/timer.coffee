@@ -48,14 +48,16 @@ play = ->
     continuePlaying = ->
       return  unless startedAt is startAt
       return  unless state is 'playing'
-      do (timeLeft = duration - (Date.now() - startAt)) ->
-        console.log('play() timeLeft', timeLeft)
+      do (playerState = window.player.getFullState(), timeLeft = 0) ->
+        timeLeft = playerState.updateTimeLeft - (Date.now() - playerState.updateTimeAt)
+        timeLeft = Math.max(0, timeLeft)
         if timeLeft <= 0
           setTimeLeft(0)
           pause()
         else
+          window.requestAnimationFrame(continuePlaying)
           setTimeLeft(timeLeft)
-          setTimeout continuePlaying, 30
+    window.requestAnimationFrame(continuePlaying)
     continuePlaying()
 
 pause = ->

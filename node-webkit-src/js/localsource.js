@@ -110,7 +110,7 @@
   var express = require('express');
   var app = express();
   app.get('/images/:name.:type', function(req, res, next) {
-    log('requesting', req.params.name, req.params.type);
+    //console.log('requesting', req.params.name, req.params.type);
     var file = pathname + '/' + config.images + '/' + req.params.name + '.' + req.params.type;
     fs.stat(file, function(err, stats) {
       if (err) {

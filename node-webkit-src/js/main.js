@@ -83,7 +83,7 @@
       localStorage.setItem("editing", JSON.stringify(currentSource));
       log('set localstorage and it is now', localStorage.getItem('editing'));
       sourceModule = SOURCES[currentSource.type];
-      console.log('sourceModule = ', currentSource.type, sourceModule);
+      //console.log('sourceModule = ', currentSource.type, sourceModule);
       sourceModule.load(source, function(err, result) {
         if (err) {
           console.log('failed to load', require('util').inspect(err));
@@ -94,7 +94,7 @@
         }
         else {
           currentConfig = result.config;
-          console.log('sourceModule = ', currentConfig);
+          //console.log('sourceModule = ', currentConfig);
           fountainManager.load(currentConfig);
           next();
         }

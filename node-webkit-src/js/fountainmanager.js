@@ -353,7 +353,7 @@
     var objects = scriptChunks;
 
     console.log("SHOTS: " + shots);
-    console.log(objects);
+    //console.log(objects);
     var html = [];
 
     for (var i=0; i<objects.length; i++) {

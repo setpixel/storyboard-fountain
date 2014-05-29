@@ -17,7 +17,6 @@ buildUpdates = ->
     window.fountainManager.atoms 0, (atom, index) ->
       id = atom.id
       duration = atomDuration(atom)
-      console.log('atom duration:', duration, ' type:', atom.type)
 
       addUpdates = ->
         if buildingImages
