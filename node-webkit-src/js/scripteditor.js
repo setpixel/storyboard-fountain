@@ -32,7 +32,6 @@
     else {
       autoIndent = !autoIndent;
     }
-    console.log('setting auto-indent', '' + autoIndent, autoIndent)
     localStorage.setItem('script.auto-indent', '' + autoIndent);
     if (autoIndent) {
       $('.CodeMirror').addClass('auto-indent');
@@ -69,7 +68,7 @@
     })
     editor.options.foldOptions = {
       rangeFinder: CodeMirror.fold.note,
-      widget: "[[Storyboards]]",
+      widget: "[[Notes]]",
       minFoldSize: 0,
       scanUp: false,
       clearOnClick: false,
