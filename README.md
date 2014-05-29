@@ -10,8 +10,8 @@ Storyboard software that allows anyone to visualize a screenplay as fast they ca
 * Create storyboards associated inside your script. Images saved in a folder next to the script.
 * 3 different pen modes and multiple colors.
 * Record pitches and play back. (NOT WORKING YET)
-* Edit Fountain script inline without leaving app. (NOT WORKING YET)
-* Export pitches to send via link. (NOT WORKING YET)
+* Edit Fountain script inline without leaving app. (WORKS! Not perfect yet, but pretty rad. Report issues!)
+* Export pitches to send via link. (WORKS! No audio or timing yet, though.)
 * Export pitches to Final Cut XML. (NOT WORKING YET)
 
 ## Getting it running from source
@@ -21,6 +21,7 @@ Storyboard software that allows anyone to visualize a screenplay as fast they ca
 3. In terminal, in the storyboard-fountain directory run: `npm install`
 4. `cd node-webkit-src`
 5. `npm install`
+5. Install Bower, if you dont have it: `npm install -g bower`
 6. `bower install`
 7. `cd ..`
 8. Make sure you have grunt-cli installed. If not: run: `sudo npm install -g grunt-cli`
