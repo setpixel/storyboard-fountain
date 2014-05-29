@@ -9,9 +9,9 @@ Storyboard software that allows anyone to visualize a screenplay as fast they ca
 * Works directly with Fountain Screenplays.
 * Create storyboards associated inside your script. Images saved in a folder next to the script.
 * 3 different pen modes and multiple colors.
-* Record pitches and play back. (NOT WORKING YET)
+* Record pitches and play back. (WORKS! No audio yet, though.)
 * Edit Fountain script inline without leaving app. (WORKS! Not perfect yet, but pretty rad. Report issues!)
-* Export pitches to send via link. (WORKS! No audio or timing yet, though.)
+* Export pitches to send via link. (WORKS! No audio yet, though.)
 * Export pitches to Final Cut XML. (NOT WORKING YET)
 
 ## Getting it running from source
