@@ -1251,7 +1251,7 @@ function hexToRgb(hex) {
     var chunk = scriptChunks[chunkIndex];
     if (!chunk) return null;
     if (chunkHasImages(chunkIndex)) {
-      if (script[chunk.images[boardIndex || 0]]) {
+      if (chunk.images[boardIndex || 0]) {
         return script[chunk.images[boardIndex || 0][0].scriptIndex];
       }
       else {
