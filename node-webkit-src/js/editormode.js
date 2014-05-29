@@ -33,6 +33,16 @@ $(document).ready(function() {
 
         if (!state.line) {
           // haven't figured out what this line is yet
+          if (state.inBoneyard) {
+            if (stream.match(/^.*\*\//)) {
+              state.inBoneyard = false;
+              return 'boneyard';
+            }
+            else {
+              stream.skipToEnd();
+              return 'boneyard';
+            }
+          }
           if (state.inDialogue) {
             if (stream.eat('(')) {
               state.line = 'parenthetical';
@@ -77,16 +87,19 @@ $(document).ready(function() {
           }
         }
 
-        // TODO: comments/boneyard
-
         // rest of the line -- look for bold/italic/underline markup
 
         if (state.lookFor && stream.match(state.lookFor)) {
           return getTokens() + 'markup';
         }
 
-        if (state.line == 'centered' && stream.match(/[^_\*]+(?= <$)/)) {
-          state.lookFor = ' <';
+        if (state.line == 'centered' && stream.match(/[^_\*]+(?=<$)/)) {
+          state.lookFor = '<';
+          return getTokens();
+        }
+
+        if (stream.match(/[^_\*]*(?=\/\*)/)) {
+          state.inBoneyard = true;
           return getTokens();
         }
 
@@ -121,8 +134,8 @@ $(document).ready(function() {
           return tokens;
         }
 
-        if (state.line == 'centered' && stream.match(/.*(?= <$)/)) {
-          state.lookFor = ' <';
+        if (state.line == 'centered' && stream.match(/.*(?=<$)/)) {
+          state.lookFor = '<';
           return getTokens();
         }
 

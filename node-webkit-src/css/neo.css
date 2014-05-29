@@ -87,6 +87,11 @@
 .cm-s-neo .cm-title_key {
 }
 
+.cm-s-neo .cm-boneyard {
+  font-style: italic;
+  color: #88aaee;
+}
+
 
 .cm-s-neo .cm-bold {
   font-weight: bold;
@@ -137,10 +142,13 @@
   color:#e0e2e5;
 }
 
+.cm-s-neo div.CodeMirror-cursors {
+  z-index: 200;
+}
+
 .cm-s-neo div.CodeMirror-cursor {
   width: 2px;
   border: 1px solid black;
-  z-index: 99;
 }
 
 .cm-s-neo .CodeMirror-foldmarker {

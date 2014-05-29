@@ -323,6 +323,8 @@
 
     for (var i=0; i<script.length; i++) {
       var atom = script[i];
+      if (atom.boneyard) continue;
+      
       var addChunk = function(addImages) {
         atom.chunkIndex = scriptChunks.length;
         scriptChunks.push(atom);
@@ -376,6 +378,7 @@
     for (var i=0; i<objects.length; i++) {
       var chunk = objects[i];
       var outlineChunk = outline[parseInt(chunk.scene)-1];
+      if (!outlineChunk) continue;
       var sceneColor = vSceneListColors[outlineChunk.slugline.split(" - ")[0]].color;
       sceneColor = hexToRgb(sceneColor);
 
@@ -516,6 +519,7 @@ function hexToRgb(hex) {
     var inDualDialogue = 0;
     var inDialogue = 0;
     var pendingDuration = null;
+    var inBoneyard = false;
 
     script = [];
 
@@ -537,7 +541,8 @@ function hexToRgb(hex) {
           page: token.page,
           id: i,
           tempIndex: i,
-          scriptIndex: script.length
+          scriptIndex: script.length,
+          boneyard: inBoneyard
         }, opts);
         script.push(atom);
         currentTime += atom.duration;
@@ -545,6 +550,14 @@ function hexToRgb(hex) {
       };
 
       switch (tokens[i].type) {
+
+        case 'boneyard_begin':
+          inBoneyard = true;
+          break;
+
+        case 'boneyard_end':
+          inBoneyard = false;
+          break;
 
         case 'title':
           addAtom({duration: 2000});
@@ -945,9 +958,22 @@ function hexToRgb(hex) {
     var currentCharacter = "";
 
     var titlePage = true;
+    var inBoneyard = false;
 
     for (var i=0; i<script.length; i++) {
       var atom = script[i];
+      var checkBoneyardBegin = function() {
+        if (atom.boneyard && !inBoneyard) {
+          inBoneyard = true;
+          scriptText.push('/*');
+        }
+      };
+      var checkBoneyardEnd = function() {
+        if (!atom.boneyard && inBoneyard) {
+          inBoneyard = false;
+          scriptText.push('*/');
+        }
+      };
       var checkDuration = function() {
         if (atom.type == 'image') return;
         if (!atom.durationIsCalculated) {
@@ -960,6 +986,7 @@ function hexToRgb(hex) {
         }
       };
 
+      checkBoneyardBegin();
       checkDuration();
 
       switch (script[i].type) {
@@ -1121,6 +1148,7 @@ function hexToRgb(hex) {
 
       }
 
+      checkBoneyardEnd();
 
 
 
