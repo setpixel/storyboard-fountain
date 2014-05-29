@@ -5,8 +5,8 @@
 
   var editor = null;
   var emitter = new events.EventEmitter();
-  var expandNotes = false;
-  var autoIndent = true;
+  var expandNotes = getSetting('script.expand-notes', false);
+  var autoIndent = getSetting('script.auto-indent', true);
 
   var toggleExpandNotes = function(value) {
     if (typeof(value) !== 'undefined') {
@@ -15,6 +15,7 @@
     else {
       expandNotes = !expandNotes;
     }
+    localStorage.setItem('script.expand-notes', '' + expandNotes);
     if (expandNotes) {
       editor.execCommand('unfoldAll');
     }
@@ -25,12 +26,14 @@
   };
 
   var toggleAutoIndent = function(value) {
-    if (value) {
+    if (arguments.length > 0) {
       autoIndent = value;
     }
     else {
       autoIndent = !autoIndent;
     }
+    console.log('setting auto-indent', '' + autoIndent, autoIndent)
+    localStorage.setItem('script.auto-indent', '' + autoIndent);
     if (autoIndent) {
       $('.CodeMirror').addClass('auto-indent');
     }
@@ -87,8 +90,8 @@
           break;
       }
     });
-    toggleExpandNotes(false);
-    toggleAutoIndent(true);
+    toggleExpandNotes(expandNotes);
+    toggleAutoIndent(autoIndent);
   };
 
   fountainManager.emitter.on('script:change', function(text, oldText, fromScriptEditor) {

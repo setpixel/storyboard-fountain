@@ -25,4 +25,21 @@
 
   //console.log = function() {};
 
+  window.getSetting = function(name, defaultValue) {
+    var val = localStorage.getItem(name);
+    if (typeof(val) === 'undefined' || val === null) {
+      return defaultValue;
+    }
+    else {
+      switch (typeof(defaultValue)) {
+        case 'number':
+          return parseFloat(val);
+        case 'boolean':
+          return val === 'true';
+        default:
+          return val;
+      }
+    }
+  };
+
 }).call(this);
