@@ -131,7 +131,8 @@
 
     var newBoard = {
       time: 0,
-      duration: 0,
+      duration: 1000,
+      durationIsCalculated: true,
       type: "image",
       file: file,
       tempIndex: file,
@@ -498,15 +499,22 @@ function hexToRgb(hex) {
     var sceneCounter = 0;
     var inDualDialogue = 0;
     var inDialogue = 0;
+    var pendingDuration = null;
 
     script = [];
 
     for (var i=0; i<tokens.length; i++) {
       var token = tokens[i];
       var addAtom = function(opts) {
+        if (pendingDuration !== null && opts.type !== 'note') {
+          opts.duration = pendingDuration;
+          opts.durationIsCalculated = false;
+          pendingDuration = null;
+        }
         var atom = _.extend({
           time: currentTime,
           duration: 0,
+          durationIsCalculated: true,
           type: token.type,
           text: token.text,
           scene: sceneCounter,
@@ -598,6 +606,13 @@ function hexToRgb(hex) {
           ) {
             var atom = addAtom({type: 'image', file: noteMetaData.file, time: noteMetaData.time, duration: 1000});
             if (noteMetaData.caption) atom.caption = noteMetaData.caption;
+            if (noteMetaData.duration) {
+              atom.duration = Math.floor(parseFloat(noteMetaData.duration) * 1000);
+              atom.durationIsCalculated = false;
+            }
+          }
+          else if (noteMetaData && noteMetaData.duration) {
+            pendingDuration = Math.floor(parseFloat(noteMetaData.duration) * 1000);
           }
           else {
             addAtom({});
@@ -615,7 +630,7 @@ function hexToRgb(hex) {
   var parseNote = function(string) {
     var metaData = {};
     var chunks = string.split(',');
-    if (chunks.length == 1) { return false; };
+    if (chunks.length == 1 && chunks[0].split(':').length == 1) { return false; };
     for (var i=0; i<chunks.length; i++) {
       var keyValue = chunks[i].split(":");
       if (keyValue.length == 1) { return false; };
@@ -917,6 +932,21 @@ function hexToRgb(hex) {
     var titlePage = true;
 
     for (var i=0; i<script.length; i++) {
+      var atom = script[i];
+      var checkDuration = function() {
+        if (atom.type == 'image') return;
+        if (!atom.durationIsCalculated) {
+          if (titlePage) {
+            titlePage = false;
+            scriptText.push('');
+          }
+          scriptText.push('[[duration: ' + (atom.duration / 1000).toFixed(2) + ']]');
+          scriptText.push('');
+        }
+      };
+
+      checkDuration();
+
       switch (script[i].type) {
         case 'title':
         case 'credit':
@@ -1066,7 +1096,11 @@ function hexToRgb(hex) {
             titlePage = false;
             scriptText.push('');
           }
-          scriptText.push('[[type: image, file: ' + script[i].file + ', time: ' + script[i].time + ']]');
+          var duration = '';
+          if (!atom.durationIsCalculated) {
+            duration = ', duration: ' + (atom.duration / 1000).toFixed(2);
+          }
+          scriptText.push('[[type: image, file: ' + script[i].file + duration + ']]');
           scriptText.push('');
           break;
 
@@ -1270,6 +1304,17 @@ function hexToRgb(hex) {
     };
   };
 
+  var setAtomDuration = function(atom, ms) {
+    atom.duration = ms;
+    atom.durationIsCalculated = false;
+    timeline.buildUpdates();
+    storyboardState.saveScript();
+
+    var oldScriptText = scriptText;
+    scriptText = exportScriptText();
+    emitter.emit('script:change', scriptText, oldScriptText);
+  }
+
   var fountainManager = window.fountainManager = {
     load: load,
     loadChange: loadChange,
@@ -1291,7 +1336,8 @@ function hexToRgb(hex) {
       if (typeof(outline) != "undefined") { 
         $("#scene-colorbars").html(renderScenes(outline)); 
       }
-    }
+    },
+    setAtomDuration: setAtomDuration
   };
 
 }).call(this);

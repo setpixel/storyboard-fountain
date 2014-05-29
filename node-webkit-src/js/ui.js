@@ -341,14 +341,38 @@
         return;
       }
       else if (parseFloat(duration) > 0) {
-        atom.duration = parseFloat(duration) * 1000;
-        timeline.buildUpdates();
+        fountainManager.setAtomDuration(atom, parseFloat(duration) * 1000);
         timer.setDuration(atom.duration);
-        timer.setTimeLeft(atom.duration);
+        timer.setTimeLeft(atom.duration * 0.75);
       }
       else {
         return;
       }
+    });
+    var draggingDuration = false;
+    $('.timer-duration').mousedown(function(e) {
+      var atom = fountainManager.getAtomForCursor();
+      if (!atom) return;
+
+      var startX = e.pageX;
+      var startDuration = atom.duration;
+      var duration = startDuration;
+      var moveHandler = function(e) {
+        var diff = e.pageX - startX;
+        duration = Math.floor(Math.max(100, startDuration + diff * 20));
+        timer.setDuration(duration);
+        timer.setTimeLeft(duration * 0.75);
+      };
+      var upHandler = function(e) {
+        if (startX - e.pageX) {
+          e.preventDefault();
+          fountainManager.setAtomDuration(atom, duration);
+        }
+        $(window).unbind('mousemove', moveHandler);
+        $(window).unbind('mouseup', upHandler);
+      };
+      $(window).mousemove(moveHandler);
+      $(window).mouseup(upHandler);
     });
     fountainManager.emitter.on('selection:change', function(chunkIndex, boardIndex) {
       console.log('fountaManager selection:change', chunkIndex, boardIndex);
@@ -364,7 +388,7 @@
         timer.play();
       }
       else {
-        timer.setTimeLeft(update.duration);
+        timer.setTimeLeft(update.duration * 0.75);
         timer.pause();
       }
     });
@@ -372,7 +396,7 @@
       if (state == 'paused') {
         var playerState = player.getFullState();
         var update = timeline.updates()[playerState.updateIndex];
-        timer.setTimeLeft(update.duration);
+        timer.setTimeLeft(update.duration * 0.75);
         timer.pause();
       }
     });

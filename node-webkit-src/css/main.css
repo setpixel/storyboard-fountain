@@ -445,6 +445,7 @@ svg {
   height: 90px;
   width: 100%;
   z-index: 120;
+  -webkit-user-select: none;
 }
 
 .timer-timeleft {
@@ -466,6 +467,7 @@ svg {
   z-index: 122;
   color: white;
   font-weight: bold;
+  cursor: ew-resize;
 }
 
 .timer-duration div {
