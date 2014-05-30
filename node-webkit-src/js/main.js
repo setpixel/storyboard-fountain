@@ -9,35 +9,7 @@
   window.timeline = require('./js/timeline');
   window.player = require('./js/player');
 
-  var NEW_SCRIPT_TEXT = "Title: **THE LAST BIRTHDAY CARD**\n"+
-"Credit: Written by\n"+
-"Author: Stu Maschwitz\n"+
-"Draft date: 7/8/1998\n"+
-"Contact:\n"+
-"    PO Box 10031\n"+
-"    San Rafael CA 94912\n"+
-"    Registered WGAw No. 701428\n"+
-"\n"+
-"# ACT I\n"+
-"\n"+
-"= Meet the players and set up the world. Two hit men with very different lives.\n"+
-"\n"+
-"> HERE WE GO:\n"+
-"\n"+
-"## Meet Scott\n"+
-"\n"+
-"= And his friend Baxter.\n"+
-"\n"+
-"### Scott's SF Apartment\n"+
-"\n"+
-"INT. SAN FRANCISCO APARTMENT, DAY\n"+
-"\n"+
-"SCOTT is painting.  Badly.  Let's not mince words.\n"+
-"\n"+
-"SCOTT\n"+
-"sup\n"+
-"";
-
+  var NEW_SCRIPT_TEXT = example.fountainText;
   var currentSource = null;
   var currentConfig = null;
   var sourceModule = null;

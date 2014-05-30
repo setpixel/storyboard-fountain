@@ -21,6 +21,9 @@
         <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600' rel='stylesheet' type='text/css'>
         <script type="text/javascript" src="//use.typekit.net/lyg7zzn.js"></script>
         <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+        <script>
+          process.env.NODE_ENV = 'production';
+        </script>
     </head>
     <body ondragstart="return false;" ondrop="return false;" onselectstart="return false;">
 
@@ -161,6 +164,7 @@
     <script src="js/sharing.js"></script>
     <script>
       require('coffee-script/register');
+      window.example = require('./js/example');
       window.timeline = require('./js/timeline');
       window.player = require('./js/player');
       window.timer = require('./js/timer');

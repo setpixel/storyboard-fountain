@@ -19,6 +19,7 @@
   var atomToBoard = {};
 
   var load = function(config) {
+    if (config.script == scriptText) return;
     var oldScriptText = scriptText;
     scriptText = config.script;
     emitter.emit('script:change', scriptText, oldScriptText);
@@ -26,6 +27,7 @@
   }
 
   var loadChange = function(text) {
+    if (text == scriptText) return;
     var oldScriptText = scriptText;
     scriptText = text;
     emitter.emit('script:change', scriptText, oldScriptText, true);
@@ -157,6 +159,7 @@
     };
 
     var chunk = scriptChunks[chunkIndex];
+    if (!chunk) return;
     var scriptIndex = null;
     if (chunkHasImages(chunkIndex)) {
       scriptIndex = getPositionAtTempIndex(chunk.images[boardIndex][1]) + 1;
@@ -244,6 +247,7 @@
 
   var newBoard = function() {
     var pos = insertBoardAt(scriptCursorIndex, scriptImageCursorIndex);
+    if (!pos) return;
     selectChunkAndBoard(pos.chunkIndex, pos.boardIndex);
     timeline.buildUpdates();
     storyboardState.saveScript();
@@ -777,8 +781,10 @@ function hexToRgb(hex) {
       }
     }
 
-    outline[outline.length-1].dialogue = dialogueCount;
-    outline[outline.length-1].duration = script[script.length-1].time - timeMarkIn;
+    if (outline.length > 0) {
+      outline[outline.length-1].dialogue = dialogueCount;
+      outline[outline.length-1].duration = script[script.length-1].time - timeMarkIn;
+    }
 
     return outline;
   }
@@ -935,6 +941,7 @@ function hexToRgb(hex) {
   var convert2markdown = function(string) {
     var finalString = "";
     var j = $.parseHTML(string)
+    if (!j) return '';
     for (var i=0; i<j.length; i++) {
       switch ($(j[i]).attr('class')) {
         case 'underline':
@@ -998,7 +1005,8 @@ function hexToRgb(hex) {
         case 'contact':
           //var tempVal = script[i].text.replace(/(<br \/>)+/g, "\n").trim();
 
-          var lines = recursiveMarkdown(script[i].text.replace(/(<br \/>)+/g, "\n").trim()).split("\n");
+          var text = script[i].text || '';
+          var lines = recursiveMarkdown(text.replace(/(<br \/>)+/g, "\n").trim()).split("\n");
 
           if (lines.length > 1) {
             scriptText.push(capitaliseFirstLetter(script[i].type).replace("_", " ") + ":");
