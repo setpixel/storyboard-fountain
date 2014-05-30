@@ -227,7 +227,8 @@ svg {
 }
 
 .toolbar-button.disabled {
-  background-color: #afafaf;
+  background-color: rgb(62, 62, 62);
+  opacity: 0.2;
 }
 
 .toolbar-button-group .toolbar-button:first-child {
@@ -343,6 +344,7 @@ svg {
 
 .toolbar-button.recording {
   background-position: -315px 0px;
+  border-radius: 3px 0 0 3px;
 }
 
 .toolbar-button.record {

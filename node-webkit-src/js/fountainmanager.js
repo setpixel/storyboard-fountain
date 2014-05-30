@@ -75,11 +75,11 @@
     // load initial selection
     scriptCursorIndex = parseInt(localStorage.getItem('scriptCursorIndex') || 0) || 0;
     scriptImageCursorIndex = parseInt(localStorage.getItem('scriptImageCursorIndex') || 0) || 0;
-    selectChunkAndBoard(scriptCursorIndex, scriptImageCursorIndex, true);
+    selectChunkAndBoard(scriptCursorIndex, scriptImageCursorIndex, false, true);
   };
 
   // TODO: skipSelect is needed b/c we can't select the chunk on initial load without causing an error
-  var selectChunkAndBoard = function(chunkIndex, boardIndex, skipSelect) {
+  var selectChunkAndBoard = function(chunkIndex, boardIndex, skipSelect, scrollToTop) {
     scriptCursorIndex = chunkIndex;
     scriptImageCursorIndex = boardIndex;
     localStorage.setItem('scriptCursorIndex', scriptCursorIndex);
@@ -87,7 +87,7 @@
     var chunk = scriptChunks[scriptCursorIndex];
     if (chunk) {
       if (!skipSelect) {
-        selectAndScroll(scriptCursorIndex);
+        selectAndScroll(scriptCursorIndex, scrollToTop);
       }
       $(".module.selectable img").filter('.selected').removeClass('selected');
       var imageLoc = boardForCursor();
@@ -769,7 +769,7 @@ function hexToRgb(hex) {
         dialogueCount = 0;
         timeMarkIn = script[i].time;
 
-        sceneAtom = {'slugline': script[i].text, 'title': recentSection, 'synopsis': recentSynopsis, 'dialogue': 0, 'duration': 0, 'page': script[i].page, 'time': script[i].time };
+        sceneAtom = {'slugline': script[i].text, 'scriptIndex': i, 'title': recentSection, 'synopsis': recentSynopsis, 'dialogue': 0, 'duration': 0, 'page': script[i].page, 'time': script[i].time };
         outline.push(sceneAtom);
 
 
@@ -1267,21 +1267,32 @@ function hexToRgb(hex) {
     }
   };
 
-  var selectAndScroll = function(index) {
+  var selectAndScroll = function(index, scrollToTop) {
     $(".module.selectable").filter('.selected').removeClass('selected');
     var chunk = scriptChunks[index];
     var $chunk = $("#module-script-" + chunk.id);
     $chunk.addClass('selected');
     $("#script").finish();
-    if (($chunk.offset().top+$chunk.outerHeight())> $("#script").height()) {
-      var difference = ($chunk.offset().top+$chunk.outerHeight()) - $("#script").height();
-      $("#script").animate({scrollTop: $("#script").scrollTop() + difference}, 100);
-    }
-    if (($chunk.offset().top) < (0 + 100)) {
+    if (scrollToTop) {
       var difference = $chunk.offset().top - 100;
       $("#script").animate({scrollTop: $("#script").scrollTop() + difference}, 100);
+    } else {
+      if (($chunk.offset().top+$chunk.outerHeight())> $("#script").height()) {
+        var difference = ($chunk.offset().top+$chunk.outerHeight()) - $("#script").height();
+        $("#script").animate({scrollTop: $("#script").scrollTop() + difference}, 100);
+      }
+      if (($chunk.offset().top) < (0 + 100)) {
+        var difference = $chunk.offset().top - 100;
+        $("#script").animate({scrollTop: $("#script").scrollTop() + difference}, 100);
+      }
     }
   };
+
+  var selectSceneAndScroll = function(scene) {
+    var atom = script[outline[scene].scriptIndex];
+    var pos = getCursorForAtom(atom.id);
+    selectChunkAndBoard(pos.chunkIndex, pos.boardIndex, false, true);
+  }
 
   var getScriptChunks = function(){ return scriptChunks;};
 
@@ -1366,6 +1377,97 @@ function hexToRgb(hex) {
     emitter.emit('script:change', scriptText, oldScriptText);
   }
 
+
+  var generateBoardStats = function() {
+    var objects = scriptChunks;
+    var imagesCount = 0;
+    var sceneArray = [];
+    var sceneStats = [];
+    var scenesWithImagesCount = 0;
+    var elementsWithImagesCount = 0;
+    var elementsCount = 0;
+    var currentScene = 0;
+    for (var i=0; i<objects.length; i++) {
+      if (currentScene != objects[i].scene) {
+        if (typeof sceneStats[objects[i].scene-1] == 'undefined') { sceneStats[objects[i].scene-1] = {}; } 
+        sceneStats[objects[i].scene-1]["elementsCount"] = 0;
+        currentScene = objects[i].scene;
+      }
+      switch (objects[i].type) {
+        case 'action':
+        case 'dialogue':
+        case 'parenthetical':
+          
+          elementsCount++;
+          sceneStats[objects[i].scene-1]["elementsCount"] = ++sceneStats[objects[i].scene-1]["elementsCount"] || 1;  
+          if (objects[i].images && objects[i].images.length > 0) {
+            sceneArray[objects[i].scene-1] = 1;
+            elementsWithImagesCount++;
+            sceneStats[objects[i].scene-1]["elementsWithImagesCount"] = ++sceneStats[objects[i].scene-1]["elementsWithImagesCount"] || 1;
+            imagesCount = imagesCount + objects[i].images.length;
+            sceneStats[objects[i].scene-1]["imagesCount"] = sceneStats[objects[i].scene-1]["imagesCount"] + objects[i].images.length || 1;
+          }
+          break;
+      }
+    }
+
+    for(var i in sceneArray) { scenesWithImagesCount += sceneArray[i]; }
+
+    var boardsLeft = (elementsCount - elementsWithImagesCount)*Math.max((imagesCount / elementsWithImagesCount),1.5);
+
+
+    console.log(sceneStats);
+
+    console.log("Total boards: " + imagesCount);
+    console.log("Estimated boards left: " + boardsLeft);
+    console.log("%: " + imagesCount / boardsLeft);
+    console.log("---------");
+    console.log("Estimated hours left (30 seconds/board): " + ((boardsLeft*0.5)/60));
+    console.log("---------");
+    console.log("Script elements with boards: " + elementsWithImagesCount);
+    console.log("Total script elements: " + elementsCount);
+    console.log("%: " + elementsWithImagesCount / elementsCount);
+    console.log("---------");
+    console.log("Scenes with boards: " + scenesWithImagesCount);
+    console.log("Total scenes: " + vSceneCount);
+    console.log("%: " + scenesWithImagesCount / vSceneCount);
+    console.log("---------");
+    console.log("Average board per element: " + imagesCount / elementsWithImagesCount);
+    console.log("---------");
+ 
+    html = [];
+
+    html.push( percentageBlock(imagesCount / boardsLeft, 100) + '<div>Total boards: ' + imagesCount + ' / ' + Math.round(boardsLeft) + ' (estimated) ' + '</div>');
+    html.push('<div>Estimated hours left to boards: ' + Math.round(((boardsLeft*0.5)/60)*100)/100 + ' hours</div>');
+    html.push('<hr/>');
+    html.push( percentageBlock(elementsWithImagesCount / elementsCount, 100) + '<div>Script elements with boards: ' + elementsWithImagesCount + ' / ' + elementsCount + '</div>');
+    html.push('<div>Average board per element: ' + (imagesCount / elementsWithImagesCount) + '</div>');
+    html.push('<hr/>');
+    html.push( percentageBlock(scenesWithImagesCount / vSceneCount, 100) + '<div>Scenes with boards: ' + scenesWithImagesCount + ' / ' + vSceneCount + '</div>');
+    html.push('<hr/>');
+
+    for (var i=0; i<sceneStats.length; i++) {
+      html.push('<div class="stats-scene-complete" data-scene="' + i + '">');
+      html.push('<div>' + (i+1) + ': ' + (outline[i].title || outline[i].slugline) + '</div>');
+      console.log(sceneStats[i])
+      if (Object.keys(sceneStats[i]).length > 1) {
+        html.push(percentageBlock(sceneStats[i]["elementsWithImagesCount"] / sceneStats[i]["elementsCount"], 100));
+      } else {
+        html.push(percentageBlock(0, 100));
+      }
+      html.push('</div>');
+    }
+
+    return html.join('');
+  };
+
+  var percentageBlock = function(percent, width) {
+
+    var html = '<div><span style="width:' + (percent*width) + 'px; height: 10px; display: inline-block; background-color: rgb(100,100,100); border-radius: 2px 2px 2px 2px;"></span>' + '<span style="width:' + ((1-percent)*width) + 'px; height: 10px; display: inline-block; background-color: rgb(200,200,200); border-radius: 0 2px 2px 0;"></span> ' + Math.round(percent * 100) + '%</div>';
+
+    return html;
+  };
+
   var fountainManager = window.fountainManager = {
     load: load,
     loadChange: loadChange,
@@ -1388,7 +1490,9 @@ function hexToRgb(hex) {
         $("#scene-colorbars").html(renderScenes(outline)); 
       }
     },
-    setAtomDuration: setAtomDuration
+    setAtomDuration: setAtomDuration,
+    generateBoardStats: generateBoardStats,
+    selectSceneAndScroll: selectSceneAndScroll
   };
 
 }).call(this);

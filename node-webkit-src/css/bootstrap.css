@@ -5588,16 +5588,16 @@ button.close {
   -webkit-appearance: none;
 }
 
-.modal-open {
+/*.modal-open {
   overflow: hidden;
 }
-
-body.modal-open,
+*/
+/*body.modal-open,
 .modal-open .navbar-fixed-top,
 .modal-open .navbar-fixed-bottom {
   margin-right: 15px;
 }
-
+*/
 .modal {
   position: fixed;
   top: 0;

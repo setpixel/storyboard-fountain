@@ -34,7 +34,7 @@ setTimeLeft = (ms) ->
     context.moveTo(centerX, centerY)
     context.arc(centerX, centerY, radius, startAngle, endAngle, yes)
     context.closePath()
-    context.fillStyle = 'rgba(255, 255, 255, 0.5)'
+    context.fillStyle = 'rgba(255, 255, 255, 0.2)'
     context.fill()
   context.restore()
 

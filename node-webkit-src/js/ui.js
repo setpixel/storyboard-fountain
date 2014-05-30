@@ -166,6 +166,10 @@
 
     window.onbeforeunload = confirmExit;
 
+    $('#bttn-stats').click(function() {
+      showStats();
+    });
+
     $('#bttn-auto-indent').click(function() {
       scriptEditor.toggleAutoIndent();
     });
@@ -579,6 +583,15 @@
     gui.Window.height = 100;
 
   });
+
+  var showStats = function() {
+    $('#stats-window .modal-body').html(fountainManager.generateBoardStats());
+    $('#stats-window').modal('show');
+    $('.stats-scene-complete').click(function() {
+      fountainManager.selectSceneAndScroll(parseInt($(this).attr('data-scene')));
+    });
+  };
+
 
   window.setInterval(resizeView, 1000);
 
