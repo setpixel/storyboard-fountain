@@ -125,6 +125,7 @@ show = ->
 play = ->
   do (startedAt = Date.now()) ->
     state = 'playing'
+    done = no
     display.setState(state)
     startAt = startedAt
     startTime = playheadTime

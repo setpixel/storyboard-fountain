@@ -26,6 +26,7 @@ show = ->
 play = ->
   do (startedAt = Date.now()) ->
     state = 'playing'
+    done = no
     emitter.emit('state:change', state)
     startAt = startedAt
     _atom = window.fountainManager.getAtomForCursor()
