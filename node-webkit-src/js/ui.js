@@ -82,7 +82,6 @@
       $('.CodeMirror').css('font-size', Math.floor(18 * editorSpace / editorWidth) + 'px');
     }
 
-    fountainManager.renderScenes();
     window.scrollTo(0);
   }
 
@@ -95,6 +94,7 @@
 
   $(document).ready(function() {
     resizeView();
+    
 
     recorder.emitter.on('state:change', function(state) {
       if (state == 'recording') {
@@ -163,6 +163,9 @@
     }));
 
     $(window).resize(resizeView);
+    $(window).resize(fountainManager.renderScenes);
+
+
 
     window.onbeforeunload = confirmExit;
 
@@ -383,6 +386,15 @@
                 recorder.startRecording();
               }
               break;
+            case 33:  // page up
+              e.preventDefault();
+              fountainManager.nextScene(-1);
+              break;
+            case 34:  // page down
+              e.preventDefault();
+              fountainManager.nextScene(1);
+              break;
+
           }
         }
         else {

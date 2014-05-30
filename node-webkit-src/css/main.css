@@ -447,7 +447,7 @@ svg {
 }
 
 #scene-colorbars-container:hover {
-  width: 20px;
+  width: 18px;
   border-right: 1px solid rgba(0,0,0,0.1);
   opacity: 1; 
 }
@@ -455,8 +455,9 @@ svg {
 .metadata {
   position: absolute;
   bottom: 0;
+  right: 0;
   height: 90px;
-  width: 100%;
+  width: 70%;
   z-index: 120;
   -webkit-user-select: none;
 }

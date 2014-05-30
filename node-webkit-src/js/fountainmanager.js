@@ -56,6 +56,9 @@
 
     $("#script").html(renderScript());
 
+    fountainManager.renderScenes();
+
+
     $(".module.selectable img").click(imageClickHandler);
 
     $(".module.selectable").click(function(e) {
@@ -75,7 +78,7 @@
     // load initial selection
     scriptCursorIndex = parseInt(localStorage.getItem('scriptCursorIndex') || 0) || 0;
     scriptImageCursorIndex = parseInt(localStorage.getItem('scriptImageCursorIndex') || 0) || 0;
-    selectChunkAndBoard(scriptCursorIndex, scriptImageCursorIndex, false, true);
+    selectChunkAndBoard(scriptCursorIndex, scriptImageCursorIndex, false, false);
   };
 
   // TODO: skipSelect is needed b/c we can't select the chunk on initial load without causing an error
@@ -110,8 +113,8 @@
     emitter.emit('selection:change', scriptCursorIndex, scriptImageCursorIndex);
   };
 
-  var selectChunk = function(chunkIndex) {
-    selectChunkAndBoard(chunkIndex, 0);
+  var selectChunk = function(chunkIndex, scrollToTop) {
+    selectChunkAndBoard(chunkIndex, 0, false, scrollToTop);
   };
 
   var updateSelection = function() {
@@ -846,7 +849,7 @@ function hexToRgb(hex) {
       pos = Math.floor(((outline[i].time-outline[0].time)/(outline[outline.length-1].time+outline[outline.length-1].duration-outline[0].time))*length);
       siz = Math.ceil((outline[i].duration/(outline[outline.length-1].time+outline[outline.length-1].duration-outline[0].time))*length);
       col = vSceneListColors[outline[i].slugline.split(" - ")[0]].color
-      html.push("<div style='position: absolute; top: " + pos + "px; left: 0px; height: "+siz+"px; background-color: #" + col + "; width: 100%;'></div>")
+      html.push("<div class='sidebar-scene-link' data-scene='" + i + "' title='Scene " + (i+1) + ":&#10;" + (outline[i].title || outline[i].slugline).replace("'","&#146;") + "' style='position: absolute; top: " + pos + "px; left: 0px; height: "+siz+"px; background-color: #" + col + "; width: 100%; box-shadow: -1px -1px 0px rgba(0,0,0,0.2) inset, 0px 1px 0px rgba(255,255,255,0.3) inset;'></div>")
     }
     return html.join('');
   }
@@ -1223,6 +1226,12 @@ function hexToRgb(hex) {
       scriptChunks[index].images.length > 0;
   }
 
+  var nextScene = function(increment) {
+    var nextIndex = Math.min(Math.max(scriptChunks[scriptCursorIndex].scene+increment,1),outline.length);
+    console.log(nextIndex)
+    selectSceneAndScroll(nextIndex-1);
+  }
+
   // increment should be positive or negative to indicate direction
   var goNext = function(increment) {
     if (increment > 0) {
@@ -1274,7 +1283,9 @@ function hexToRgb(hex) {
     $chunk.addClass('selected');
     $("#script").finish();
     if (scrollToTop) {
-      var difference = $chunk.offset().top - 100;
+      var chunk2 = scriptChunks[index-1];
+      var $chunk2 = $("#module-script-" + chunk2.id);
+      var difference = $chunk2.offset().top - 105;
       $("#script").animate({scrollTop: $("#script").scrollTop() + difference}, 100);
     } else {
       if (($chunk.offset().top+$chunk.outerHeight())> $("#script").height()) {
@@ -1291,7 +1302,7 @@ function hexToRgb(hex) {
   var selectSceneAndScroll = function(scene) {
     var atom = script[outline[scene].scriptIndex];
     var pos = getCursorForAtom(atom.id);
-    selectChunkAndBoard(pos.chunkIndex, pos.boardIndex, false, true);
+    selectChunk(pos.chunkIndex+1, true);
   }
 
   var getScriptChunks = function(){ return scriptChunks;};
@@ -1441,7 +1452,7 @@ function hexToRgb(hex) {
     html.push('<div>Estimated hours left to boards: ' + Math.round(((boardsLeft*0.5)/60)*100)/100 + ' hours</div>');
     html.push('<hr/>');
     html.push( percentageBlock(elementsWithImagesCount / elementsCount, 100) + '<div>Script elements with boards: ' + elementsWithImagesCount + ' / ' + elementsCount + '</div>');
-    html.push('<div>Average board per element: ' + (imagesCount / elementsWithImagesCount) + '</div>');
+    html.push('<div>Average board per element: ' + (imagesCount / elementsWithImagesCount).toFixed(1) + '</div>');
     html.push('<hr/>');
     html.push( percentageBlock(scenesWithImagesCount / vSceneCount, 100) + '<div>Scenes with boards: ' + scenesWithImagesCount + ' / ' + vSceneCount + '</div>');
     html.push('<hr/>');
@@ -1488,11 +1499,19 @@ function hexToRgb(hex) {
     renderScenes: function() { 
       if (typeof(outline) != "undefined") { 
         $("#scene-colorbars").html(renderScenes(outline)); 
+    
+        $('.sidebar-scene-link').click(function() {
+          selectSceneAndScroll(parseInt($(this).attr('data-scene')));
+        });
+
+
+
       }
     },
     setAtomDuration: setAtomDuration,
     generateBoardStats: generateBoardStats,
-    selectSceneAndScroll: selectSceneAndScroll
+    selectSceneAndScroll: selectSceneAndScroll,
+    nextScene: nextScene
   };
 
 }).call(this);
