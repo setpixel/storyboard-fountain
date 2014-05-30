@@ -50,4 +50,3 @@ Contributors (in alphabetical order):
 * Charles Forman
 * Chris Smoak
 * Could be you! 
-
