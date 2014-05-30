@@ -81,6 +81,17 @@
     selectChunkAndBoard(scriptCursorIndex, scriptImageCursorIndex, false, false);
   };
 
+  var chunkText = function(chunk) {
+    switch (chunk.type) {
+      case 'dialogue':
+      case 'parenthetical':
+        return "<div>" + chunk.character + "</div><div>" + chunk.text + "</div>";
+
+      default:
+        return chunk.text;
+    }
+  }
+
   // TODO: skipSelect is needed b/c we can't select the chunk on initial load without causing an error
   var selectChunkAndBoard = function(chunkIndex, boardIndex, skipSelect, scrollToTop) {
     scriptCursorIndex = chunkIndex;
@@ -96,11 +107,11 @@
       var imageLoc = boardForCursor();
       if (imageLoc) {
         var image = scriptChunks[imageLoc.chunk].images[imageLoc.image];
-        storyboardState.loadFlatBoard(image[0].file, false, chunk.text);
+        storyboardState.loadFlatBoard(image[0].file, false, chunkText(chunk));
         $("#script-image-" + image[0].file).addClass('selected');
       }
       else {
-        sketchpane.noImage(chunk.text);
+        sketchpane.noImage(chunkText(chunk));
       }
 
       if (imageLoc && imageLoc.image > 0 && chunkHasImages(imageLoc.chunk)) {
@@ -237,7 +248,7 @@
     if (chunkHasImages(chunkIndex)) {
       storyboardState.loadFlatBoard(chunk.images[boardIndex][0].file);
     } else {
-      sketchpane.noImage(chunk.text);
+      sketchpane.noImage(chunkText(chunk));
     }
     if (boardIndex > 0) {
       storyboardState.loadLightboxImage(chunk.images[boardIndex-1][0].file);
@@ -1317,8 +1328,10 @@ function hexToRgb(hex) {
         break;
       }
       else if (chunkHasImages(chunk)) {
-        // fail if there is no image there
-        fail = !scriptChunks[chunk].images[scriptImageCursorIndex];
+        if (scriptImageCursorIndex !== null && typeof(scriptImageCursorIndex) != 'undefined') {
+          // fail if there is no image there
+          fail = !scriptChunks[chunk].images[scriptImageCursorIndex];
+        }
         break;
       }
       else if (chunk > 0) {
