@@ -144,7 +144,10 @@ $(document).ready(function() {
       },
 
       blankLine: function(state) {
-        state.inDialogue = false;
+        if (state.inDialogue) {
+          state.inDialogue = false;
+          return 'line-dialogue';
+        }
       }
     };
   });
