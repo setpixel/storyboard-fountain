@@ -6,6 +6,7 @@ body {
   letter-spacing: 0;
   font-size: 15px;
   -webkit-font-smoothing: antialiased;
+  background-color: rgb(0,0,0);
 }
 
 .toolbar {
