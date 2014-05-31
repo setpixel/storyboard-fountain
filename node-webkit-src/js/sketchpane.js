@@ -45,7 +45,7 @@
 
   var MAXUNDOS = 100;
 
-  var canvasSize = [1600,680];
+  var canvasSize = [680 * aspectRatio.getAspectRatio(), 680];
 
   var penOffset = [];
   var previousLoc = []
@@ -58,6 +58,13 @@
   var requestAnimationFrameID;
 
   var pointerBuffer = [];
+
+  function _updateAspectRatio(ratio) {
+    canvasSize = [Math.floor(680 * aspectRatio.getAspectRatio()), 680];
+    $('#drawpane canvas').attr('width', canvasSize[0]).attr('height', canvasSize[1]);
+  };
+  aspectRatio.emitter.on('aspectRatio:change', _updateAspectRatio);
+  $(document).ready(_updateAspectRatio);
 
   var usingWacom = function() {
     var wacom = getWacomPlugin();

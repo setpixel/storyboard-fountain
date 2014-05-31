@@ -130,14 +130,14 @@
           <div class="drawing-canvas">
             <div class="canvas white-bg"></div>
             <img id="lightbox-image" style="z-index: 99;"/>
-            <canvas id="layer-1-ink" class="canvas" width="1600" height="680" style="z-index: 100;"></canvas>
-            <canvas id="layer-1-pencil" class="canvas" width="1600" height="680" style="z-index: 102;"></canvas>
-            <canvas id="layer-1-pen" class="canvas" width="1600" height="680" style="z-index: 104;"></canvas>
+            <canvas id="layer-1-ink" class="canvas" style="z-index: 100;"></canvas>
+            <canvas id="layer-1-pencil" class="canvas" style="z-index: 102;"></canvas>
+            <canvas id="layer-1-pen" class="canvas" style="z-index: 104;"></canvas>
             <img id="flat-image" style="z-index: 106;"/>
-            <canvas id="layer-1-active-visible" class="canvas" width="1600" height="680"></canvas>
+            <canvas id="layer-1-active-visible" class="canvas"></canvas>
             <div class="caption"></div>
           </div>
-          <canvas id="layer-1-active" class="canvas" width="1600" height="680" style="display: none;"></canvas>
+          <canvas id="layer-1-active" class="canvas" style="display: none;"></canvas>
           <div class="metadata">
             <div class="timer-timeleft"></div>
             <div class="timer-duration"><div></div></div>
@@ -157,11 +157,6 @@
     <script src="js/libs/handlebars-v1.3.0.js"></script>
     <script src="js/libs/jsBezier.js"></script>
     <script src="js/util.js"></script>
-    <script src="js/sketchpane.js"></script>
-    <script src="js/storyboardstate.js"></script>
-    <script src="js/libs/fountain.js"></script>
-    <script src="js/fountainmanager.js"></script>
-    <script src="js/sharing.js"></script>
     <script>
       require('coffee-script/register');
       window.example = require('./js/example');
@@ -169,7 +164,13 @@
       window.player = require('./js/player');
       window.timer = require('./js/timer');
       window.recorder = require('./js/recorder');
+      window.aspectRatio = require('./js/aspectratio');
     </script>
+    <script src="js/sketchpane.js"></script>
+    <script src="js/storyboardstate.js"></script>
+    <script src="js/libs/fountain.js"></script>
+    <script src="js/fountainmanager.js"></script>
+    <script src="js/sharing.js"></script>
     <script src="js/editormode.js"></script>
     <script src="js/scripteditor.js"></script>
     <script src="js/ui.js"></script>

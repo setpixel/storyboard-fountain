@@ -7,6 +7,7 @@
 
   var scriptText = '';
 
+  var settings = {};
   var stats = {};
   var script = [];
   var scriptChunks = [];
@@ -660,6 +661,10 @@ function hexToRgb(hex) {
           else if (noteMetaData && noteMetaData.duration) {
             pendingDuration = Math.floor(parseFloat(noteMetaData.duration) * 1000);
           }
+          else if (noteMetaData && noteMetaData.aspectRatio) {
+            aspectRatio.setAspectRatio(parseFloat(noteMetaData.aspectRatio));
+            addAtom({settings: true});
+          }
           else {
             addAtom({});
           }
@@ -980,6 +985,8 @@ function hexToRgb(hex) {
 
     var titlePage = true;
     var inBoneyard = false;
+    var inTitlePage = true;  // different than titlePage
+    var hasSettings = false;
 
     for (var i=0; i<script.length; i++) {
       var atom = script[i];
@@ -1006,9 +1013,41 @@ function hexToRgb(hex) {
           scriptText.push('');
         }
       };
+      var insertSettings = function() {
+        settings.aspectRatio = aspectRatio.getAspectRatio();
+        var text = _.map(settings, function(value, key) {
+          return key + ": " + value;
+        }).join(', ');
+        scriptText.push('');
+        scriptText.push('[[' + text + ']]');
+      }
+      var checkSettings = function() {
+        switch (atom.type) {
+          case 'title':
+          case 'credit':
+          case 'author':
+          case 'source':
+          case 'draft_date':
+          case 'contact':
+            inTitlePage = true;
+            break;
+
+          default:
+            inTitlePage = false;
+            break;
+        }
+        if (atom.settings) {
+          hasSettings = true;
+        }
+        if (!inTitlePage && !hasSettings) {
+          insertSettings();
+          hasSettings = true;
+        }
+      };
 
       checkBoneyardBegin();
       checkDuration();
+      checkSettings();
 
       switch (script[i].type) {
         case 'title':
@@ -1152,7 +1191,12 @@ function hexToRgb(hex) {
             titlePage = false;
             scriptText.push('');
           }
-          scriptText.push('[[' + script[i].text + ']]');
+          if (script[i].settings) {
+            insertSettings();
+          }
+          else {
+            scriptText.push('[[' + script[i].text + ']]');
+          }
           scriptText.push('');
           break;
         case 'image':

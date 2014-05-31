@@ -2,6 +2,7 @@
   'use strict';
 
   var events = require('events');
+  var _ = require('underscore');
 
   var emitter = new events.EventEmitter();
   var editor = null;
@@ -31,9 +32,9 @@
 
     $(".boards-list").css('height', canvasDim[1]);
 
-    if (((canvasDim[0]-(canvasSidePadding*2))/(canvasDim[1]-(canvasSidePadding*2)-captionHeight)) >= (2.35/1)) {
+    if (((canvasDim[0]-(canvasSidePadding*2))/(canvasDim[1]-(canvasSidePadding*2)-captionHeight)) >= aspectRatio.getAspectRatio()) {
       var canvasHeight = (canvasDim[1]-(canvasSidePadding*2)-captionHeight);
-      var canvasWidth = (canvasDim[1]-(canvasSidePadding*2)-captionHeight) * (2.35/1);
+      var canvasWidth = (canvasDim[1]-(canvasSidePadding*2)-captionHeight) * aspectRatio.getAspectRatio();
       $(".drawing-canvas .canvas, .drawing-canvas img").css('width', canvasWidth);
       $(".drawing-canvas .canvas, .drawing-canvas img").css('height', canvasHeight);
 
@@ -44,7 +45,7 @@
       $(".drawing-canvas .caption").css('top', ((canvasDim[1] - canvasHeight)/2)-captionHeight+toolbarHeight+canvasHeight);
       $(".drawing-canvas .caption").css('width', canvasWidth);
     } else {
-      var canvasHeight = (windowWidth-boardslistWidth-(canvasSidePadding*2))*(1/2.35);
+      var canvasHeight = (windowWidth-boardslistWidth-(canvasSidePadding*2))/aspectRatio.getAspectRatio();
       var canvasWidth = windowWidth-boardslistWidth-(canvasSidePadding*2);
 
       $(".drawing-canvas .canvas, .drawing-canvas img").css('width', canvasWidth);
@@ -505,6 +506,21 @@
         timer.pause();
       }
     });
+
+    function _updateAspectRatio(ratio, oldRatio) {
+      var classnames = {
+        2.35: "aspect-ratio-2-35",
+        1.85: "aspect-ratio-1-85",
+        1.78: "aspect-ratio-1-78",
+        1.33: "aspect-ratio-1-33"
+      };
+      if (oldRatio) {
+        $('.boards-list').removeClass(classnames[oldRatio]);
+      }
+      $('.boards-list').addClass(classnames[ratio]);
+    }
+    aspectRatio.emitter.on('aspectRatio:change', _updateAspectRatio);
+    _updateAspectRatio(aspectRatio.getAspectRatio());
   });
   
   $(document).ready(function() {
@@ -586,11 +602,73 @@
       return menu;
     };
 
+    var aspectRatioSubmenu = function() {
+      var checkChange = function(ratio) {
+        return function() {
+          if (confirm('Are you sure? All images will be resized.')) {
+            aspectRatio.setAspectRatio(ratio);
+          }
+          else {
+            updateCheckboxes(aspectRatio.getAspectRatio());
+          }
+          return false;
+        };
+      };
+
+      var menu = new gui.Menu();
+      menu.append(new gui.MenuItem({
+        label: '2.35:1 cinescope',
+        click: checkChange(2.35),
+        type: 'checkbox',
+        checked: true
+      }));
+      menu.append(new gui.MenuItem({
+        label: '1.85:1 letterbox',
+        click: checkChange(1.85),
+        type: 'checkbox',
+        checked: false
+      }));
+      menu.append(new gui.MenuItem({
+        label: '16:9 HDTV',
+        click: checkChange(1.78),
+        type: 'checkbox',
+        checked: false
+      }));
+      menu.append(new gui.MenuItem({
+        label: '4:3 SDTV',
+        click: checkChange(1.33),
+        type: 'checkbox',
+        checked: false
+      }));
+
+      var ratios = [2.35, 1.85, 1.78, 1.33];
+      var updateCheckboxes = function(ratio) {
+        console.log('updateCheckboxes', ratio);
+        _.each(menu.items, function(item, index) {
+          item.checked = ratio == ratios[index];
+        });
+      };
+      aspectRatio.emitter.on('aspectRatio:change', updateCheckboxes);
+      updateCheckboxes();
+
+      return menu;
+    };
+
+    var viewMenu = function() {
+      var menu = new gui.Menu();
+      menu.append(new gui.MenuItem({
+        label: 'Aspect ratio',
+        submenu: aspectRatioSubmenu()
+      }));
+      return menu;
+    };
+
     var win = gui.Window.get();
     var menubar = new gui.Menu({type: 'menubar'});
-    menubar.append(new gui.MenuItem({label: 'File', submenu: fileMenu()}));
-    menubar.append(new gui.MenuItem({label: 'Share', submenu: shareMenu()}));
     win.menu = menubar;
+    win.menu.insert(new gui.MenuItem({label: 'File', submenu: fileMenu()}), 1);
+    win.menu.insert(new gui.MenuItem({label: 'View', submenu: viewMenu()}), 3);
+    win.menu.insert(new gui.MenuItem({label: 'Share', submenu: shareMenu()}), 4);
 
     gui.Window.height = 100;
 

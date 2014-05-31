@@ -37,13 +37,29 @@ body {
 
 
 .boards-list img {
-  height: 38px;
-  width: 89px;
-  width: 86px;
   background-color: rgb(255,255,255);
   opacity: 0.8;
-/*  transition: outline linear 0.1s;
-*/}
+}
+
+.aspect-ratio-2-35.boards-list img {
+  height: 38px;
+  width: 86px;
+}
+
+.aspect-ratio-1-85.boards-list img {
+  height: 48px;
+  width: 86px;
+}
+
+.aspect-ratio-1-78.boards-list img {
+  height: 37px;
+  width: 66px; /* 86? */
+}
+
+.aspect-ratio-1-33.boards-list img {
+  height: 49px;
+  width: 66px; /* 86? */
+}
 
 .boards-list img.selected {
   outline: 1px solid #ccc;
