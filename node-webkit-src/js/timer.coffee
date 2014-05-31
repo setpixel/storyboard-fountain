@@ -29,7 +29,6 @@ setTimeLeft = (ms) ->
       startAngle = -.5 * Math.PI,
       endAngle = 1.5 * Math.PI + (1 - ms / duration) * 360 * TO_RADIANS
   ) ->
-    console.log('setTimeLeft', ms, endAngle)
     context.beginPath()
     context.moveTo(centerX, centerY)
     context.arc(centerX, centerY, radius, startAngle, endAngle, yes)

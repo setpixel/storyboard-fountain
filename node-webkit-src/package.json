@@ -17,7 +17,7 @@
     "serve-static": "~1.2.0"
   },
   "window": {
-    "toolbar": true,
+    "toolbar": false,
     "frame": true,
     "width": 1350,
     "height": 800,
@@ -32,5 +32,5 @@
   },
   "node-remote": "localhost:8081",
   "js-flags": "--harmony",
-  "chromium-args": "--enable-experimental-canvas-features --show-fps-counter"
+  "chromium-args": "--enable-experimental-canvas-features"
 }

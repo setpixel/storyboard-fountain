@@ -539,6 +539,7 @@ function hexToRgb(hex) {
     var inDialogue = 0;
     var pendingDuration = null;
     var inBoneyard = false;
+    var setSettings = false;
 
     script = [];
 
@@ -662,6 +663,7 @@ function hexToRgb(hex) {
             pendingDuration = Math.floor(parseFloat(noteMetaData.duration) * 1000);
           }
           else if (noteMetaData && noteMetaData.aspectRatio) {
+            setSettings = true;
             aspectRatio.setAspectRatio(parseFloat(noteMetaData.aspectRatio));
             addAtom({settings: true});
           }
@@ -673,6 +675,11 @@ function hexToRgb(hex) {
     }
 
     stats.totalTime = script[script.length-1].time + script[script.length-1].duration;
+
+    if (!setSettings) {
+      // default to cinescope
+      aspectRatio.setAspectRatio(2.35);
+    }
 
     return script;
   }
@@ -844,13 +851,13 @@ function hexToRgb(hex) {
       }
     }
 
-    console.log('getUniqueLocations', {
+    /*console.log('getUniqueLocations', {
       colors: vSceneListColors,
       list: vSceneList,
       scenes: vScenes,
       "total scenes": vSceneCount,
       "unique locations": vSceneList.length
-    });
+    });*/
   }
 
   var renderScenes = function(outline) {
@@ -871,7 +878,7 @@ function hexToRgb(hex) {
   }
 
   var renderOutline = function(outline) {
-    console.log('renderOutline', outline);
+    //console.log('renderOutline', outline);
 
     html = [];
 
@@ -1283,7 +1290,7 @@ function hexToRgb(hex) {
 
   var nextScene = function(increment) {
     var nextIndex = Math.min(Math.max(scriptChunks[scriptCursorIndex].scene+increment,1),outline.length);
-    console.log(nextIndex)
+    //console.log(nextIndex)
     selectSceneAndScroll(nextIndex-1);
   }
 
@@ -1484,7 +1491,7 @@ function hexToRgb(hex) {
     var boardsLeft = (elementsCount - elementsWithImagesCount)*Math.max((imagesCount / elementsWithImagesCount),1.5);
 
 
-    console.log(sceneStats);
+    //console.log(sceneStats);
 
     console.log("Total boards: " + imagesCount);
     console.log("Estimated boards left: " + boardsLeft);
@@ -1517,7 +1524,7 @@ function hexToRgb(hex) {
     for (var i=0; i<sceneStats.length; i++) {
       html.push('<div class="stats-scene-complete" data-scene="' + i + '">');
       html.push('<div>' + (i+1) + ': ' + (outline[i].title || outline[i].slugline) + '</div>');
-      console.log(sceneStats[i])
+      //console.log(sceneStats[i])
       if (Object.keys(sceneStats[i]).length > 1) {
         html.push(percentageBlock(sceneStats[i]["elementsWithImagesCount"] / sceneStats[i]["elementsCount"], 100));
       } else {

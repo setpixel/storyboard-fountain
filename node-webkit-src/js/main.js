@@ -85,15 +85,15 @@
     else {
       type = 'local';
     }
-    console.log('create', type);
+    //console.log('create', type);
     SOURCES[type].create(function(err, result) {
-      console.log('created', err, result);
+      //console.log('created', err, result);
       if (err) {
         next(err);
       }
       else {
         open(result.source, next);
-        console.log('opened');
+        //console.log('opened');
       }
     });
   };
@@ -116,7 +116,6 @@
   }
 
   var imageUrl = function(name) {
-    console.log('sourceModule = ', currentSource.type, sourceModule);
     return sourceModule.imageUrl(name);
   }
 

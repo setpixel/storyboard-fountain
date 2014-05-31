@@ -61,7 +61,7 @@
 
   function _updateAspectRatio(ratio) {
     canvasSize = [Math.floor(680 * aspectRatio.getAspectRatio()), 680];
-    $('#drawpane canvas').attr('width', canvasSize[0]).attr('height', canvasSize[1]);
+    $('#drawpane .canvas').attr('width', canvasSize[0]).attr('height', canvasSize[1]);
   };
   aspectRatio.emitter.on('aspectRatio:change', _updateAspectRatio);
   $(document).ready(_updateAspectRatio);

@@ -298,7 +298,7 @@
     });
 
     $(window).keydown(function(e){
-      console.log(e.keyCode);
+      //console.log(e.keyCode);
 
       if (activeState == 'boards') {
         if (recorder.getState() == 'paused') {
@@ -481,7 +481,7 @@
       $(window).mouseup(upHandler);
     });
     fountainManager.emitter.on('selection:change', function(chunkIndex, boardIndex) {
-      console.log('fountaManager selection:change', chunkIndex, boardIndex);
+      //console.log('fountaManager selection:change', chunkIndex, boardIndex);
       var atom = fountainManager.getAtomForCursor(chunkIndex, boardIndex);
       if (!atom) return;
       var update = timeline.getUpdateForAtom(atom);
@@ -643,7 +643,7 @@
 
       var ratios = [2.35, 1.85, 1.78, 1.33];
       var updateCheckboxes = function(ratio) {
-        console.log('updateCheckboxes', ratio);
+        //console.log('updateCheckboxes', ratio);
         _.each(menu.items, function(item, index) {
           item.checked = ratio == ratios[index];
         });
