@@ -1,5 +1,4 @@
 events = require('events')
-fountainManager = window.fountainManager
 
 emitter = new events.EventEmitter()
 
@@ -11,16 +10,16 @@ startRecording = ->
   state = 'recording'
   emitter.emit('state:change', state)
   recordAtomAt = Date.now()
-  atom = fountainManager.getAtomForCursor()
+  atom = window.fountainManager.getAtomForCursor()
 
 advance = ->
   # record the time
   duration = Date.now() - recordAtomAt
-  fountainManager.setAtomDuration(atom, duration)
+  window.fountainManager.setAtomDuration(atom, duration)
 
   # next atom
-  fountainManager.goNext(1)
-  newAtom = fountainManager.getAtomForCursor()
+  window.fountainManager.goNext(1)
+  newAtom = window.fountainManager.getAtomForCursor()
   if newAtom.id is atom.id
     stopRecording()
   recordAtomAt = Date.now()
