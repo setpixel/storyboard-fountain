@@ -5,7 +5,10 @@ module.exports = {
     models = require('../models')
     helpers = require('../req_helpers')
 
-    app.get '/status',
+    app.get '/status.json',
       (req, res) ->
-        res.end()
+        unless req.query.admin is process.env.ADMIN_KEY
+          res.json {err: 'invalid admin key'}
+        await models.shares.list defer(err, shares)
+        res.json {shares}
 }

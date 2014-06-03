@@ -15,6 +15,12 @@ module.exports = {
         {share} = req.current
         res.render 'player', {share, dataUrl: process.env.PUBLIC_URL + '/data/'}
 
+    app.get '/boards/:key',
+      helpers.requireShare('key'),
+      (req, res) ->
+        {share} = req.current
+        res.render 'boards', {share, dataUrl: process.env.PUBLIC_URL + '/data/'}
+
     app.get '/player/:key/password',
       helpers.requireShare('key'),
       (req, res) ->

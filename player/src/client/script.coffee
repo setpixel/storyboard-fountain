@@ -7,6 +7,8 @@ vSceneCount = 0
 vSceneListColors = {}
 vUniqueCount = 0
 imageList = []
+title = ''
+aspectRatio = 2.35
 
 parseFountain = (fountainText) ->
   tokens = ''
@@ -22,7 +24,7 @@ durationOfWords = (text, durationPerWord) ->
 
 parseNote = (string) ->
   do (metadata = {}, chunks = string.split(',')) ->
-    return no  if chunks.length is 1
+    return no  if chunks.length is 1 and chunks[0].split(':').length is 1
     for chunk in chunks
       do ([key, value] = chunk.split(':')) ->
         return no  unless value?
@@ -35,7 +37,8 @@ createScript = ->
     vCurrentCharacter = '',
     sceneCounter = 0,
     inDualDialogue = 0,
-    inDialogue = 0
+    inDialogue = 0,
+    pendingDuration = null
   ) ->
     script = []
 
@@ -44,6 +47,9 @@ createScript = ->
 
       addAtom = (opts) ->
         do (atom = null) ->
+          if pendingDuration? and token.type isnt 'note'
+            opts.duration = pendingDuration
+            pendingDuration = null
           atom = _.extend {
             time: currentTime
             duration: 0
@@ -59,6 +65,7 @@ createScript = ->
 
       switch token.type
         when 'title'
+          title = token.text
           addAtom {duration: 2000}
 
         when 'credit', 'author', 'source', 'draft_date', 'contact'
@@ -114,9 +121,15 @@ createScript = ->
 
         when 'note'
           do (metadata = parseNote(token.text)) ->
-            if metadata
-              atom = addAtom {type: 'image', file: metadata.file, time: metadata.time}
+            if metadata?.file?
+              atom = addAtom {type: 'image', file: metadata.file}
               atom.caption = metadata.caption  if metadata.caption
+              if metadata.duration?
+                atom.duration = Math.floor(parseFloat(metadata.duration) * 1000)
+            else if metadata?.duration?
+              pendingDuration = Math.floor(parseFloat(metadata.duration) * 1000)
+            else if metadata?.aspectRatio?
+              aspectRatio = parseFloat(metadata.aspectRatio)
             else
               addAtom {}
 
@@ -220,5 +233,7 @@ window.script = {
   parse: parseFountain
   getAtom,
   atoms,
-  getDuration: -> duration
+  getDuration: -> duration,
+  getTitle: -> title,
+  getAspectRatio: -> aspectRatio
 }
