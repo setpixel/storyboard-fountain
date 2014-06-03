@@ -17,7 +17,8 @@
     "serve-static": "~1.2.0"
   },
   "window": {
-    "toolbar": false,
+    "title": "StoryboardFountain",
+    "toolbar": true,
     "frame": true,
     "width": 1350,
     "height": 800,
@@ -25,7 +26,8 @@
     "min_width": 800,
     "min_height": 400,
     "max_width": 8000,
-    "max_height": 8000
+    "max_height": 8000,
+    "show": false
   },
   "webkit": {
     "plugin": true
