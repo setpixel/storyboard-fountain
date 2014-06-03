@@ -545,6 +545,7 @@ function hexToRgb(hex) {
 
     for (var i=0; i<tokens.length; i++) {
       var token = tokens[i];
+      var text = token.text || '';
       var addAtom = function(opts) {
         if (pendingDuration !== null && opts.type !== 'note') {
           opts.duration = pendingDuration;
@@ -556,7 +557,7 @@ function hexToRgb(hex) {
           duration: 0,
           durationIsCalculated: true,
           type: token.type,
-          text: token.text,
+          text: text,
           scene: sceneCounter,
           page: token.page,
           id: i,
@@ -597,7 +598,7 @@ function hexToRgb(hex) {
           break;
 
         case 'action':
-          duration = durationOfWords(tokens[i].text, 200)+500;
+          duration = durationOfWords(text, 200)+500;
           addAtom({duration: duration});
           break;
 
@@ -612,12 +613,12 @@ function hexToRgb(hex) {
           break;
 
         case 'character':
-          currentCharacter = token.text;
+          currentCharacter = text;
           break;
 
         case 'parenthetical':
         case 'dialogue':      
-          duration = durationOfWords(tokens[i].text, 300)+1000;
+          duration = durationOfWords(text, 300)+1000;
           var atom = addAtom({duration: duration, character: currentCharacter});
           if (inDualDialogue == 3) atom.dual = 1;
           break;
@@ -648,7 +649,7 @@ function hexToRgb(hex) {
           break;
 
         case 'note':
-          var noteMetaData = parseNote(token.text);
+          var noteMetaData = parseNote(text);
           if (noteMetaData && 
               parseInt(noteMetaData.file) + '' == noteMetaData.file
           ) {

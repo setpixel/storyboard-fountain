@@ -179,9 +179,8 @@ $(document).ready(function() {
     "Enter": function(cm) {
       // by default, enter will start a new script element (by adding an extra
       // line). exceptions to this are when we are typing a character name or
-      // when we are in parenthetical or dialogue or when we are on the title 
-      // page or when we are at the beginning of a line (just moves the line 
-      // down by one).
+      // when we are in parenthetical or when we are on the title page or when
+      // we are at the beginning of a line (just moves the line down by one).
       var pos = cm.getDoc().getCursor();
       var token = cm.getTokenAt(pos);
       var type = token.type;
