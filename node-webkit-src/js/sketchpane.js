@@ -45,7 +45,7 @@
 
   var MAXUNDOS = 100;
 
-  var canvasSize = [1600,680];
+  var canvasSize = [680 * aspectRatio.getAspectRatio(), 680];
 
   var penOffset = [];
   var previousLoc = []
@@ -55,9 +55,20 @@
   var noCanvas = false;
   var lightboxMode = false;
 
+  var requestAnimationFrameID;
+
+  var pointerBuffer = [];
+
+  function _updateAspectRatio(ratio) {
+    canvasSize = [Math.floor(680 * aspectRatio.getAspectRatio()), 680];
+    $('#drawpane .canvas').attr('width', canvasSize[0]).attr('height', canvasSize[1]);
+  };
+  aspectRatio.emitter.on('aspectRatio:change', _updateAspectRatio);
+  $(document).ready(_updateAspectRatio);
+
   var usingWacom = function() {
     var wacom = getWacomPlugin();
-    return wacom.penAPI.pointerType == 1 || wacom.penAPI.pointerType == 3;
+    return wacom && wacom.penAPI && (wacom.penAPI.pointerType == 1 || wacom.penAPI.pointerType == 3);
   }
 
   $(document).ready(function() {
@@ -91,6 +102,7 @@
     $(".drawing-canvas").mousedown(function(e){
       if (locked || noCanvas) {
       } else {
+        requestAnimationFrameID = window.requestAnimationFrame(testAnimationFrame);
         // window resizing scaling factor 
         mult = parseInt($(".drawing-canvas .canvas").css('width')) / canvasSize[0];
         var wacom = getWacomPlugin();
@@ -107,14 +119,6 @@
           // pen location on canvas (unscaled px)
           previousLoc = [[(tabX - penOffset[0])/mult, (tabY - penOffset[1])/mult]];
           penDown = true;
-          var angle = Math.atan2(wacom.penAPI.tiltY, wacom.penAPI.tiltX) * TO_DEGREES;
-          var tilt = Math.max(Math.abs(wacom.penAPI.tiltY),Math.abs(wacom.penAPI.tiltX) );
-          // if tilt is not supported, fake it
-          if (tilt == 0) {
-            tilt = 0.5;
-          }
-          var pressure = 0;
-          var eraser = wacom.penAPI.isEraser;
         } else {
           var tabX = e.pageX;
           var tabY = e.pageY;
@@ -123,23 +127,19 @@
           penOffset = [tabX - canvasX, tabY - canvasY];
           previousLoc = [[(tabX - penOffset[0])/mult, (tabY - penOffset[1])/mult]];
           penDown = true;
-
-          var angle = 0;
-          var tilt = 0.5;
-          var blend = 1/3;
-          var pressure = 0;
-          var eraser = e.shiftKey;
         }
-        previousPenAttributes = {angle: angle, tilt: tilt, pressure: pressure, eraser: eraser};
+        previousPenAttributes = getPointerData(e);
         addToUndoStack();
       }
     });
 
     $(window).mouseup(function(e){
+      window.cancelAnimationFrame(requestAnimationFrameID);
       if (penDown) {
         penDown = false;
         stampLayer();
         storyboardState.setLayerDirty(currentLayer);
+        pointerBuffer = [];
       }
     });
   });
@@ -221,7 +221,7 @@
         blend = 1;
       } else {
         drawContexts[0].globalCompositeOperation = 'darker';
-        var size = 1+ (brushProperties.size * (-Math.log(1-pressure)));
+        var size = 1+ (brushProperties.size * (-Math.log(1-pressure+0.0001)));
         blend = ((1-tilt)*pressure) +(brushProperties.opacity/100);
         drawContexts[0].globalAlpha = 1;
       }
@@ -247,7 +247,7 @@
       var pressure = penattributes1.pressure + ((pressureDelta/subDivs)*i);
       var tpenAttributes1 = {angle: angle, tilt: tilt, pressure: pressure, eraser: eraser};
       if (i>0) {
-        drawLine(drawContexts[0], [point.x, point.y], [prevp.x, prevp.y], tpenAttributes2, tpenAttributes1);
+        drawLine(drawContexts[0], [point.x, point.y], [prevp.x, prevp.y], tpenAttributes1, tpenAttributes2);
       }
       prevp = point;
       tpenAttributes2 = tpenAttributes1;
@@ -257,74 +257,91 @@
   var getWacomPoint = function(e) {
     var wacom = getWacomPlugin();
     var x, y;
-    // right now, we only support the two models we have to test
+    // right now, we only support the models we have been able to test
     if (wacom.penAPI.tabletModel == 'Intuos PT S') {
       x = (wacom.penAPI.posX / 15200) * screen.width - (e.screenX - e.pageX);
       y = (wacom.penAPI.posY / 9500) * screen.height - (e.screenY - e.pageY);
     }
-    else {
-      // assume cintiq
+    /* removing for now since these numbers are actually wrong
+    else if (wacom.penAPI.tabletModel == 'Intuos3 9x12') {
+      x = (wacom.penAPI.posX / 51006) * screen.width - (e.screenX - e.pageX);
+      y = (wacom.penAPI.posY / 38440) * screen.height - (e.screenY - e.pageY);
+    }
+    */
+    else if (wacom.penAPI.tabletModel = 'Cintiq 13HD') {  // tableModelID == "DTK-1300"
       x = ((wacom.penAPI.posX)-600)/((60000-(600*2))/1920);
       y = ((wacom.penAPI.posY)-400)/((33874-(400*2))/1080);
+    }
+    else {
+      x = e.pageX;
+      y = e.pageY;
     }
     return {x: x, y: y};
   };
 
+  var testAnimationFrame = function() {
+    requestAnimationFrameID = window.requestAnimationFrame(testAnimationFrame);
+    for (var i = 0; i < pointerBuffer.length; i++) {
+      var penAttributes = pointerBuffer[i];
+      var currentPoint = penAttributes.point;
+      var dist = Math.floor(Math.sqrt(Math.pow(previousLoc[previousLoc.length-1][0]-currentPoint[0],2)+Math.pow(previousLoc[previousLoc.length-1][1]-currentPoint[1],2)));
+      if (dist > 0 && (currentPoint[0] !== previousLoc[previousLoc.length-1][0])) {
+        if (previousLoc.length > 1 && dist > 3) {
+          var curve = [];
+          curve.push({x: previousLoc[previousLoc.length-1][0], y: previousLoc[previousLoc.length-1][1]});
+          var midX = previousLoc[previousLoc.length-1][0] + ((previousLoc[previousLoc.length-1][0] - previousLoc[previousLoc.length-2][0]) * 0.3) + ((currentPoint[0] - previousLoc[previousLoc.length-1][0]) * 0.3);
+          var midY = previousLoc[previousLoc.length-1][1] + ((previousLoc[previousLoc.length-1][1] - previousLoc[previousLoc.length-2][1]) * 0.3) + ((currentPoint[1] - previousLoc[previousLoc.length-1][1]) * 0.3);
+          curve.push({x: midX, y: midY});
+          curve.push({x: currentPoint[0], y: currentPoint[1]});
+          drawCurve(curve, Math.max(Math.floor(dist/5), 2), penAttributes, previousPenAttributes);
+        } else {
+          drawLine(drawContexts[0], previousLoc[previousLoc.length-1], currentPoint, previousPenAttributes, penAttributes);
+        }
+        previousLoc.push(currentPoint);
+        previousPenAttributes = penAttributes;
+        renderDrawingLayer(currentColor[currentLayer]);
+      }
+    }
+    pointerBuffer = [];
+  }
+
+  var getPointerData = function(e) {
+    var wacom;
+    wacom = getWacomPlugin();
+    var tabX, tabY;
+    if (usingWacom()) {
+      var pt = getWacomPoint(e);
+      tabX = pt.x;
+      tabY = pt.y;
+    }
+    else {
+      tabX = e.pageX;
+      tabY = e.pageY;
+    }
+    var currentPoint = [(tabX - penOffset[0])/mult, (tabY - penOffset[1])/mult];
+    if (usingWacom()) {
+      var angle = Math.atan2(wacom.penAPI.tiltY, wacom.penAPI.tiltX) * TO_DEGREES;
+      var tilt = Math.max(Math.abs(wacom.penAPI.tiltY),Math.abs(wacom.penAPI.tiltX) );
+      if (tilt == 0) {
+        tilt = 0.5;
+      }
+      var pressure = wacom.penAPI.pressure;
+      var eraser = wacom.penAPI.isEraser;
+    } else {
+      var angle = 0;
+      var tilt = 0.5;
+      var pressure = fakePressure;
+      var eraser = e.shiftKey;
+    }
+    penAttributes = {point: currentPoint, angle: angle, tilt: tilt, pressure: pressure, eraser: eraser};
+    return penAttributes;
+  }
+
   $(document).ready(function() {
     $(window).mousemove(function(e){
       if (penDown == true && locked == false && noCanvas == false) {
-        var wacom;
-        wacom = getWacomPlugin();
-        var tabX, tabY;
-        if (usingWacom()) {
-          var pt = getWacomPoint(e);
-          tabX = pt.x;
-          tabY = pt.y;
-        }
-        else {
-          tabX = e.pageX;
-          tabY = e.pageY;
-        }
-        // distance from last pen position (unscaled px?)
-        var currentPoint = [(tabX - penOffset[0])/mult, (tabY - penOffset[1])/mult];
-        // floor(distance pen traveled)
-        var dist = Math.floor(Math.sqrt(Math.pow(previousLoc[previousLoc.length-1][0]-currentPoint[0],2)+Math.pow(previousLoc[previousLoc.length-1][1]-currentPoint[1],2)));
-
-        if (usingWacom()) {
-          var angle = Math.atan2(wacom.penAPI.tiltY, wacom.penAPI.tiltX) * TO_DEGREES;
-          var tilt = Math.max(Math.abs(wacom.penAPI.tiltY),Math.abs(wacom.penAPI.tiltX) );
-          // if tilt isn't supported, fake it. should probably try and fake angle, too, but the simplest version doesn't seem to work well.
-          if (tilt == 0) {
-            //angle = Math.atan2(previousLoc[previousLoc.length-1][1]-currentPoint[1], previousLoc[previousLoc.length-1][0]-currentPoint[0]) * TO_DEGREES;
-            tilt = 0.5;
-          }
-          var pressure = wacom.penAPI.pressure;
-          var eraser = wacom.penAPI.isEraser;
-        } else {
-          var angle = 0;//Math.atan2(previousLoc[previousLoc.length-1][1]-currentPoint[1], previousLoc[previousLoc.length-1][0]-currentPoint[0]) * TO_DEGREES;
-          var tilt = 0.5;
-          //var blend = 1/3;
-          var pressure = fakePressure;
-          var eraser = e.shiftKey;
-        }
-        penAttributes = {angle: angle, tilt: tilt, pressure: pressure, eraser: eraser};
-
-        if (dist > 0 && (currentPoint[0] !== previousLoc[previousLoc.length-1][0])) {
-          if (previousLoc.length > 1 && dist > 2) {
-            var curve = [];
-            curve.push({x: previousLoc[previousLoc.length-1][0], y: previousLoc[previousLoc.length-1][1]});
-            var midX = previousLoc[previousLoc.length-1][0] + ((previousLoc[previousLoc.length-1][0] - previousLoc[previousLoc.length-2][0]) * 0.3) + ((currentPoint[0] - previousLoc[previousLoc.length-1][0]) * 0.3);
-            var midY = previousLoc[previousLoc.length-1][1] + ((previousLoc[previousLoc.length-1][1] - previousLoc[previousLoc.length-2][1]) * 0.3) + ((currentPoint[1] - previousLoc[previousLoc.length-1][1]) * 0.3);
-            curve.push({x: midX, y: midY});
-            curve.push({x: currentPoint[0], y: currentPoint[1]});
-            drawCurve(curve, Math.max(Math.floor(dist/5), 2), penAttributes, previousPenAttributes);
-          } else {
-            drawLine(drawContexts[0], previousLoc[previousLoc.length-1], currentPoint, previousPenAttributes, penAttributes);
-          }
-          previousLoc.push(currentPoint);
-          previousPenAttributes = penAttributes;
-          renderDrawingLayer(currentColor[currentLayer]);
-        }
+        penAttributes = getPointerData(e);
+        pointerBuffer.push(penAttributes);
       }
     });
   });
@@ -517,6 +534,7 @@
 
   var copy = function() {
     if (getEditMode() && noCanvas == false) {
+      console.log("COPIED!!!!!!!")
       copyLayers = [];
       for (var i=0;i<contexts.length;i++) {
         var newCanvas = document.createElement('canvas');
@@ -534,9 +552,10 @@
 
   var paste = function() {
     if (copyLayers.length == 3) {
-      if (noCanvas) {
+      if (fountainManager.getCursorHasImages()) {
+      } else {
         fountainManager.newBoard();
-      } 
+      }
       locked = false;
       editMode = true;
       for (var i=0;i<copyLayers.length;i++) {
@@ -571,14 +590,12 @@
       loadedLayer++;
       contexts[i].drawImage(image, 0, 0, canvasSize[0], canvasSize[1]);
       if (loadedLayer == totalLayers) {
-        console.log("disappear")
         $("#flat-image").css("display", "none");
       }
     };
     image.onerror = function() {
       loadedLayer++;
       if (loadedLayer == totalLayers) {
-        console.log("disappear")
         $("#flat-image").css("display", "none");
       }
     }
@@ -596,9 +613,10 @@
       for (var i=0;i<layers.length;i++) {
         drawOnCanvas(layers, i);
       }
-      
+      if (copyAfter) { 
+        var timeOutCopy = window.setTimeout(copy, 100); 
+      };
     }
-    if (copyAfter) { copy(); };
   };
 
   var getEditMode = function() { return editMode; };
@@ -615,6 +633,8 @@
     }
     emitter.emit('lightboxmode:change', lightboxMode);
   }
+
+  var getPenDown = function() { return penDown; };
 
   var sketchpane = window.sketchpane = {
     emitter: emitter,
@@ -636,7 +656,8 @@
     copy: copy,
     paste: paste,
     getLighboxMode: getLighboxMode,
-    toggleLightboxMode: toggleLightboxMode
+    toggleLightboxMode: toggleLightboxMode,
+    getPenDown: getPenDown
   };
 
   // force initial event fires
@@ -644,7 +665,7 @@
     process.nextTick(function() {
       setColor(getColor());
       setLayer(getLayer());
-      toggleLightboxMode(); toggleLightboxMode();
+      toggleLightboxMode();
     });
   });
 

@@ -5,42 +5,11 @@
   'use strict';
 
   var util = require('util');
+  require('coffee-script/register');
+  window.timeline = require('./js/timeline');
+  window.player = require('./js/player');
 
-  var NEW_SCRIPT_TEXT = "Title: **THE LAST BIRTHDAY CARD**\n"+
-"Credit: Written by\n"+
-"Author: Stu Maschwitz\n"+
-"Draft date: 7/8/1998\n"+
-"Contact:\n"+
-"    PO Box 10031\n"+
-"    San Rafael CA 94912\n"+
-"    Registered WGAw No. 701428\n"+
-"\n"+
-"# ACT I\n"+
-"\n"+
-"= Meet the players and set up the world. Two hit men with very different lives.\n"+
-"\n"+
-"> HERE WE GO:\n"+
-"\n"+
-"## Meet Scott\n"+
-"\n"+
-"= And his friend Baxter.\n"+
-"\n"+
-"### Scott's SF Apartment\n"+
-"\n"+
-"INT. SAN FRANCISCO APARTMENT, DAY\n"+
-"\n"+
-"SCOTT is painting.  Badly.  Let's not mince words.\n"+
-"\n"+
-"SCOTT\n"+
-"sup\n"+
-"";
-
-  //storyboardState.loadURL("https://s3-us-west-2.amazonaws.com/storyboard.setpixel.com/test.fountain");
-
-  //fountainManager.loadURL("https://dl.dropboxusercontent.com/u/10266/sketch/data/steel.fountain");
-  
-  //fountainManager.loadURL("https://s3-us-west-2.amazonaws.com/storyboard.setpixel.com/test.fountain");
-
+  var NEW_SCRIPT_TEXT = example.fountainText;
   var currentSource = null;
   var currentConfig = null;
   var sourceModule = null;
@@ -86,16 +55,18 @@
       localStorage.setItem("editing", JSON.stringify(currentSource));
       log('set localstorage and it is now', localStorage.getItem('editing'));
       sourceModule = SOURCES[currentSource.type];
-      console.log('sourceModule = ', currentSource.type, sourceModule);
+      //console.log('sourceModule = ', currentSource.type, sourceModule);
       sourceModule.load(source, function(err, result) {
         if (err) {
-          log('failed to load', err);
+          console.log('failed to load', require('util').inspect(err));
+          throw err;
+          process.exit();
           localStorage.removeItem("editing");
           create(next);
         }
         else {
           currentConfig = result.config;
-          console.log('sourceModule = ', currentConfig);
+          //console.log('sourceModule = ', currentConfig);
           fountainManager.load(currentConfig);
           next();
         }
@@ -114,15 +85,15 @@
     else {
       type = 'local';
     }
-    log('create', type);
+    //console.log('create', type);
     SOURCES[type].create(function(err, result) {
-      log('created', err, result);
+      //console.log('created', err, result);
       if (err) {
         next(err);
       }
       else {
         open(result.source, next);
-        log('opened');
+        //console.log('opened');
       }
     });
   };
@@ -145,7 +116,6 @@
   }
 
   var imageUrl = function(name) {
-    console.log('sourceModule = ', currentSource.type, sourceModule);
     return sourceModule.imageUrl(name);
   }
 

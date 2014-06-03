@@ -3,6 +3,7 @@ node_modules
 robotdawn.fountain
 webkitbuilds/*
 node-webkit-src/node_modules/*
+node-webkit-src/bower_components/*
 data/*
 player/bower_components/*
 player/node_modules/*

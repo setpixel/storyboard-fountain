@@ -9,113 +9,147 @@
         <title></title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width">
-        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <link rel="stylesheet" href="css/bootstrap.css">
         <link rel="stylesheet" href="css/bootstrap-theme.min.css">
+        <link rel="stylesheet" media="all" href="bower_components/codemirror/lib/codemirror.css">
         <link rel="stylesheet" media="all" href="css/main.css">
+        <link rel="stylesheet" media="all" href="css/neo.css">
         <script src="js/libs/modernizr-2.6.2-respond-1.1.0.min.js"></script>
+        <script src="bower_components/codemirror/lib/codemirror.js"></script>
+        <script src="js/libs/foldcode-modified.js"></script>
+        <link href='http://fonts.googleapis.com/css?family=Roboto:400,500,300' rel='stylesheet' type='text/css'>
+        <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600' rel='stylesheet' type='text/css'>
+        <script type="text/javascript" src="//use.typekit.net/lyg7zzn.js"></script>
+        <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+        <script>
+          process.env.NODE_ENV = 'production';
+        </script>
     </head>
-    <body ondragstart="return false;" ondrop="return false;">
+    <body ondragstart="return false;" ondrop="return false;" onselectstart="return false;">
 
-    <div class="toolbar">
+    <div id="boards-toolbar" class="toolbar">
 
       <div class="toolbar-button-group">
-        <div class="toolbar-button stats" id="bttn-stats" title="Show stats"></div>
-        <div class="toolbar-button export" id="bttn-export" title="Export boards to Final Cut XML or to Share"></div>
+        <div class="toolbar-button stats disable-while-engaged" id="bttn-stats" title="Show stats"></div>
+        <div class="toolbar-button export disable-while-engaged" id="bttn-export" title="Export boards to Final Cut XML or to Share"></div>
       </div>
 
       <div class="toolbar-button-group">
-        <div class="toolbar-button new-board" id="bttn-new-board" title="Create a new board [key: N]"></div>
-        <div class="toolbar-button remove-board" id="bttn-remove-board" title="Remove the current board... [key: Delete]"></div>
+        <div class="toolbar-button new-board disable-while-engaged" id="bttn-new-board" title="Create a new board [key: N]"></div>
+        <div class="toolbar-button remove-board disable-while-engaged" id="bttn-remove-board" title="Remove the current board... [key: Delete]"></div>
       </div>
 
       <div class="toolbar-button-group">
-        <div class="toolbar-button record" id="bttn-record" title="Live record timing for boards"></div>
-        <div class="toolbar-button previous" id="bttn-previous" title="Previous board [key: left arrow or up arrow]"></div>
+        <div class="toolbar-button record" id="bttn-record" title="Live record timing for boards [key: Cmd + R]"></div>
+        <div class="toolbar-button recording" id="bttn-recording" title="Stop recording [key: Esc]" style="display: none;"></div>
+        <div class="toolbar-button previous disable-while-engaged" id="bttn-previous" title="Previous board [key: left arrow or up arrow]"></div>
         <div class="toolbar-button play" id="bttn-play" title="Play back board timing [key: space]"></div>
-        <div class="toolbar-button next" id="bttn-next" title="Next board [key: right arrow or down arrow]"></div>
+        <div class="toolbar-button pause" id="bttn-pause" title="Pause playback [key: space]" style="display: none;"></div>
+        <div class="toolbar-button next disable-while-engaged" id="bttn-next" title="Next board [key: right arrow or down arrow]"></div>
       </div>
 
       <div class="toolbar-button-group">
-        <div class="toolbar-button undo" id="bttn-undo" title="Undo drawing [key: Z]"></div>
-        <div class="toolbar-button redo" id="bttn-redo" title="Redo drawing [key: X]"></div>
+        <div class="toolbar-button undo disable-while-engaged" id="bttn-undo" title="Undo drawing [key: Z]"></div>
+        <div class="toolbar-button redo disable-while-engaged" id="bttn-redo" title="Redo drawing [key: X]"></div>
       </div>
 
       <div class="toolbar-button-group">
-        <div class="toolbar-button copy" id="bttn-copy" title="Copy board [key: C]"></div>
-        <div class="toolbar-button paste" id="bttn-paste" title="Paste board [key: V]"></div>
+        <div class="toolbar-button copy disable-while-engaged" id="bttn-copy" title="Copy board [key: C]"></div>
+        <div class="toolbar-button paste disable-while-engaged" id="bttn-paste" title="Paste board [key: V]"></div>
       </div>
 
       <div class="toolbar-button-group">
-        <div class="toolbar-button guide" id="bttn-guide" title="Toggle guides [key: G]"></div>
-        <div class="toolbar-button lightbox" id="bttn-lightbox" title="Toggle lightbox mode [key: L]"></div>
+        <div class="toolbar-button guide disable-while-engaged" id="bttn-guide" title="Toggle guides [key: G]"></div>
+        <div class="toolbar-button lightbox disable-while-engaged" id="bttn-lightbox" title="Toggle lightbox mode [key: L]"></div>
       </div>
 
       <div class="toolbar-button-group">
-        <div class="toolbar-button paint" id="bttn-paint" title="Fat paint marker [key: 1]"></div>
-        <div class="toolbar-button pencil" id="bttn-pencil" title="Pencil [key: 2]"></div>
-        <div class="toolbar-button pen" id="bttn-pen" title="Pen [key: 3]"></div>
+        <div class="toolbar-button paint disable-while-engaged" id="bttn-paint" title="Fat paint marker [key: 1]"></div>
+        <div class="toolbar-button pencil disable-while-engaged" id="bttn-pencil" title="Pencil [key: 2]"></div>
+        <div class="toolbar-button pen disable-while-engaged" id="bttn-pen" title="Pen [key: 3]"></div>
       </div>
 
       <div class="toolbar-button-group">
-        <div class="toolbar-button toolbar-button-color" id="bttn-color-1" title="Visualizer color [key: numpad 1]"><div class="color-1"></div></div>
-        <div class="toolbar-button toolbar-button-color" id="bttn-color-2" title="Visualizer color [key: numpad 2]"><div class="color-2"></div></div>
-        <div class="toolbar-button toolbar-button-color" id="bttn-color-3" title="Visualizer color [key: numpad 3]"><div class="color-3"></div></div>
+        <div class="toolbar-button toolbar-button-color disable-while-engaged" id="bttn-color-1" title="Visualizer color [key: numpad 1]"><div class="color-1"></div></div>
+        <div class="toolbar-button toolbar-button-color disable-while-engaged" id="bttn-color-2" title="Visualizer color [key: numpad 2]"><div class="color-2"></div></div>
+        <div class="toolbar-button toolbar-button-color disable-while-engaged" id="bttn-color-3" title="Visualizer color [key: numpad 3]"><div class="color-3"></div></div>
       </div>
 
       <div class="toolbar-button-group">    
-        <div class="toolbar-button toolbar-button-color" id="bttn-color-4" title="Black [key: numpad 7]"><div class="color-4"></div></div>
-        <div class="toolbar-button toolbar-button-color" id="bttn-color-5" title="Dark Grey"><div class="color-5"></div></div>
-        <div class="toolbar-button toolbar-button-color" id="bttn-color-6" title="Mid Grey [key: numpad 8]"><div class="color-6"></div></div>
-        <div class="toolbar-button toolbar-button-color" id="bttn-color-7" title="Light Grey"><div class="color-7"></div></div>
-        <div class="toolbar-button toolbar-button-color" id="bttn-color-8" title="White [key: numpad 9]"><div class="color-8"></div></div>
+        <div class="toolbar-button toolbar-button-color disable-while-engaged" id="bttn-color-4" title="Black [key: numpad 7]"><div class="color-4"></div></div>
+        <div class="toolbar-button toolbar-button-color disable-while-engaged" id="bttn-color-5" title="Dark Grey"><div class="color-5"></div></div>
+        <div class="toolbar-button toolbar-button-color disable-while-engaged" id="bttn-color-6" title="Mid Grey [key: numpad 8]"><div class="color-6"></div></div>
+        <div class="toolbar-button toolbar-button-color disable-while-engaged" id="bttn-color-7" title="Light Grey"><div class="color-7"></div></div>
+        <div class="toolbar-button toolbar-button-color disable-while-engaged" id="bttn-color-8" title="White [key: numpad 9]"><div class="color-8"></div></div>
       </div>
 
       <div class="toolbar-button-group">    
-        <div class="toolbar-button toolbar-button-color" id="bttn-color-9" title="Red [key: numpad 4]"><div class="color-9"></div></div>
-        <div class="toolbar-button toolbar-button-color" id="bttn-color-10" title="Green [key: numpad 5]"><div class="color-10"></div></div>
-        <div class="toolbar-button toolbar-button-color" id="bttn-color-11" title="Blue [key: numpad 6]"><div class="color-11"></div></div>
+        <div class="toolbar-button toolbar-button-color disable-while-engaged" id="bttn-color-9" title="Red [key: numpad 4]"><div class="color-9"></div></div>
+        <div class="toolbar-button toolbar-button-color disable-while-engaged" id="bttn-color-10" title="Green [key: numpad 5]"><div class="color-10"></div></div>
+        <div class="toolbar-button toolbar-button-color disable-while-engaged" id="bttn-color-11" title="Blue [key: numpad 6]"><div class="color-11"></div></div>
       </div>
 
 
 
     </div>
 
+    <div id="script-toolbar" class="toolbar" style="display: none;">
+      <div class="toolbar-button-group">
+        <div class="toolbar-button stats" id="bttn-stats" title="Show stats"></div>
+        <div class="toolbar-button export" id="bttn-export" title="Export boards to Final Cut XML or to Share"></div>
+      </div>
+      <div class="toolbar-button-group">
+        <div class="toolbar-button expand-notes" id="bttn-expand-notes" title="Toggle notes [key: Cmd + E]"></div>
+        <div class="toolbar-button auto-indent" id="bttn-auto-indent" title="Toggle auto-indent [key: Cmd + N]"></div>
+      </div>
+      <div class="toolbar-button-group" style="display: none;">
+        <div class="toolbar-button fountain-help" id="bttn-fountain-help" title="Show fountain help [key: Cmd + ?]"></div>
+      </div>
+    </div>
 
     <div>
       <div class="boards-list">
         <div class="tabs">
-          <div class="tab selected" id="tab-script">Script</div>
-          <div class="tab" id="tab-boardlist">Board List</div>
+          <div class="tab selected" id="tab-script">Boards</div>
+          <div class="tab" id="tab-outline" style="display: none;">Outline</div>
           <div class="tab" id="tab-scripttext">Script Text</div>
         </div>
 
+        <div id="scene-colorbars-container" ><div id="scene-colorbars" style="position: relative;"></div></div>
         <div id="script"></div>
-        <div id="boards">these are just the boards</div>
+        
+        
       </div>
 
-      <div class="drawing-canvas">
-        <div class="canvas white-bg"></div>
-        <img id="lightbox-image" style="z-index: 99;">
-        <canvas id="layer-1-ink" class="canvas" width="1600" height="680" style="z-index: 100;"></canvas>
-        <canvas id="layer-1-pencil" class="canvas" width="1600" height="680" style="z-index: 102;"></canvas>
-        <canvas id="layer-1-pen" class="canvas" width="1600" height="680" style="z-index: 104;"></canvas>
-        <img id="flat-image" style="z-index: 106;">
-        <canvas id="layer-1-active-visible" class="canvas" width="1600" height="680"></canvas>
-        <div class="caption"></div>
-      </div>
-              <canvas id="layer-1-active" class="canvas" width="1600" height="680" style="display: none;"></canvas>
+      <div id="mainpane">
+        <div id="scriptpane" style="display: none;">
+          <div id="scripttext"></div>
+        </div>
+
+        <div id="drawpane">
+          <div class="drawing-canvas">
+            <div class="canvas white-bg"></div>
+            <img id="lightbox-image" style="z-index: 99;"/>
+            <canvas id="layer-1-ink" class="canvas" style="z-index: 100;"></canvas>
+            <canvas id="layer-1-pencil" class="canvas" style="z-index: 102;"></canvas>
+            <canvas id="layer-1-pen" class="canvas" style="z-index: 104;"></canvas>
+            <img id="flat-image" style="z-index: 106;"/>
+            <canvas id="layer-1-active-visible" class="canvas"></canvas>
+            <div class="caption"></div>
+          </div>
+          <canvas id="layer-1-active" class="canvas" style="display: none;"></canvas>
+          <div class="metadata">
+            <div class="timer-timeleft"></div>
+            <div class="timer-duration"><div></div></div>
+          </div>
+        </div>
 
     </div>
         
     <div class="timeline"></div>
 
-    <div style="width: 0; height: 0;">
-      <!--[if IE]>
-      <object id='wtPlugin' classid='CLSID:092dfa86-5807-5a94-bf3b-5a53ba9e5308'>
-      </object>
-      <![endif]--><!--[if !IE]> <-->
+    <div style="width: 0; height: 0; position: absolute;">
       <object id="wtPlugin" type="application/x-wacomtabletplugin"><param name="onload" value="pluginLoaded" /></object>
-      <!--> <![endif]-->
     </div>
 
     <script src="js/libs/jquery.min.js"></script>
@@ -123,15 +157,39 @@
     <script src="js/libs/handlebars-v1.3.0.js"></script>
     <script src="js/libs/jsBezier.js"></script>
     <script src="js/util.js"></script>
+    <script>
+      require('coffee-script/register');
+      window.example = require('./js/example');
+      window.timeline = require('./js/timeline');
+      window.player = require('./js/player');
+      window.timer = require('./js/timer');
+      window.recorder = require('./js/recorder');
+      window.aspectRatio = require('./js/aspectratio');
+    </script>
     <script src="js/sketchpane.js"></script>
     <script src="js/storyboardstate.js"></script>
     <script src="js/libs/fountain.js"></script>
     <script src="js/fountainmanager.js"></script>
     <script src="js/sharing.js"></script>
+    <script src="js/editormode.js"></script>
+    <script src="js/scripteditor.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/localsource.js"></script>
     <script src="js/s3source.js"></script>
     <script src="js/main.js"></script>
+
+    <div id="stats-window" class="modal fade">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Stats</h4>
+          </div>
+          <div class="modal-body">
+          </div>
+        </div>
+      </div>
+    </div>
 
     <div id="creating-share-link" class="modal fade">
       <div class="modal-dialog">

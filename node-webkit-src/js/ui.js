@@ -1,6 +1,18 @@
 ;(function() {
   'use strict';
 
+  var events = require('events');
+  var _ = require('underscore');
+
+  var emitter = new events.EventEmitter();
+  var editor = null;
+  var activeState = 'boards';
+
+  var setActiveState = function(state) {
+    activeState = state;
+    emitter.emit('activeState:change', activeState);
+  };
+
   var resizeView = function() {
     var toolbarHeight = 50;
     var timelineHeight = 0;
@@ -20,9 +32,9 @@
 
     $(".boards-list").css('height', canvasDim[1]);
 
-    if (((canvasDim[0]-(canvasSidePadding*2))/(canvasDim[1]-(canvasSidePadding*2)-captionHeight)) >= (2.35/1)) {
+    if (((canvasDim[0]-(canvasSidePadding*2))/(canvasDim[1]-(canvasSidePadding*2)-captionHeight)) >= aspectRatio.getAspectRatio()) {
       var canvasHeight = (canvasDim[1]-(canvasSidePadding*2)-captionHeight);
-      var canvasWidth = (canvasDim[1]-(canvasSidePadding*2)-captionHeight) * (2.35/1);
+      var canvasWidth = (canvasDim[1]-(canvasSidePadding*2)-captionHeight) * aspectRatio.getAspectRatio();
       $(".drawing-canvas .canvas, .drawing-canvas img").css('width', canvasWidth);
       $(".drawing-canvas .canvas, .drawing-canvas img").css('height', canvasHeight);
 
@@ -33,7 +45,7 @@
       $(".drawing-canvas .caption").css('top', ((canvasDim[1] - canvasHeight)/2)-captionHeight+toolbarHeight+canvasHeight);
       $(".drawing-canvas .caption").css('width', canvasWidth);
     } else {
-      var canvasHeight = (windowWidth-boardslistWidth-(canvasSidePadding*2))*(1/2.35);
+      var canvasHeight = (windowWidth-boardslistWidth-(canvasSidePadding*2))/aspectRatio.getAspectRatio();
       var canvasWidth = windowWidth-boardslistWidth-(canvasSidePadding*2);
 
       $(".drawing-canvas .canvas, .drawing-canvas img").css('width', canvasWidth);
@@ -46,6 +58,32 @@
       $(".drawing-canvas .caption").css('top', ((canvasDim[1] - canvasHeight)/2)-captionHeight+toolbarHeight+canvasHeight);
       $(".drawing-canvas .caption").css('width', canvasWidth);
     }
+
+    var scriptHeight = windowHeight - toolbarHeight - $('.tabs').outerHeight();
+    $('#script').css('height', scriptHeight + 'px');
+
+    $("#scriptpane").css('width', canvasDim[0]);
+    $("#scriptpane").css('height', canvasDim[1]);
+
+    var canvasWidth = (canvasDim[0] - (canvasSidePadding * 2));
+    $("#scripttext").css('width', canvasWidth + 'px');
+
+    var calcEditorWidth = function() {
+      var o = $('<div>' + 'x' + '</div>')
+        .css({'position': 'absolute', 'left': 0, 'white-space': 'nowrap', 'visibility': 'hidden', 'font': 'Courier New', 'font-size': '18px', 'width': '62ch'})
+        .appendTo($('body'))
+      var w = o.width();
+      o.remove();
+      return w;
+    }
+    var editorWidth = calcEditorWidth();
+    var editorSpace = canvasDim[0] - canvasSidePadding * 2 - 20 * 2;
+    //console.log('editor resize', editorSpace, editorWidth, Math.floor(18 * editorSpace / editorWidth) + 'px');
+    if (editorSpace < editorWidth) {
+      $('.CodeMirror').css('font-size', Math.floor(18 * editorSpace / editorWidth) + 'px');
+    }
+
+    window.scrollTo(0);
   }
 
   var confirmExit = function() {
@@ -57,49 +95,137 @@
 
   $(document).ready(function() {
     resizeView();
+    
 
+    recorder.emitter.on('state:change', function(state) {
+      if (state == 'recording') {
+        $('.disable-while-engaged').addClass('disabled')
+        $('#bttn-play, #bttn-pause').addClass('disabled')
+        $('#tab-script, #tab-scripttext').addClass('disabled')
+        $('.drawing-canvas').addClass('disabled')
+        $('.timer-duration').addClass('disabled')
+      }
+      else {
+        $('.disable-while-engaged').removeClass('disabled')
+        $('#bttn-play, #bttn-pause').removeClass('disabled')
+        $('#tab-script, #tab-scripttext').removeClass('disabled')
+        $('.drawing-canvas').removeClass('disabled')
+        $('.timer-duration').removeClass('disabled')
+      }
+    });
+
+    player.emitter.on('state:change', function(state) {
+      if (state == 'playing') {
+        $('.disable-while-engaged').addClass('disabled')
+        $('#bttn-record, #bttn-recording').addClass('disabled')
+        $('#tab-script, #tab-scripttext').addClass('disabled')
+        $('.drawing-canvas').addClass('disabled')
+        $('.timer-duration').addClass('disabled')
+      }
+      else {
+        $('.disable-while-engaged').removeClass('disabled')
+        $('#bttn-record, #bttn-recording').removeClass('disabled')
+        $('#tab-script, #tab-scripttext').removeClass('disabled')
+        $('.drawing-canvas').removeClass('disabled')
+        $('.timer-duration').removeClass('disabled')
+      }
+    });
+
+    var checkDisabled = function(fn) {
+      return function(e) {
+        if ($(this).hasClass('disabled')) {
+          return false;
+        }
+        else {
+          return fn(e);
+        }
+      };
+    }
 
     $('.tab').click(function(){
       $(this).parent().children().removeClass('selected');
       $(this).addClass('selected');
     })
 
-    $('#tab-script').click(function(){
-      $('#script').show();
-      $('#boards').hide();
-    })
+    $('#tab-script').click(checkDisabled(function(){
+      $('#scriptpane').hide();
+      $('#drawpane').show();
+      $('#boards-toolbar').show();
+      $('#script-toolbar').hide();
+      setActiveState('boards');
+    }));
 
-    $('#tab-boardlist').click(function(){
-      $('#script').hide();
-      $('#boards').show();
-    })
-   
+    $('#tab-scripttext').click(checkDisabled(function() {
+      $('#scriptpane').show();
+      $('#drawpane').hide();
+      $('#boards-toolbar').hide();
+      $('#script-toolbar').show();
+      setActiveState('script');
+    }));
 
     $(window).resize(resizeView);
+    $(window).resize(fountainManager.renderScenes);
+
+
 
     window.onbeforeunload = confirmExit;
 
-    $("#bttn-new-board").click(fountainManager.newBoard);
-    $("#bttn-remove-board").click(fountainManager.deleteBoard);
+    $('#bttn-stats').click(function() {
+      showStats();
+    });
 
-    $("#bttn-previous").click(function() {fountainManager.goNext(-1);});
-    $("#bttn-next").click(function() {fountainManager.goNext(1);});
+    $('#bttn-auto-indent').click(function() {
+      scriptEditor.toggleAutoIndent();
+    });
 
-    $("#bttn-undo").click(sketchpane.undo);
-    $("#bttn-redo").click(sketchpane.redo);
+    scriptEditor.emitter.on('autoIndent:change', function(value) {
+      $('#bttn-auto-indent').toggleClass('selected', value);
+    });
 
-    $("#bttn-copy").click(sketchpane.copy);
-    $("#bttn-paste").click(sketchpane.paste);
+    $('#bttn-expand-notes').click(function() {
+      scriptEditor.toggleExpandNotes();
+    });
 
-    $("#bttn-lightbox").click(sketchpane.toggleLightboxMode);
+    scriptEditor.emitter.on('expandNotes:change', function(value) {
+      $('#bttn-expand-notes').toggleClass('selected', value);
+    });
+
+    // kidna a hack but need to force the UI to update for now
+    scriptEditor.toggleAutoIndent(scriptEditor.getAutoIndent());
+    scriptEditor.toggleExpandNotes(scriptEditor.getExpandNotes());
+
+    $('#bttn-play').click(checkDisabled(player.play));
+    $('#bttn-pause').click(checkDisabled(player.pause));
+
+    player.emitter.on('state:change', function(state) {
+      $('#bttn-play')[state == 'playing' ? 'hide' : 'show']();
+      $('#bttn-pause')[state == 'paused' ? 'hide' : 'show']();
+    });
+
+    $('#bttn-record').click(checkDisabled(recorder.startRecording));
+    $('#bttn-recording').click(checkDisabled(recorder.stopRecording));
+
+    recorder.emitter.on('state:change', function(state) {
+      $('#bttn-record')[state == 'recording' ? 'hide' : 'show']();
+      $('#bttn-recording')[state == 'paused' ? 'hide' : 'show']();
+    });
+
+    $("#bttn-new-board").click(checkDisabled(fountainManager.newBoard));
+    $("#bttn-remove-board").click(checkDisabled(fountainManager.deleteBoard));
+
+    $("#bttn-previous").click(checkDisabled(function() {fountainManager.goNext(-1);}));
+    $("#bttn-next").click(checkDisabled(function() {fountainManager.goNext(1);}));
+
+    $("#bttn-undo").click(checkDisabled(sketchpane.undo));
+    $("#bttn-redo").click(checkDisabled(sketchpane.redo));
+
+    $("#bttn-copy").click(checkDisabled(sketchpane.copy));
+    $("#bttn-paste").click(checkDisabled(sketchpane.paste));
+
+    $("#bttn-lightbox").click(checkDisabled(sketchpane.toggleLightboxMode));
 
     sketchpane.emitter.on('lightboxmode:change', function(mode) {
-      if (mode) {
-        $("#bttn-lightbox").addClass('selected');
-      }
-      else {
-        $("#bttn-lightbox").removeClass('selected');
-      }
+      $("#bttn-lightbox").toggleClass('selected', mode);
     });
 
     var penButtons = [
@@ -118,7 +244,7 @@
     ];
 
     $.each(penButtons, function(layer, data) {
-      $(data.selector).click(data.fn);
+      $(data.selector).click(checkDisabled(data.fn));
     });
 
     sketchpane.emitter.on('layer:change', function(newLayer, oldLayer) {
@@ -141,7 +267,7 @@
     };
 
     $.each(colorButtons, function(selector, color) {
-      $(selector).click(function() { sketchpane.setColor(color) });
+      $(selector).click(checkDisabled(function() { sketchpane.setColor(color) }));
     });
 
     var colorEquals = function(a, b) {
@@ -159,87 +285,244 @@
       });
     });
 
-    $(window).keydown(function(e){
-      console.log(e.keyCode);
+    $(window).keyup(function(e) {
+      if (activeState == 'boards') {
+        if (recorder.getState() == 'recording') {
+          switch (e.keyCode) {
+            case 27:  // esc
+              recorder.stopRecording();
+              break;
+          }
+        }
+      }
+    });
 
-      switch (e.keyCode) {
-        // shade
-        case 49:  // 1
-          sketchpane.setLayer(0);
-          sketchpane.setBrush({size: 20, opacity: 15});
-          break;
-        // pencil
-        case 50:  // 2
-          sketchpane.setLayer(1);
-          sketchpane.setBrush({size: 1, opacity: 0});
-          break;
-        // pen
-        case 51:  // 3
-          sketchpane.setLayer(2);
-          sketchpane.setBrush({size: 4, opacity: 60});
-          break;
-        case 55:  // 7
-        case 103:  // #7
-          sketchpane.setColor([0,0,0]);
-          break;
-        case 56:  // 8
-        case 104:  // #8
-          sketchpane.setColor([188,188,188]);
-          break;
-        case 57:  // 9
-        case 105:  // #9
-          sketchpane.setColor([255,255,255]);
-          break;
-        case 52:  // 4
-        case 100:  // #4
-          sketchpane.setColor([255,92,92]);
-          break;
-        case 53:  // 5
-        case 101:  // #5
-          sketchpane.setColor([132,198,121]);
-          break;
-        case 54:  // 6
-        case 102:  // #6
-          sketchpane.setColor([85,77,184]);
-          break;
-        case 90:  // z
-          sketchpane.undo();
-          break;
-        case 88:  // x
-          sketchpane.redo();
-          break;
-        // n
-        case 78:
-          fountainManager.newBoard();
-          break;
-        // up and back
-        case 37:  // left
-        case 38:  // up
-          e.preventDefault();
-          fountainManager.goNext(-1);
-          break;
-        // next and forward
-        case 39:  // right
-        case 40:  // down
-          e.preventDefault();
-          fountainManager.goNext(1);
-          break;
-        case 67:  // c
-          sketchpane.copy();
-          break;
-        case 86:  // v
-          sketchpane.paste();
-          break;
-        case 76:  // l
-          sketchpane.toggleLightboxMode();
-          break;
-        case 46:  // delete
-          fountainManager.deleteBoard();
-          break;
-       }
+    $(window).keydown(function(e){
+      //console.log(e.keyCode);
+
+      if (activeState == 'boards') {
+        if (recorder.getState() == 'paused') {
+          // board editor
+
+          switch (e.keyCode) {
+            // shade
+            case 49:  // 1
+              sketchpane.setLayer(0);
+              sketchpane.setBrush({size: 20, opacity: 15});
+              break;
+            // pencil
+            case 50:  // 2
+              sketchpane.setLayer(1);
+              sketchpane.setBrush({size: 1, opacity: 0});
+              break;
+            // pen
+            case 51:  // 3
+              sketchpane.setLayer(2);
+              sketchpane.setBrush({size: 4, opacity: 60});
+              break;
+            case 55:  // 7
+            case 103:  // #7
+              sketchpane.setColor([0,0,0]);
+              break;
+            case 56:  // 8
+            case 104:  // #8
+              sketchpane.setColor([188,188,188]);
+              break;
+            case 57:  // 9
+            case 105:  // #9
+              sketchpane.setColor([255,255,255]);
+              break;
+            case 52:  // 4
+            case 100:  // #4
+              sketchpane.setColor([255,92,92]);
+              break;
+            case 53:  // 5
+            case 101:  // #5
+              sketchpane.setColor([132,198,121]);
+              break;
+            case 54:  // 6
+            case 102:  // #6
+              sketchpane.setColor([85,77,184]);
+              break;
+            case 90:  // z
+              sketchpane.undo();
+              break;
+            case 88:  // x
+              sketchpane.redo();
+              break;
+            // n
+            case 78:
+              fountainManager.newBoard();
+              break;
+            // up and back
+            case 37:  // left
+            case 38:  // up
+              e.preventDefault();
+              fountainManager.goNext(-1);
+              break;
+            // next and forward
+            case 39:  // right
+            case 40:  // down
+              e.preventDefault();
+              fountainManager.goNext(1);
+              break;
+            case 67:  // c
+              sketchpane.copy();
+              break;
+            case 86:  // v
+              sketchpane.paste();
+              break;
+            case 76:  // l
+              sketchpane.toggleLightboxMode();
+              break;
+            case 46:  // delete
+              fountainManager.deleteBoard();
+              break;
+            case 32:  // space
+              e.preventDefault();
+              player.toggleState();
+              break;
+            case 82:  // r
+              if (e.metaKey) {  // cmd + r
+                recorder.startRecording();
+              }
+              break;
+            case 33:  // page up
+              e.preventDefault();
+              fountainManager.nextScene(-1);
+              break;
+            case 34:  // page down
+              e.preventDefault();
+              fountainManager.nextScene(1);
+              break;
+
+          }
+        }
+        else {
+          switch (e.keyCode) {
+            case 27:  // enter
+            case 32:  // space
+            case 39:  // right
+            case 40:  // down
+              e.preventDefault();
+              recorder.advance();
+              break;
+            case 82:  // r
+              if (e.metaKey) {  // cmd + r
+                recorder.stopRecording();
+              }
+              break;
+          }          
+        }
+      }
+      else {
+        // script editor
+
+        switch (e.keyCode) {
+          case 69:  // e
+            if (e.metaKey) {  // cmd + e
+              scriptEditor.toggleExpandNotes();
+            }
+            break;
+          case 78:  // n
+            if (e.metaKey) {  // cmd + n
+              scriptEditor.toggleAutoIndent();
+            }
+            break;
+        }
+      }
     });
   });
 
+  $(document).ready(function() {
+    timer.init($('.timer-timeleft'), $('.timer-duration div'));
+    $('.timer-duration').click(function() {
+      if (player.getFullState().state == 'playing' || recorder.getState() == 'recording') return;
+      var atom = fountainManager.getAtomForCursor();
+      if (!atom) return;
+      var sec = (atom.duration / 1000).toFixed(1);
+      var duration = prompt('Duration of this ' + atom.type, sec);
+      if (duration === null) {
+        return;
+      }
+      else if (parseFloat(duration) > 0) {
+        fountainManager.setAtomDuration(atom, parseFloat(duration) * 1000);
+        timer.setDuration(atom.duration);
+        timer.setTimeLeft(atom.duration * 0.75);
+      }
+      else {
+        return;
+      }
+    });
+    var draggingDuration = false;
+    $('.timer-duration').mousedown(function(e) {
+      if (player.getFullState().state == 'playing' || recorder.getState() == 'recording') return;
+      var atom = fountainManager.getAtomForCursor();
+      if (!atom) return;
+
+      var startX = e.pageX;
+      var startDuration = atom.duration;
+      var duration = startDuration;
+      var moveHandler = function(e) {
+        var diff = e.pageX - startX;
+        duration = Math.floor(Math.max(100, startDuration + diff * 20));
+        timer.setDuration(duration);
+        timer.setTimeLeft(duration * 0.75);
+      };
+      var upHandler = function(e) {
+        if (startX - e.pageX) {
+          e.preventDefault();
+          fountainManager.setAtomDuration(atom, duration);
+        }
+        $(window).unbind('mousemove', moveHandler);
+        $(window).unbind('mouseup', upHandler);
+      };
+      $(window).mousemove(moveHandler);
+      $(window).mouseup(upHandler);
+    });
+    fountainManager.emitter.on('selection:change', function(chunkIndex, boardIndex) {
+      //console.log('fountaManager selection:change', chunkIndex, boardIndex);
+      var atom = fountainManager.getAtomForCursor(chunkIndex, boardIndex);
+      if (!atom) return;
+      var update = timeline.getUpdateForAtom(atom);
+      if (!update) return;
+      timer.setDuration(update.duration);
+
+      var playerState = player.getFullState();
+      if (playerState.state == 'playing') {
+        timer.setTimeLeft(playerState.updateTimeLeft);
+        timer.play();
+      }
+      else {
+        timer.setTimeLeft(update.duration * 0.75);
+        timer.pause();
+      }
+    });
+    player.emitter.on('state:change', function(state) {
+      if (state == 'paused') {
+        var playerState = player.getFullState();
+        var update = timeline.updates()[playerState.updateIndex];
+        timer.setTimeLeft(update.duration * 0.75);
+        timer.pause();
+      }
+    });
+
+    function _updateAspectRatio(ratio, oldRatio) {
+      var classnames = {
+        2.35: "aspect-ratio-2-35",
+        1.85: "aspect-ratio-1-85",
+        1.78: "aspect-ratio-1-78",
+        1.33: "aspect-ratio-1-33"
+      };
+      if (oldRatio) {
+        $('.boards-list').removeClass(classnames[oldRatio]);
+      }
+      $('.boards-list').addClass(classnames[ratio]);
+    }
+    aspectRatio.emitter.on('aspectRatio:change', _updateAspectRatio);
+    _updateAspectRatio(aspectRatio.getAspectRatio());
+  });
+  
   $(document).ready(function() {
     var gui = require('nw.gui');
 
@@ -319,11 +602,95 @@
       return menu;
     };
 
+    var aspectRatioSubmenu = function() {
+      var checkChange = function(ratio) {
+        return function() {
+          if (confirm('Are you sure? All images will be resized.')) {
+            aspectRatio.setAspectRatio(ratio);
+          }
+          else {
+            updateCheckboxes(aspectRatio.getAspectRatio());
+          }
+          return false;
+        };
+      };
+
+      var menu = new gui.Menu();
+      menu.append(new gui.MenuItem({
+        label: '2.35:1 cinescope',
+        click: checkChange(2.35),
+        type: 'checkbox',
+        checked: true
+      }));
+      menu.append(new gui.MenuItem({
+        label: '1.85:1 letterbox',
+        click: checkChange(1.85),
+        type: 'checkbox',
+        checked: false
+      }));
+      menu.append(new gui.MenuItem({
+        label: '16:9 HDTV',
+        click: checkChange(1.78),
+        type: 'checkbox',
+        checked: false
+      }));
+      menu.append(new gui.MenuItem({
+        label: '4:3 SDTV',
+        click: checkChange(1.33),
+        type: 'checkbox',
+        checked: false
+      }));
+
+      var ratios = [2.35, 1.85, 1.78, 1.33];
+      var updateCheckboxes = function(ratio) {
+        //console.log('updateCheckboxes', ratio);
+        _.each(menu.items, function(item, index) {
+          item.checked = ratio == ratios[index];
+        });
+      };
+      aspectRatio.emitter.on('aspectRatio:change', updateCheckboxes);
+      updateCheckboxes();
+
+      return menu;
+    };
+
+    var viewMenu = function() {
+      var menu = new gui.Menu();
+      menu.append(new gui.MenuItem({
+        label: 'Aspect ratio',
+        submenu: aspectRatioSubmenu()
+      }));
+      return menu;
+    };
+
     var win = gui.Window.get();
     var menubar = new gui.Menu({type: 'menubar'});
-    menubar.append(new gui.MenuItem({label: 'File', submenu: fileMenu()}));
-    menubar.append(new gui.MenuItem({label: 'Share', submenu: shareMenu()}));
     win.menu = menubar;
+    win.menu.insert(new gui.MenuItem({label: 'File', submenu: fileMenu()}), 1);
+    win.menu.insert(new gui.MenuItem({label: 'View', submenu: viewMenu()}), 3);
+    win.menu.insert(new gui.MenuItem({label: 'Share', submenu: shareMenu()}), 4);
+
+    gui.Window.height = 100;
+
   });
+
+  var showStats = function() {
+    $('#stats-window .modal-body').html(fountainManager.generateBoardStats());
+    $('#stats-window').modal('show');
+    $('.stats-scene-complete').click(function() {
+      fountainManager.selectSceneAndScroll(parseInt($(this).attr('data-scene')));
+    });
+  };
+
+
+  window.setInterval(resizeView, 1000);
+
+  //window.setInterval(window.scrollTo(0), 1000);
+  //window.setInterval($('body').scrollTo(0), 1000);
+
+  window.ui = {
+    getActiveState: function() { return activeState; },
+    emitter: emitter
+  };
 
 }).call(this);

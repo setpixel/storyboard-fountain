@@ -7,6 +7,7 @@
   var co = require('co');
   var cofs = require('co-fs');
   var tmp = require('tmp');
+  var serveStatic = require('serve-static');
 
   var tmpDir = thunkify(tmp.dir);
 
@@ -22,7 +23,7 @@
   var settings = function() {
     return {
       AUTO_UPLOAD_LAYER_TIME: 20,
-      AUTO_UPLOAD_FLAT_TIME: 60
+      AUTO_UPLOAD_FLAT_TIME: 30
     }
   };
 
@@ -30,7 +31,7 @@
 
   var create = function(next) {
     co(function *() {
-      try {
+      //try {
         var path = yield tmpDir();
         log('new script', path);
         pathname = path;
@@ -51,10 +52,10 @@
         // write the script file
         yield cofs.writeFile(pathname + '/' + config.script, cfg.script, 'utf8');
         next(null, {source: {type: 'local', filename: filename}, config: cfg});
-      }
-      catch (e) {
-        next(e);
-      }
+      //}
+      //catch (e) {
+      //  next(e);
+      //}
     })();
   };
 
@@ -110,18 +111,9 @@
   var express = require('express');
   var app = express();
   app.get('/images/:name.:type', function(req, res, next) {
-    log('requesting', req.params.name, req.params.type);
-    var file = pathname + '/' + config.images + '/' + req.params.name + '.' + req.params.type;
-    fs.stat(file, function(err, stats) {
-      if (err) {
-        log('not found');
-        res.status(404).end();
-      }
-      else {
-        res.setHeader('Content-Type', 'image/' + req.params.type);
-        fs.createReadStream(file).pipe(res);
-      }
-    });
+    var root = pathname;
+    var options = {maxAge: 60 * 60 * 1000};
+    return serveStatic(root, options)(req, res, next);
   });
   app.listen(8081);
 
