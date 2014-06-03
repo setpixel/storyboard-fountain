@@ -64,7 +64,8 @@
       mode: 'fountain',
       viewportMargin: Infinity,
       theme: 'neo',
-      lineWrapping: true
+      lineWrapping: true,
+      keyMap: 'fountain'
     })
     editor.options.foldOptions = {
       rangeFinder: CodeMirror.fold.note,

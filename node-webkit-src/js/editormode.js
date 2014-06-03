@@ -173,4 +173,35 @@ $(document).ready(function() {
       to: cm.clipPos(CodeMirror.Pos(end))
     };
   });
+
+  CodeMirror.keyMap.fountain = {
+    "fallthrough": "default",
+    "Enter": function(cm) {
+      // by default, enter will start a new script element (by adding an extra
+      // line). exceptions to this are when we are typing a character name or
+      // when we are in parenthetical or dialogue or when we are on the title 
+      // page or when we are at the beginning of a line (just moves the line 
+      // down by one).
+      var pos = cm.getDoc().getCursor();
+      var token = cm.getTokenAt(pos);
+      var type = token.type;
+      if (pos.ch == 0 ||
+          type && (
+            type.match(/\bcharacter\b/) || 
+            type.match(/\bparenthetical\b/) ||
+            type.match(/\btitle_page\b/)
+          ) ||
+          cm.getLine(pos.line).match(/^\s*$/)
+      ) {
+        return CodeMirror.Pass;
+      }
+      else {
+        cm.replaceSelection("\n\n");
+      }
+    },
+    "Shift-Enter": function(cm) {
+      // force a single return
+      cm.replaceSelection("\n");
+    }
+  };
 });
