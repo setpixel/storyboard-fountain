@@ -5,9 +5,9 @@
   'use strict';
 
   var util = require('util');
-  require('coffee-script/register');
-  window.timeline = require('./js/timeline');
-  window.player = require('./js/player');
+
+  var gui = require('nw.gui');
+  gui.App.setCrashDumpDir(global.__dirname + '/..');
 
   var NEW_SCRIPT_TEXT = example.fountainText;
   var currentSource = null;
@@ -59,8 +59,6 @@
       sourceModule.load(source, function(err, result) {
         if (err) {
           console.log('failed to load', require('util').inspect(err));
-          throw err;
-          process.exit();
           localStorage.removeItem("editing");
           create(next);
         }
