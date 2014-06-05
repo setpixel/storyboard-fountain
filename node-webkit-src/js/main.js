@@ -149,7 +149,10 @@
   };
 
   $(document).ready(function() {
+    var gui = require('nw.gui');
     openOnStartup(function() {
+      gui.Window.get().show();
+
       console.log('done with startup');
     });
   });

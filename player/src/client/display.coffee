@@ -2,7 +2,12 @@ pageloadAt = Date.now()
 templates = {}
 totalDuration = 1
 currentState = 'paused'
+aspectRatio = 2.35
 
+setAspectRatio = (ratio) ->
+  aspectRatio = ratio
+  resizeView()
+ 
 template = (name) ->
   return templates[name]  if templates[name]?
   templates[name] = Handlebars.compile($("##{name}-template").html(), {noEscape: yes})
@@ -118,10 +123,10 @@ resizeView = ->
       $(".toolbar").css('height', toolbarHeight)
       $(".drawing-canvas .caption").css('height', captionHeight)
 
-      if ((canvasDim[0] - (canvasSidePadding * 2)) / (canvasDim[1] - (canvasSidePadding * 2) - captionHeight)) >= (2.35 / 1)
+      if ((canvasDim[0] - (canvasSidePadding * 2)) / (canvasDim[1] - (canvasSidePadding * 2) - captionHeight)) >= aspectRatio
         do (
           canvasHeight = (canvasDim[1]-(canvasSidePadding*2)-captionHeight),
-          canvasWidth = (canvasDim[1]-(canvasSidePadding*2)-captionHeight) * (2.35/1)
+          canvasWidth = (canvasDim[1]-(canvasSidePadding*2)-captionHeight) * aspectRatio
         ) ->
           $(".drawing-canvas .canvas, .drawing-canvas img").css('width', canvasWidth)
           $(".drawing-canvas .canvas, .drawing-canvas img").css('height', canvasHeight)
@@ -138,7 +143,7 @@ resizeView = ->
           $(".drawing-canvas .caption").css('width', canvasWidth)
       else
         do (
-          canvasHeight = (windowWidth-(canvasSidePadding*2))*(1/2.35),
+          canvasHeight = (windowWidth-(canvasSidePadding*2)) / aspectRatio,
           canvasWidth = windowWidth-(canvasSidePadding*2)
         ) ->
 
@@ -286,6 +291,7 @@ $(document).ready ->
         showControls()
 
 window.display = {
+  setAspectRatio,
   setState,
   setTime,
   setDuration,

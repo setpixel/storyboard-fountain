@@ -6,13 +6,16 @@ module.exports = {
     Draft date: 
     Contact: 
     
-    # ACT 1
+    ### Title of the first scene
     
-    = Wherein the writer starts a new script.
+    = Synopsis of the first scene.
     
     INT. A ROOM - DAY
     
     The WRITER sits at a desk, writing a script.
+
+    WRITER
+    I love writing.
 
     """
 }

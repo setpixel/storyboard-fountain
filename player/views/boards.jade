@@ -1,0 +1,80 @@
+extend layout
+
+block scripts
+  link(rel="stylesheet", media="all", href="/css/boards.css")
+  style.
+    #title {
+      padding: 30px 30px;
+      font-size: 200%;
+    }
+    img {
+      border: 1px solid black;
+      width: 100%;
+    }
+    #boards {
+      color: white;
+      background-color: rgb(50,50,50);
+    }
+    .board {
+      padding-bottom: 1em;
+      border-bottom: 1px solid #888;
+      margin-bottom: 1em;
+    }
+    .board .text-container {
+      padding: 30px 30px;
+    }
+    textarea {
+      width: 90%;
+      color: rgb(50,50,50);
+    }
+
+block content
+  #title
+
+  #boards
+
+  script(src="/js/modernizr-2.6.2-respond-1.1.0.min.js")
+  script(src="/lib/jquery/dist/jquery.js")
+  script(src="/lib/jquery-ui/ui/jquery-ui.js")
+  script(src="/lib/bootstrap/dist/js/bootstrap.js")
+  script(src="/lib/underscore/underscore.js")
+  script(src="/lib/handlebars/handlebars.js")
+  script(src="/js/fountain.js")
+  script(src="/app/boards.js")
+  script(src="/app/updates.js")
+  script(src="/app/script.js")
+  script.
+    window.key = !{JSON.stringify(share.key)};
+    window.dataUrl = !{JSON.stringify(dataUrl)};
+  script
+    :coffee
+      boards.loadShare(key)
+
+  script#board-template(type="text/x-handlebars-template")
+    .board
+      img.current-image(src="{{image_src}}")
+      .text-container
+        div(data-item="{{index}}")
+          .image-alt {{image_alt}}
+          .caption {{caption}}
+          .notes {{notes}}
+        textarea.mynotes(cols="80", rows="4", data-item="{{index}}", style="{{mynotesstyle}}") {{mynote}}
+
+  script#title-template(type="text/x-handlebars-template")
+    div {{text}}
+
+  script#transition-template(type="text/x-handlebars-template")
+    div {{text}}
+
+  script#action-template(type="text/x-handlebars-template")
+    div {{text}}
+
+  script#parenthetical-template(type="text/x-handlebars-template")
+    div {{text}}
+
+  script#dialogue-template(type="text/x-handlebars-template")
+    {{#each texts}}
+    p
+      div {{character}}
+      div {{text}}
+    {{/each}}

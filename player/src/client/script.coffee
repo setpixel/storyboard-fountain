@@ -7,6 +7,8 @@ vSceneCount = 0
 vSceneListColors = {}
 vUniqueCount = 0
 imageList = []
+title = ''
+aspectRatio = 2.35
 
 parseFountain = (fountainText) ->
   tokens = ''
@@ -63,6 +65,7 @@ createScript = ->
 
       switch token.type
         when 'title'
+          title = token.text
           addAtom {duration: 2000}
 
         when 'credit', 'author', 'source', 'draft_date', 'contact'
@@ -125,6 +128,8 @@ createScript = ->
                 atom.duration = Math.floor(parseFloat(metadata.duration) * 1000)
             else if metadata?.duration?
               pendingDuration = Math.floor(parseFloat(metadata.duration) * 1000)
+            else if metadata?.aspectRatio?
+              aspectRatio = parseFloat(metadata.aspectRatio)
             else
               addAtom {}
 
@@ -228,5 +233,7 @@ window.script = {
   parse: parseFountain
   getAtom,
   atoms,
-  getDuration: -> duration
+  getDuration: -> duration,
+  getTitle: -> title,
+  getAspectRatio: -> aspectRatio
 }
