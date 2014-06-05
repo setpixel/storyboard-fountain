@@ -7,7 +7,6 @@
   var co = require('co');
   var cofs = require('co-fs');
   var tmp = require('tmp');
-  var serveStatic = require('serve-static');
 
   var tmpDir = thunkify(tmp.dir);
 
@@ -88,8 +87,7 @@
   };
 
   var imageUrl = function(name) {
-    return 'http://localhost:8081/images/' + name;
-    //return 'file://' + pathname + '/' + config.images + '/' + name;
+    return 'file://' + pathname + '/' + 'images' + '/' + name;
   };
 
   var saveScript = function(cfg, next) {
@@ -107,15 +105,6 @@
     });
     return dfd.promise();
   };
-
-  var express = require('express');
-  var app = express();
-  app.get('/images/:name.:type', function(req, res, next) {
-    var root = pathname;
-    var options = {maxAge: 60 * 60 * 1000};
-    return serveStatic(root, options)(req, res, next);
-  });
-  app.listen(8081);
 
   var localPath = function() {
     return pathname;

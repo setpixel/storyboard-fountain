@@ -5,7 +5,6 @@
   "dependencies": {
     "aws-sdk": "~2.0.0-rc.14",
     "tmp": "0.0.23",
-    "express": "~4.2.0",
     "co": "~3.0.6",
     "thunkify": "~2.1.1",
     "co-fs": "~1.2.0",
@@ -13,8 +12,7 @@
     "request": "~2.36.0",
     "clone": "~0.1.15",
     "underscore": "~1.6.0",
-    "coffee-script": "~1.7.1",
-    "serve-static": "~1.2.0"
+    "coffee-script": "~1.7.1"
   },
   "window": {
     "toolbar": false,
@@ -30,7 +28,6 @@
   "webkit": {
     "plugin": true
   },
-  "node-remote": "localhost:8081",
   "js-flags": "--harmony",
   "chromium-args": "--enable-experimental-canvas-features"
 }
