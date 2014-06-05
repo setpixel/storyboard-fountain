@@ -12,7 +12,7 @@ Storyboard software that allows anyone to visualize a screenplay as fast they ca
 * Record pitches and play back. (WORKS! No audio yet, though.)
 * Edit Fountain script inline without leaving app. (WORKS! Not perfect yet, but pretty rad. Report issues!)
 * Export pitches to send via link. (WORKS! No audio yet, though.)
-* Export pitches to Final Cut XML. (NOT WORKING YET)
+* Export pitches to Final Cut and Premiere Pro. (NOT WORKING YET)
 
 ## Getting it running from source
 
@@ -25,7 +25,7 @@ Storyboard software that allows anyone to visualize a screenplay as fast they ca
 6. `bower install`
 7. `cd ..`
 8. Make sure you have grunt-cli installed. If not: run: `sudo npm install -g grunt-cli`
-9. `grunt nodewebkit`
+9. `grunt build`
 10. `open webkitbuilds/releases/storyboard-fountain/mac/storyboard-fountain.app`
 
 ## Developing 
@@ -44,7 +44,7 @@ Please [create new issues](https://github.com/setpixel/storyboard-fountain/issue
 
 ## Contributors
 
-Storyboard Fountain was created by [Charles Forman](http://setpixel.com/) and significant work done by [Chris Smoak](https://github.com/cesmoak) (Putting it into node-webkit, node dev, player, etc.)
+Storyboard Fountain was created by [Charles Forman](http://setpixel.com/) and [Chris Smoak](https://github.com/cesmoak)
 
 Contributors (in alphabetical order):
 * Charles Forman

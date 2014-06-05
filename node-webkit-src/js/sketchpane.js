@@ -53,7 +53,7 @@
   var mult;
 
   var noCanvas = false;
-  var lightboxMode = false;
+  var lightboxMode = getSetting('lightboxmode', false);
 
   var requestAnimationFrameID;
 
@@ -172,9 +172,6 @@
       undoPosition++;
     }
     if (undoStack.length-undoPosition > 0) {
-      
-      console.log(undoStack.length);
-
       undoPosition++;
       var undoState = undoStack[undoStack.length-undoPosition];
       contexts[undoState[1]].putImageData(undoState[0], 0,0);
@@ -534,7 +531,6 @@
 
   var copy = function() {
     if (getEditMode() && noCanvas == false) {
-      console.log("COPIED!!!!!!!")
       copyLayers = [];
       for (var i=0;i<contexts.length;i++) {
         var newCanvas = document.createElement('canvas');
@@ -544,14 +540,17 @@
         context.drawImage(contexts[i].canvas, 0, 0);
         copyLayers.push(newCanvas);
       }
+      return copyLayers;
     }
     else {
       storyboardState.preLoadLayers(true);
+      return null;
     }
   };
 
-  var paste = function() {
-    if (copyLayers.length == 3) {
+  var paste = function(_copyLayers) {
+    if (_copyLayers) copyLayers = _copyLayers;
+    if (copyLayers.length == layerNames.length) {
       if (fountainManager.getCursorHasImages()) {
       } else {
         fountainManager.newBoard();
@@ -562,7 +561,7 @@
         addToUndoStack(i);
       }
       clearCanvases();
-      $('.drawing-canvas').children().show();
+      $('.drawing-canvas').show();
       $("#flat-image").css("display", "none");
       for (var i=0;i<copyLayers.length;i++) {
         contexts[i].drawImage(copyLayers[i], 0, 0, canvasSize[0], canvasSize[1]);
@@ -614,7 +613,7 @@
         drawOnCanvas(layers, i);
       }
       if (copyAfter) { 
-        var timeOutCopy = window.setTimeout(copy, 100); 
+        var timeOutCopy = window.setTimeout(document.oncopy, 100); 
       };
     }
   };
@@ -623,18 +622,38 @@
 
   var getLighboxMode = function() { return lightboxMode; };
 
-  var toggleLightboxMode = function() {
+  var toggleLightboxMode = function(val) {
+    if (arguments.length > 0 && typeof(val) == 'boolean') {
+      lightboxMode = !!val;
+    }
+    else {
+      lightboxMode = !lightboxMode;
+    }
+    localStorage.setItem('lightboxmode', lightboxMode);
     if (lightboxMode) {
-      lightboxMode = false;
-      $("#lightbox-image").css("display", "none");
-    } else {
-      lightboxMode = true;
       $("#lightbox-image").css("display", "block");
+    } else {
+      $("#lightbox-image").css("display", "none");
     }
     emitter.emit('lightboxmode:change', lightboxMode);
   }
 
   var getPenDown = function() { return penDown; };
+
+  var pasteImage = function(image) {
+    if (fountainManager.getCursorHasImages()) {
+    } else {
+      fountainManager.newBoard();
+    }
+    locked = false;
+    editMode = true;
+    addToUndoStack(currentLayer);
+    $('.drawing-canvas').show();
+    $("#flat-image").css("display", "none");
+    contexts[currentLayer].drawImage(image, 0, 0);
+    storyboardState.setLayerDirty(currentLayer);
+    storyboardState.setThumb(getFlatImage()[1]);
+  };
 
   var sketchpane = window.sketchpane = {
     emitter: emitter,
@@ -657,7 +676,8 @@
     paste: paste,
     getLighboxMode: getLighboxMode,
     toggleLightboxMode: toggleLightboxMode,
-    getPenDown: getPenDown
+    getPenDown: getPenDown,
+    pasteImage: pasteImage
   };
 
   // force initial event fires
@@ -665,7 +685,7 @@
     process.nextTick(function() {
       setColor(getColor());
       setLayer(getLayer());
-      toggleLightboxMode();
+      toggleLightboxMode(lightboxMode);
     });
   });
 

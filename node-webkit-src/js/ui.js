@@ -219,8 +219,8 @@
     $("#bttn-undo").click(checkDisabled(sketchpane.undo));
     $("#bttn-redo").click(checkDisabled(sketchpane.redo));
 
-    $("#bttn-copy").click(checkDisabled(sketchpane.copy));
-    $("#bttn-paste").click(checkDisabled(sketchpane.paste));
+    $("#bttn-copy").click(checkDisabled(function() { document.execCommand('copy'); }));
+    $("#bttn-paste").click(checkDisabled(function() { document.execCommand('paste'); }));
 
     $("#bttn-lightbox").click(checkDisabled(sketchpane.toggleLightboxMode));
 
@@ -300,6 +300,13 @@
     $(window).keydown(function(e){
       //console.log(e.keyCode);
 
+      /*
+      if (e.metaKey && e.keyCode == 73) {  // cmd + i
+        require('nw.gui').Window.get().showDevTools('', true);
+      }
+      */
+
+
       if (activeState == 'boards') {
         if (recorder.getState() == 'paused') {
           // board editor
@@ -367,10 +374,10 @@
               fountainManager.goNext(1);
               break;
             case 67:  // c
-              sketchpane.copy();
+              //document.execCommand('copy');
               break;
             case 86:  // v
-              sketchpane.paste();
+              //document.execCommand('paste');
               break;
             case 76:  // l
               sketchpane.toggleLightboxMode();
