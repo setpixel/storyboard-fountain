@@ -297,146 +297,169 @@
       }
     });
 
-    $(window).keydown(function(e){
-      //console.log(e.keyCode);
-
-      /*
-      if (e.metaKey && e.keyCode == 73) {  // cmd + i
-        require('nw.gui').Window.get().showDevTools('', true);
+    var boardsKeyHandler = function(e) {
+      // board editor
+      switch (e.keyCode) {
+        // shade
+        case 49:  // 1
+          sketchpane.setLayer(0);
+          sketchpane.setBrush({size: 20, opacity: 15});
+          break;
+        // pencil
+        case 50:  // 2
+          sketchpane.setLayer(1);
+          sketchpane.setBrush({size: 1, opacity: 0});
+          break;
+        // pen
+        case 51:  // 3
+          sketchpane.setLayer(2);
+          sketchpane.setBrush({size: 4, opacity: 60});
+          break;
+        case 55:  // 7
+        case 103:  // #7
+          sketchpane.setColor([0,0,0]);
+          break;
+        case 56:  // 8
+        case 104:  // #8
+          sketchpane.setColor([188,188,188]);
+          break;
+        case 57:  // 9
+        case 105:  // #9
+          sketchpane.setColor([255,255,255]);
+          break;
+        case 52:  // 4
+        case 100:  // #4
+          sketchpane.setColor([255,92,92]);
+          break;
+        case 53:  // 5
+        case 101:  // #5
+          sketchpane.setColor([132,198,121]);
+          break;
+        case 54:  // 6
+        case 102:  // #6
+          sketchpane.setColor([85,77,184]);
+          break;
+        case 90:  // z
+          sketchpane.undo();
+          break;
+        case 88:  // x
+          sketchpane.redo();
+          break;
+        // n
+        case 78:
+          fountainManager.newBoard();
+          break;
+        // up and back
+        case 37:  // left
+        case 38:  // up
+          e.preventDefault();
+          fountainManager.goNext(-1);
+          break;
+        // next and forward
+        case 39:  // right
+        case 40:  // down
+          e.preventDefault();
+          fountainManager.goNext(1);
+          break;
+        case 67:  // c
+          //document.execCommand('copy');
+          break;
+        case 86:  // v
+          //document.execCommand('paste');
+          break;
+        case 76:  // l
+          sketchpane.toggleLightboxMode();
+          break;
+        case 46:  // delete
+          fountainManager.deleteBoard();
+          break;
+        case 32:  // space
+          e.preventDefault();
+          player.toggleState();
+          break;
+        case 82:  // r
+          if (e.metaKey) {  // cmd + r
+            recorder.startRecording();
+          }
+          break;
+        case 33:  // page up
+          e.preventDefault();
+          fountainManager.nextScene(-1);
+          break;
+        case 34:  // page down
+          e.preventDefault();
+          fountainManager.nextScene(1);
+          break;
       }
-      */
+    };
 
+    var playerKeyHandler = function(e) {
+      switch (e.keyCode) {
+        case 32:  // space
+          e.preventDefault();
+          player.toggleState();
+          break;
+      }
+    }
+
+    var recorderKeyHandler = function(e) {
+      switch (e.keyCode) {
+        case 27:  // enter
+        case 32:  // space
+        case 39:  // right
+        case 40:  // down
+          e.preventDefault();
+          recorder.advance();
+          break;
+        case 82:  // r
+          if (e.metaKey) {  // cmd + r
+            recorder.stopRecording();
+          }
+          break;
+      }          
+    }
+
+    var scriptKeyHandler = function(e) {
+      // script editor
+      switch (e.keyCode) {
+        case 69:  // e
+          if (e.metaKey) {  // cmd + e
+            scriptEditor.toggleExpandNotes();
+          }
+          break;
+        case 78:  // n
+          if (e.metaKey) {  // cmd + n
+            scriptEditor.toggleAutoIndent();
+          }
+          break;
+      }
+    };
+
+    var globalKeyHandler = function(e) {
+      if (e.metaKey && e.altKey && e.keyCode == 73) {  // cmd + i
+        require('nw.gui').Window.get().showDevTools();
+      }
+    };
+
+    $(window).keydown(function(e){
+
+      globalKeyHandler(e);
 
       if (activeState == 'boards') {
         if (recorder.getState() == 'paused') {
-          // board editor
-
-          switch (e.keyCode) {
-            // shade
-            case 49:  // 1
-              sketchpane.setLayer(0);
-              sketchpane.setBrush({size: 20, opacity: 15});
-              break;
-            // pencil
-            case 50:  // 2
-              sketchpane.setLayer(1);
-              sketchpane.setBrush({size: 1, opacity: 0});
-              break;
-            // pen
-            case 51:  // 3
-              sketchpane.setLayer(2);
-              sketchpane.setBrush({size: 4, opacity: 60});
-              break;
-            case 55:  // 7
-            case 103:  // #7
-              sketchpane.setColor([0,0,0]);
-              break;
-            case 56:  // 8
-            case 104:  // #8
-              sketchpane.setColor([188,188,188]);
-              break;
-            case 57:  // 9
-            case 105:  // #9
-              sketchpane.setColor([255,255,255]);
-              break;
-            case 52:  // 4
-            case 100:  // #4
-              sketchpane.setColor([255,92,92]);
-              break;
-            case 53:  // 5
-            case 101:  // #5
-              sketchpane.setColor([132,198,121]);
-              break;
-            case 54:  // 6
-            case 102:  // #6
-              sketchpane.setColor([85,77,184]);
-              break;
-            case 90:  // z
-              sketchpane.undo();
-              break;
-            case 88:  // x
-              sketchpane.redo();
-              break;
-            // n
-            case 78:
-              fountainManager.newBoard();
-              break;
-            // up and back
-            case 37:  // left
-            case 38:  // up
-              e.preventDefault();
-              fountainManager.goNext(-1);
-              break;
-            // next and forward
-            case 39:  // right
-            case 40:  // down
-              e.preventDefault();
-              fountainManager.goNext(1);
-              break;
-            case 67:  // c
-              //document.execCommand('copy');
-              break;
-            case 86:  // v
-              //document.execCommand('paste');
-              break;
-            case 76:  // l
-              sketchpane.toggleLightboxMode();
-              break;
-            case 46:  // delete
-              fountainManager.deleteBoard();
-              break;
-            case 32:  // space
-              e.preventDefault();
-              player.toggleState();
-              break;
-            case 82:  // r
-              if (e.metaKey) {  // cmd + r
-                recorder.startRecording();
-              }
-              break;
-            case 33:  // page up
-              e.preventDefault();
-              fountainManager.nextScene(-1);
-              break;
-            case 34:  // page down
-              e.preventDefault();
-              fountainManager.nextScene(1);
-              break;
-
+          if (player.getFullState().state == 'paused') {
+            boardsKeyHandler(e);
+          }
+          else {
+            playerKeyHandler(e);
           }
         }
         else {
-          switch (e.keyCode) {
-            case 27:  // enter
-            case 32:  // space
-            case 39:  // right
-            case 40:  // down
-              e.preventDefault();
-              recorder.advance();
-              break;
-            case 82:  // r
-              if (e.metaKey) {  // cmd + r
-                recorder.stopRecording();
-              }
-              break;
-          }          
+          recorderKeyHandler(e);
         }
       }
       else {
-        // script editor
-
-        switch (e.keyCode) {
-          case 69:  // e
-            if (e.metaKey) {  // cmd + e
-              scriptEditor.toggleExpandNotes();
-            }
-            break;
-          case 78:  // n
-            if (e.metaKey) {  // cmd + n
-              scriptEditor.toggleAutoIndent();
-            }
-            break;
-        }
+        scriptKeyHandler(e);
       }
     });
   });
