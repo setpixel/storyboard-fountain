@@ -8,6 +8,8 @@
   var editor = null;
   var activeState = 'boards';
 
+  var editorWidths = {};
+
   var setActiveState = function(state) {
     activeState = state;
     emitter.emit('activeState:change', activeState);
@@ -68,20 +70,22 @@
     var canvasWidth = (canvasDim[0] - (canvasSidePadding * 2));
     $("#scripttext").css('width', canvasWidth + 'px');
 
-    var calcEditorWidth = function() {
-      var o = $('<div>' + 'x' + '</div>')
-        .css({'position': 'absolute', 'left': 0, 'white-space': 'nowrap', 'visibility': 'hidden', 'font': 'Courier New', 'font-size': '18px', 'width': '62ch'})
-        .appendTo($('body'))
-      var w = o.width();
-      o.remove();
+    var calcEditorWidth = function(size) {
+      if (editorWidths[size]) {
+        return editorWidths[size];
+      }
+      $('.CodeMirror').css('font-size', size + 'px');
+      var w = $('.CodeMirror').width();
+      editorWidths[size] = w;
       return w;
     }
     var editorWidth = calcEditorWidth();
     var editorSpace = canvasDim[0] - canvasSidePadding * 2 - 20 * 2;
-    //console.log('editor resize', editorSpace, editorWidth, Math.floor(18 * editorSpace / editorWidth) + 'px');
-    if (editorSpace < editorWidth) {
-      $('.CodeMirror').css('font-size', Math.floor(18 * editorSpace / editorWidth) + 'px');
+    var size = 18;
+    while (calcEditorWidth(size) > editorSpace && size > 1) {
+      size -= 1;
     }
+    $('.CodeMirror').css('font-size', size + 'px');
 
     window.scrollTo(0);
   }
