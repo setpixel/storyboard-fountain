@@ -152,7 +152,7 @@
     var gui = require('nw.gui');
     openOnStartup(function() {
       gui.Window.get().show();
-
+      $(".nano").nanoScroller();
       console.log('done with startup');
     });
   });

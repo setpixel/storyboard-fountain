@@ -62,7 +62,7 @@
     }
 
     var scriptHeight = windowHeight - toolbarHeight - $('.tabs').outerHeight();
-    $('#script').css('height', scriptHeight + 'px');
+    $('#nano-script').css('height', scriptHeight + 'px');
 
     $("#scriptpane").css('width', canvasDim[0]);
     $("#scriptpane").css('height', canvasDim[1]);
@@ -98,6 +98,7 @@
   };
 
   $(document).ready(function() {
+
     resizeView();
     
 
@@ -469,6 +470,7 @@
   });
 
   $(document).ready(function() {
+
     timer.init($('.timer-timeleft'), $('.timer-duration div'));
     $('.timer-duration').click(function() {
       if (player.getFullState().state == 'playing' || recorder.getState() == 'recording') return;

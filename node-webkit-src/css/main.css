@@ -26,7 +26,7 @@ body {
 }
 
 .boards-list #script {
-  overflow: scroll;
+/*  overflow: scroll;*/
   height: 100%;
 }
 
@@ -444,7 +444,7 @@ svg {
   background-color: white;
   padding: 80px 20px;
   margin: 40px auto;
-  overflow-x: scroll;
+  overflow-x: hidden;
 }
 
 .CodeMirror {
@@ -508,4 +508,12 @@ svg {
   position: relative;
   top: 50%;
   -webkit-transform: translateY(-50%);
+}
+
+.modal {
+  overflow-y: auto;
+}
+
+#scriptpane {
+  overflow-y: auto;
 }

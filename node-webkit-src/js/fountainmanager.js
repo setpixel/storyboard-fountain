@@ -122,6 +122,9 @@
         storyboardState.clearLightboxImage();
       }
     }
+
+    $("#nano-script").nanoScroller({ flash: true });
+
     emitter.emit('selection:change', scriptCursorIndex, scriptImageCursorIndex);
   };
 
@@ -863,7 +866,7 @@ function hexToRgb(hex) {
 
   var renderScenes = function(outline) {
     var length;
-    length = $("#script").height();
+    length = $("#nano-script").height();
     var x = 0;
     var previousTime = 0;
     var previousColor = "000";
