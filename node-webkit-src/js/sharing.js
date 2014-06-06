@@ -28,16 +28,20 @@
           console.log('posted', err, body);
           if (err) return next(err);
 
-          // get the url
+          // get the key
           try {
-            var url = JSON.parse(body).url;
+            var key = JSON.parse(body).key;
           }
           catch (e) {
             return next(e);
           }
-          links.push({url: url, name: new Date().toString()});
+          var link = {
+            playerUrl: 'http://player.storyboardfountain.com/player/' + key,
+            boardsUrl: 'http://player.storyboardfountain.com/boards/' + key
+          };
+          links.push(link);
           localStorage.setItem('share-links', JSON.stringify(links));
-          next(null, url);
+          next(null, link);
         });
         var form = r.form();
         form.append('files[]', fs.createReadStream(tmpPath));

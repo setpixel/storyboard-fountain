@@ -4,6 +4,7 @@ robotdawn.fountain
 webkitbuilds/*
 node-webkit-src/node_modules/*
 node-webkit-src/bower_components/*
+node-webkit-src/tools/*
 data/*
 player/bower_components/*
 player/node_modules/*
@@ -11,3 +12,4 @@ player/public/app/*
 player/public/lib/*
 player/config/dev.coffee
 player/config/prod.coffee
+npm-debug.log

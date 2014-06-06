@@ -137,30 +137,33 @@
     return save;
   };
 
-  var uploadLayer = function() {
-    if (sketchpane.getPenDown()) {
+  var uploadLayer = function(force) {
+    if (sketchpane.getPenDown() && !force) {
       timeoutLayerID = window.setTimeout(
         uploadLayer, 
         currentFile.settings().AUTO_UPLOAD_LAYER_TIME * 1000);
     } else {
       timeoutLayerID = null;
+      var saves = [];
       for (var i = 0; i < dirtyLayer.length; i ++) {
         if (dirtyLayer[i]) {
           var filename = currentBoard + "-layer-" + i + ".png";
           var imageData = sketchpane.getLayerImage(i);
-          saveImage(filename, imageData, 'image/png');
+          saves.push(saveImage(filename, imageData, 'image/png'));
           dirtyLayer[i] = 0;
         }
       }
       dirty[0] = 0;
+      return $.when.apply($, saves);
     }
   };
 
-  var uploadFlat = function() {
-    if (sketchpane.getPenDown()) {
+  var uploadFlat = function(force) {
+    if (sketchpane.getPenDown() && !force) {
       timeoutFlatID = window.setTimeout(
         uploadFlat, 
         currentFile.settings().AUTO_UPLOAD_FLAT_TIME * 1000);
+      return null;
     } else {
       timeoutFlatID = null;
       dirty[1] = 0;
@@ -168,13 +171,14 @@
 
       var filename = currentBoard + "-large.jpeg";
       var imageData = flatImages[0];
-      saveImage(filename, imageData, 'image/jpeg');
+      var saveLarge = saveImage(filename, imageData, 'image/jpeg');
       
       setThumb(flatImages[1]);
 
       filename = currentBoard + "-small.jpeg";
       imageData = flatImages[1];
-      saveImage(filename, imageData, 'image/jpeg');
+      var saveSmall = saveImage(filename, imageData, 'image/jpeg');
+      return $.when(saveLarge, saveSmall);
     }
   };
 
@@ -191,12 +195,14 @@
     window.clearTimeout(timeoutFlatID);
     timeoutLayerID = null;
     timeoutFlatID = null;
+    var uploads = [];
     if (dirty[0]) {
-      uploadLayer();
+      uploads.push(uploadLayer(true));
     } 
     if (dirty[1]) {
-      uploadFlat();
-    } 
+      uploads.push(uploadFlat(true));
+    }
+    return $.when.apply($, uploads);
   };
 
   var goNext = function(increment) {

@@ -36,7 +36,6 @@ module.exports = {
     app.get '/data/:key/script.fountain', 
       helpers.requireShare('key'),
       (req, res) ->
-        console.log('requesting script', req.params.key)
         file = process.env.DATA_PATH + '/' + req.params.key + '/script.fountain'
         await fs.stat file, defer(err, stats)
         if err
@@ -49,7 +48,6 @@ module.exports = {
     app.get '/data/:key/images/:filename.jpeg',
       helpers.requireShare('key'),
       (req, res) ->
-        console.log('requesting image', req.params.key, req.params.filename)
         file = process.env.DATA_PATH + '/' + req.params.key + '/images/' + req.params.filename + '.jpeg'
         await fs.stat file, defer(err, stats)
         if err

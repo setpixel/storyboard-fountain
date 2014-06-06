@@ -394,6 +394,9 @@
           e.preventDefault();
           fountainManager.nextScene(1);
           break;
+        case 83:  // s
+          currentFile.saveNow(function() {});
+          break;
       }
     };
 
@@ -563,29 +566,43 @@
     var fileMenu = function() {
       var menu = new gui.Menu();
       menu.append(new gui.MenuItem({
-        label: 'New',
+        label: 'New Script',
+        shortcut: '⌘N',
         click: function() {
-          currentFile.create(function() {});
+          currentFile.saveNow(function() {
+            currentFile.create(function() {});
+          });
         }
       }));
       menu.append(new gui.MenuItem({
         label: 'Open...',
+        shortcut: '⌘O',
         click: function() {
-          var chooser = $('#open-file-input');
-          chooser.change(function(evt) {
-            var path = $(this).val();
-            console.log(path);
-            var source = {
-              type: 'local',
-              filename: path + '/config.json'
-            };
-            currentFile.open(source, function() {});
+          currentFile.saveNow(function() {
+            var chooser = $('#open-file-input');
+            chooser.change(function(evt) {
+              var path = $(this).val();
+              console.log(path);
+              var source = {
+                type: 'local',
+                filename: path + '/config.json'
+              };
+              currentFile.open(source, function() {});
+            });
+            chooser.trigger('click');
           });
-          chooser.trigger('click');
+        }
+      }));
+      menu.append(new gui.MenuItem({
+        label: 'Save',
+        shortcut: '⌘S',
+        click: function() {
+          currentFile.saveNow(function() {});
         }
       }));
       menu.append(new gui.MenuItem({
         label: 'Save as...',
+        shortcut: '⇧⌘S',
         click: function() {
           var chooser = $('#save-file-input');
           chooser.change(function(evt) {
@@ -606,7 +623,9 @@
     var source = $('#share-links-template').html();
     var shareLinksTemplate = Handlebars.compile(source);
     var showShareLinks = function() {
-      var html = shareLinksTemplate({links: sharing.getLinks()});
+      var links = sharing.getLinks();
+      var link = (links && links.length) ? links[links.length - 1] : null;
+      var html = shareLinksTemplate({link: link});
       $('#share-links .modal-body').html(html);
       $('#share-links').modal('show');
       $('.share-link').click(function() {
@@ -620,15 +639,16 @@
         label: 'Create Player Link',
         click: function() {
           $('#creating-share-link').modal('show');
-          sharing.createPlayerLink(function(err, url) {
+          sharing.createPlayerLink(function(err) {
             $('#creating-share-link').modal('hide');
             if (err) return;
             showShareLinks();
           });
         }
       }));
+      menu.append(new gui.MenuItem({type: 'separator'}));
       menu.append(new gui.MenuItem({
-        label: 'Shared Links',
+        label: 'Show Player Link',
         click: function() {
           showShareLinks();
         }
@@ -716,8 +736,16 @@
     });
   };
 
-
+  // hack necessary to fix window overscrolling sometimes (e.g., on pageup/down)
   window.setInterval(resizeView, 1000);
+
+  var gui = require('nw.gui');
+  gui.Window.get().on('close', function() {
+    this.hide();  // Pretend to be closed already
+    currentFile.saveNow(function() {
+      this.close(true);
+    });
+  });
 
   //window.setInterval(window.scrollTo(0), 1000);
   //window.setInterval($('body').scrollTo(0), 1000);

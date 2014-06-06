@@ -5,6 +5,8 @@
   'use strict';
 
   var util = require('util');
+  var co = require('co');
+  var thunkify = require('thunkify');
 
   var gui = require('nw.gui');
   gui.App.setCrashDumpDir(global.__dirname + '/..');
@@ -17,7 +19,6 @@
     local: window.localSource,
     s3: window.s3Source
   };
-
 
   var openOnStartup = function(next) {
     if (sourceModule) {
@@ -97,14 +98,16 @@
   };
 
   var save = function(source, next) {
-    var path = sourceModule.localPath();
-    SOURCES[source.type].save(source, path, function(err, result) {
-      if (err) return next(err);
-      currentSource = result.source;
-      sourceModule = SOURCES[currentSource.type];
-      currentConfig = result.config;
-      localStorage.setItem("editing", JSON.stringify(currentSource));
-      next();
+    saveNow(function() {
+      var path = sourceModule.localPath();
+      SOURCES[source.type].save(source, path, function(err, result) {
+        if (err) return next(err);
+        currentSource = result.source;
+        sourceModule = SOURCES[currentSource.type];
+        currentConfig = result.config;
+        localStorage.setItem("editing", JSON.stringify(currentSource));
+        next();
+      });
     });
   };
 
@@ -124,6 +127,22 @@
   var settings = function() {
     return sourceModule.settings();
   }
+
+  var saveNow = function(next) {
+    var saveScriptTh = thunkify(saveScript);
+    co(function *() {
+      try {
+        yield saveScriptTh();
+        if (storyboardState.getDirty()) {
+          yield storyboardState.forceSave();
+        }
+        next();
+      }
+      catch (e) {
+        next(e);
+      }
+    })();
+  };
 
   var currentFile = window.currentFile = {
     /**
@@ -145,7 +164,8 @@
     settings: settings,
     imageUrl: imageUrl,
     saveScript: saveScript,
-    saveImage: saveImage
+    saveImage: saveImage,
+    saveNow: saveNow
   };
 
   $(document).ready(function() {

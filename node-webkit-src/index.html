@@ -211,7 +211,7 @@
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h4 class="modal-title">Share links</h4>
+            <h4 class="modal-title">Latest Created Link</h4>
           </div>
           <div class="modal-body">
           </div>
@@ -220,15 +220,20 @@
     </div>
 
     <script id="share-links-template" type="text/x-handlebars-template">
+      {{#if link}}
       <ul>
-        {{#each links}}
         <li>
-          <a class="share-link" href="#" data-href="{{url}}">
-            {{name}}
+          <a class="share-link" href="#" data-href="{{link.playerUrl}}">
+            Player
           </a>
         </li>
-        {{/each}}
+        <li>
+          <a class="share-link" href="#" data-href="{{link.boardsUrl}}">
+            Boards
+          </a>
+        </li>
       </ul>
+      {{/if}}
     </script>
    
     <svg width="1" height="1">

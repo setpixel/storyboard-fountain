@@ -73,8 +73,7 @@ module.exports = {
 
         req.busboy.on 'finish', ->
           console.log('finish')
-          #res.redirect('/shares/' + share.key + '.json')
-          res.json {url: process.env.PUBLIC_URL + '/player/' + share.key}
+          res.json {key: share.key}
 
           console.log('doneWithFile', doneWithFile)
           # unzip it
