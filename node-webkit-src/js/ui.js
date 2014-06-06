@@ -16,6 +16,8 @@
   };
 
   var resizeView = function() {
+    if (sketchpane.getPenDown()) return;
+
     var toolbarHeight = 50;
     var timelineHeight = 0;
     var boardslistWidth = 400;
@@ -743,7 +745,7 @@
   gui.Window.get().on('close', function() {
     this.hide();  // Pretend to be closed already
     currentFile.saveNow(function() {
-      this.close(true);
+      gui.Window.get().close(true);
     });
   });
 

@@ -94,9 +94,7 @@
       grd.addColorStop(1,"rgba(" + greyval + "," + greyval + "," + greyval + ",0)");
       brushContext.fillStyle=grd;
       brushContext.fillRect(0,0,brushCanvas.width, brushCanvas.height);
-      var brushImage = new Image(brushCanvas.width, brushCanvas.height);
-      brushImage.src = brushContext.canvas.toDataURL();
-      brushImgs.push(brushImage);
+      brushImgs.push(brushContext.canvas);
     }
 
     $(".drawing-canvas").mousedown(function(e){
@@ -190,12 +188,11 @@
     }
   };
 
+  // called to bake what was just drawn into the canvas for the layer
   var stampLayer = function() {
-    var stampImage = new Image(canvasSize[0],canvasSize[1]);
-    stampImage.src = drawContexts[1].canvas.toDataURL();
     contexts[currentLayer].globalAlpha = 1;
     contexts[currentLayer].globalCompositeOperation = 'source-over';
-    contexts[currentLayer].drawImage(stampImage, 0,0 );
+    contexts[currentLayer].drawImage(drawContexts[1].canvas, 0, 0);
     drawContexts[0].clearRect(0, 0, canvasSize[0], canvasSize[1]);
     drawContexts[1].clearRect(0, 0, canvasSize[0], canvasSize[1]);
   };
@@ -419,10 +416,7 @@
     context.fillStyle = "#fff";
     context.fillRect(0,0,canvasSize[0],canvasSize[1]);
     for (var i = 0; i < contexts.length; i ++) {
-      var stampImage = new Image(canvasSize[0],canvasSize[1]);
-      stampImage.src = contexts[i].canvas.toDataURL();
-      hintImage(i);
-      context.drawImage(stampImage, 0,0 );
+      context.drawImage(contexts[i].canvas, 0,0);
     }
     var largeFlat = buffer.toDataURL('image/jpeg', 0.6);
     var stampImage = new Image(canvasSize[0],canvasSize[1]);
