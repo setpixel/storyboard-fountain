@@ -282,7 +282,7 @@
       var penAttributes = pointerBuffer[i];
       var currentPoint = penAttributes.point;
       var dist = Math.floor(Math.sqrt(Math.pow(previousLoc[previousLoc.length-1][0]-currentPoint[0],2)+Math.pow(previousLoc[previousLoc.length-1][1]-currentPoint[1],2)));
-      if (dist > 0 && (currentPoint[0] !== previousLoc[previousLoc.length-1][0])) {
+      if (dist > 0 && ((currentPoint[0] !== previousLoc[previousLoc.length-1][0]) || penAttributes.pointerType == 0 )) {
         if (previousLoc.length > 1 && dist > 3) {
           var curve = [];
           curve.push({x: previousLoc[previousLoc.length-1][0], y: previousLoc[previousLoc.length-1][1]});
@@ -324,13 +324,15 @@
       }
       var pressure = wacom.penAPI.pressure;
       var eraser = wacom.penAPI.isEraser;
+      var pointerType = wacom.penAPI.pointerType;
     } else {
       var angle = 0;
       var tilt = 0.5;
       var pressure = fakePressure;
       var eraser = e.shiftKey;
+      var pointerType = 0;
     }
-    penAttributes = {point: currentPoint, angle: angle, tilt: tilt, pressure: pressure, eraser: eraser};
+    penAttributes = {point: currentPoint, angle: angle, tilt: tilt, pressure: pressure, eraser: eraser, pointerType: pointerType};
     return penAttributes;
   }
 
