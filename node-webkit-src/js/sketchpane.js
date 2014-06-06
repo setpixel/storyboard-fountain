@@ -218,7 +218,7 @@
         blend = 1;
       } else {
         drawContexts[0].globalCompositeOperation = 'darker';
-        var size = 1+ (brushProperties.size * (-Math.log(1-pressure+0.0001)));
+        var size = 1 + 2 * brushProperties.size * Math.pow(pressure, 1.2);
         blend = ((1-tilt)*pressure) +(brushProperties.opacity/100);
         drawContexts[0].globalAlpha = 1;
       }
