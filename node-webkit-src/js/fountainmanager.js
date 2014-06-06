@@ -86,7 +86,7 @@
     switch (chunk.type) {
       case 'dialogue':
       case 'parenthetical':
-        return "<div>" + chunk.character + "</div><div>" + chunk.text + "</div>";
+        return "<div class='character'>" + chunk.character + ":</div><div>" + chunk.text + "</div>";
 
       default:
         return chunk.text;
@@ -318,7 +318,7 @@
             html.push("<img id='script-image-" + scriptChunks[index].images[i2][0].file + "' src='" + storyboardState.checkUpdated(scriptChunks[index].images[i2][0].file + "-small.jpeg") + "'>");
           }
         }
-        html.push('<div>' + scriptChunks[index].character + '<br/>' + scriptChunks[index].text + '</div>')
+        html.push('<div><span class="character">' + scriptChunks[index].character + ':</span><br/>' + scriptChunks[index].text + '</div>')
         break;
       case 'dialogue':      
         if (scriptChunks[index].images.length > 0) {
@@ -326,7 +326,7 @@
             html.push("<img id='script-image-" + scriptChunks[index].images[i2][0].file + "' src='" + storyboardState.checkUpdated(scriptChunks[index].images[i2][0].file + "-small.jpeg") + "'>");
           }
         }
-        html.push('<div>' + scriptChunks[index].character + '<br/>' + scriptChunks[index].text + '</div>')
+        html.push('<div><span class="character">' + scriptChunks[index].character + ':</span><br/>' + scriptChunks[index].text + '</div>')
         break;
     }
 
@@ -433,7 +433,7 @@
               html.push("<img id='script-image-" + chunk.images[i2][0].file + "' src='" + storyboardState.checkUpdated(chunk.images[i2][0].file + "-small.jpeg") + "'>");
             }
           }
-          html.push('<div>' + chunk.character + '<br/>' + chunk.text + '</div></div>')
+          html.push('<div><span class="character">' + chunk.character + ':</span><br/>' + chunk.text + '</div></div>')
           break;
       }
     }
