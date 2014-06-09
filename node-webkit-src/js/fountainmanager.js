@@ -686,10 +686,8 @@ function hexToRgb(hex) {
 
         case 'note':
           var noteMetaData = parseNote(text);
-          if (noteMetaData && 
-              parseInt(noteMetaData.file) + '' == noteMetaData.file
-          ) {
-            var atom = addAtom({type: 'image', file: noteMetaData.file, time: noteMetaData.time, duration: 1000});
+          if (noteMetaData && noteMetaData.board) {
+            var atom = addAtom({type: 'image', file: noteMetaData.board, duration: 1000});
             if (noteMetaData.caption) atom.caption = noteMetaData.caption;
             if (noteMetaData.duration) {
               atom.duration = Math.floor(parseFloat(noteMetaData.duration) * 1000);
@@ -1264,7 +1262,7 @@ function hexToRgb(hex) {
           if (!atom.durationIsCalculated) {
             duration = ', duration: ' + (atom.duration / 1000).toFixed(2);
           }
-          scriptText.push('[[type: image, file: ' + script[i].file + duration + ']]');
+          scriptText.push('[[board: ' + script[i].file + duration + ']]');
           scriptText.push('');
           break;
 
