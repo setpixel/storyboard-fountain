@@ -8,12 +8,12 @@ isNewerVersion = (newVersion, oldVersion) ->
   return false  unless newVersion and oldVersion
   semver.gt(newVersion, oldVersion)
 
-check = (next) ->
+check = ->
   request {
     url: window.getSetting('update-url', 'http://storyboardfountain.com/update.json')
     json: yes
   }, (err, res, data) ->
-    return next()  if err? or res.statusCode isnt 200
+    return  if err? or res.statusCode isnt 200
     if data.updateUrl and data.downloadUrl
       window.localStorage.setItem('update-url', data.updateUrl)
     do (updateData = data[getOS()]) ->
@@ -23,7 +23,6 @@ check = (next) ->
                   'What\'s New:\n' + updateData.description) ->
           if window.confirm(msg)
             gui.Shell.openExternal(data.downloadUrl)  
-          next()
 
 module.exports = {
   check

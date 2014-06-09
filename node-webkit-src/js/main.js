@@ -48,7 +48,6 @@
           next(err);
         }
         else {
-          console.log('loadSource', source);
           loadSource(source, next);
         }
       });
@@ -64,7 +63,6 @@
         next(err);
       }
       else {
-        console.log('loadSource', source);
         loadSource(source, next);
       }
     });
@@ -78,7 +76,6 @@
           next(err);
         }
         else {
-          console.log('loadSource', source);
           loadSource(source, next);
         }
       })
@@ -167,9 +164,9 @@
       console.log('done with startup');
     };
     restoreOnStartup(function(err) {
-      gui.Window.get().show();
+      windowState.init();
       $(".nano").nanoScroller();
-      updater.check(function () {});
+      updater.check();
       if (err) {
         console.log('err on restore', err.toString());
         create(afterRestore);
