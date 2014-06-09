@@ -94,7 +94,7 @@
     switch (chunk.type) {
       case 'dialogue':
       case 'parenthetical':
-        return "<div>" + chunk.character + "</div><div>" + chunk.text + "</div>";
+        return "<div class='character'>" + chunk.character + ":</div><div>" + chunk.text + "</div>";
 
       default:
         return chunk.text;
@@ -130,6 +130,9 @@
         storyboardState.clearLightboxImage();
       }
     }
+
+    $("#nano-script").nanoScroller({ flash: true });
+
     emitter.emit('selection:change', scriptCursorIndex, scriptImageCursorIndex);
   };
 
@@ -328,7 +331,7 @@
             html.push("<img id='script-image-" + scriptChunks[index].images[i2][0].file + "' src='" + storyboardState.checkUpdated(scriptChunks[index].images[i2][0].file + "-small.jpeg") + "'>");
           }
         }
-        html.push('<div>' + scriptChunks[index].character + '<br/>' + scriptChunks[index].text + '</div>')
+        html.push('<div><span class="character">' + scriptChunks[index].character + ':</span><br/>' + scriptChunks[index].text + '</div>')
         break;
       case 'dialogue':      
         if (scriptChunks[index].images.length > 0) {
@@ -336,7 +339,7 @@
             html.push("<img id='script-image-" + scriptChunks[index].images[i2][0].file + "' src='" + storyboardState.checkUpdated(scriptChunks[index].images[i2][0].file + "-small.jpeg") + "'>");
           }
         }
-        html.push('<div>' + scriptChunks[index].character + '<br/>' + scriptChunks[index].text + '</div>')
+        html.push('<div><span class="character">' + scriptChunks[index].character + ':</span><br/>' + scriptChunks[index].text + '</div>')
         break;
     }
 
@@ -443,7 +446,7 @@
               html.push("<img id='script-image-" + chunk.images[i2][0].file + "' src='" + storyboardState.checkUpdated(chunk.images[i2][0].file + "-small.jpeg") + "'>");
             }
           }
-          html.push('<div>' + chunk.character + '<br/>' + chunk.text + '</div></div>')
+          html.push('<div><span class="character">' + chunk.character + ':</span><br/>' + chunk.text + '</div></div>')
           break;
       }
     }
@@ -881,7 +884,7 @@ function hexToRgb(hex) {
 
   var renderScenes = function(outline) {
     var length;
-    length = $("#script").height();
+    length = $("#nano-script").height();
     var x = 0;
     var previousTime = 0;
     var previousColor = "000";
@@ -1509,7 +1512,7 @@ function hexToRgb(hex) {
 
     for(var i in sceneArray) { scenesWithImagesCount += sceneArray[i]; }
 
-    var boardsLeft = (elementsCount - elementsWithImagesCount)*Math.max((imagesCount / elementsWithImagesCount),1.5);
+    var boardsLeft = (elementsCount - elementsWithImagesCount)*Math.max((imagesCount / (elementsWithImagesCount || 1 )),1.5) || 0;
 
 
     //console.log(sceneStats);
@@ -1533,11 +1536,11 @@ function hexToRgb(hex) {
  
     html = [];
 
-    html.push( percentageBlock(imagesCount / boardsLeft, 100) + '<div>Total boards: ' + imagesCount + ' / ' + Math.round(boardsLeft) + ' (estimated) ' + '</div>');
+    html.push( percentageBlock(imagesCount / (imagesCount + Math.round(boardsLeft)), 100) + '<div>Total boards: ' + imagesCount + ' / ' + (imagesCount + Math.round(boardsLeft)) + ' (estimated) ' + '</div>');
     html.push('<div>Estimated hours left to boards: ' + Math.round(((boardsLeft*0.5)/60)*100)/100 + ' hours</div>');
     html.push('<hr/>');
     html.push( percentageBlock(elementsWithImagesCount / elementsCount, 100) + '<div>Script elements with boards: ' + elementsWithImagesCount + ' / ' + elementsCount + '</div>');
-    html.push('<div>Average board per element: ' + (imagesCount / elementsWithImagesCount).toFixed(1) + '</div>');
+    html.push('<div>Average board per element: ' + ((imagesCount / elementsWithImagesCount) || 0).toFixed(1) + '</div>');
     html.push('<hr/>');
     html.push( percentageBlock(scenesWithImagesCount / vSceneCount, 100) + '<div>Scenes with boards: ' + scenesWithImagesCount + ' / ' + vSceneCount + '</div>');
     html.push('<hr/>');

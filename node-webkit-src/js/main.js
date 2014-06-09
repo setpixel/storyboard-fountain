@@ -170,6 +170,7 @@
     };
     restoreOnStartup(function(err) {
       gui.Window.get().show();
+      $(".nano").nanoScroller();
       if (err) {
         console.log('err on restore', err.toString());
         create(afterRestore);

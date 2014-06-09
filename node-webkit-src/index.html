@@ -14,6 +14,7 @@
         <link rel="stylesheet" media="all" href="bower_components/codemirror/lib/codemirror.css">
         <link rel="stylesheet" media="all" href="css/main.css">
         <link rel="stylesheet" media="all" href="css/neo.css">
+        <link rel="stylesheet" media="all" href="css/nanoscroller.css">
         <script src="js/libs/modernizr-2.6.2-respond-1.1.0.min.js"></script>
         <script src="bower_components/codemirror/lib/codemirror.js"></script>
         <script src="js/libs/foldcode-modified.js"></script>
@@ -115,13 +116,16 @@
           <div class="tab" id="tab-scripttext">Script Text</div>
         </div>
 
-        <div id="scene-colorbars-container" ><div id="scene-colorbars" style="position: relative;"></div></div>
-        <div id="script"></div>
+        <div id="scene-colorbars-container" style="z-index: 99;"><div id="scene-colorbars" style="position: relative;"></div></div>
         
+        <div id="nano-script" class="nano">
+          <div id="script" class="nano-content"></div>
+        </div>
         
       </div>
 
       <div id="mainpane">
+        
         <div id="scriptpane" style="display: none;">
           <div id="scripttext"></div>
         </div>
@@ -156,6 +160,7 @@
     <script src="js/libs/bootstrap.min.js"></script>
     <script src="js/libs/handlebars-v1.3.0.js"></script>
     <script src="js/libs/jsBezier.js"></script>
+    <script src="js/libs/jquery.nanoscroller.min.js"></script>
     <script src="js/util.js"></script>
     <script>
       require('coffee-script/register');
