@@ -1,11 +1,13 @@
 module.exports = {
-  fountainText: """
+  fountainText: (dataPath) -> """
     Title: **UNTITLED**
     Credit: Written by
     Author: 
     Draft date: 
     Contact: 
     
+    [[dataPath: #{dataPath}]]
+
     ### Title of the first scene
     
     = Synopsis of the first scene.

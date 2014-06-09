@@ -7,6 +7,7 @@
 
   var scriptText = '';
 
+  var title = '';
   var settings = {};
   var stats = {};
   var script = [];
@@ -19,21 +20,28 @@
   var atomToChunk = {};
   var atomToBoard = {};
 
-  var load = function(config) {
-    if (config.script == scriptText) return;
+  var loadingChange = false;
+
+  var load = function(data) {
+    if (data.script == scriptText) return;
     var oldScriptText = scriptText;
-    scriptText = config.script;
+    scriptText = data.script;
     emitter.emit('script:change', scriptText, oldScriptText);
-    parseFountain(config.script);
+    loadingChange = false;
+    parseFountain(data.script);
   }
 
-  var loadChange = function(text) {
-    if (text == scriptText) return;
+  var loadChange = function(text, next) {
+    if (text == scriptText) {
+      if (next) next(null, false);
+      return;
+    }
     var oldScriptText = scriptText;
     scriptText = text;
     emitter.emit('script:change', scriptText, oldScriptText, true);
+    loadingChange = true;
     parseFountain(text);
-    storyboardState.saveScript();
+    storyboardState.saveScript(next);
   }
 
   var parseFountain = function (fountainText) {
@@ -177,7 +185,12 @@
     if (!chunk) return;
     var scriptIndex = null;
     if (chunkHasImages(chunkIndex)) {
-      scriptIndex = getPositionAtTempIndex(chunk.images[boardIndex][1]) + 1;
+      var image = chunk.images[boardIndex];
+      if (!image) {
+        boardIndex = chunk.images.length - 1;
+        image = chunk.images[boardIndex];
+      }
+      scriptIndex = getPositionAtTempIndex(image[1]) + 1;
       boardIndex += 1;
     } 
     else {
@@ -581,6 +594,7 @@ function hexToRgb(hex) {
           break;
 
         case 'title':
+          title = recursiveMarkdown(token.text);
           addAtom({duration: 2000});
           break;
 
@@ -667,6 +681,10 @@ function hexToRgb(hex) {
             setSettings = true;
             aspectRatio.setAspectRatio(parseFloat(noteMetaData.aspectRatio));
             addAtom({settings: true});
+          }
+          else if (noteMetaData && noteMetaData.dataPath) {
+            var path = recursiveMarkdown(noteMetaData.dataPath);
+            currentFile.setDataPath(path, false, loadingChange, true);
           }
           else {
             addAtom({});
@@ -1028,6 +1046,8 @@ function hexToRgb(hex) {
         }).join(', ');
         scriptText.push('');
         scriptText.push('[[' + text + ']]');
+        scriptText.push('');
+        scriptText.push('[[' + 'dataPath: ' + currentFile.getDataPath() + ']]');
       }
       var checkSettings = function() {
         switch (atom.type) {
@@ -1544,9 +1564,14 @@ function hexToRgb(hex) {
     return html;
   };
 
+  var getTitle = function() {
+    return title;
+  };
+
   var fountainManager = window.fountainManager = {
     load: load,
     loadChange: loadChange,
+    getTitle: getTitle,
     getScript: getScript,
     getScriptChunks: getScriptChunks,
     getCursorHasImages: function() { return chunkHasImages(scriptCursorIndex); },

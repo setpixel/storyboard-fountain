@@ -12,7 +12,10 @@
     "request": "~2.36.0",
     "clone": "~0.1.15",
     "underscore": "~1.6.0",
-    "coffee-script": "~1.7.1"
+    "coffee-script": "~1.7.1",
+    "shortid": "~2.0.0",
+    "fs-extra": "~0.9.1",
+    "mkdirp": "~0.5.0"
   },
   "window": {
     "title": "StoryboardFountain",

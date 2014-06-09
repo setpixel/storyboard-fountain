@@ -2,6 +2,7 @@
   'use strict';
 
   var events = require('events');
+  var path = require('path');
   var _ = require('underscore');
 
   var emitter = new events.EventEmitter();
@@ -9,6 +10,83 @@
   var activeState = 'boards';
 
   var editorWidths = {};
+
+  var titleSuggestion = function() {
+    var title = fountainManager.getTitle() || '';
+    title = title.toLowerCase().replace(/\s+/g, '_').replace(/[^_a-z0-9]/g, '');
+    if (title.length) {
+      return title;
+    }
+    else {
+      return 'script';
+    }
+  };
+
+  // kinda a hack to make sure the script editor has flushed any changes before
+  // we attempt to save
+  var flushScript = function(next) {
+    if (activeState == 'script') {
+      scriptEditor.flushChanges(next);
+    }
+    else {
+      next();
+    }
+  };
+
+  var askSave = function(next) {
+    if (currentFile.hasSaved()) {
+      currentFile.save(function(err) {
+        if (next) next(err);
+      });
+    }
+    else {
+      if (confirm('Would you like to save first?')) {
+        var chooser = $('#save-file-input');
+        chooser.attr('nwsaveas', titleSuggestion() + '.fountain');
+        chooser.change(function(evt) {
+          evt.preventDefault();
+          evt.stopPropagation();
+          evt.stopImmediatePropagation();
+          var fullpath = $(this).val();
+          if (!fullpath) return;
+          if (path.extname(fullpath) == '') fullpath = fullpath + '.fountain'
+          var config = {type: 'local', scriptPath: fullpath};
+          currentFile.saveAs(config, function(err) {
+            if (next) next(err);
+          });
+        });
+        chooser.trigger('click');
+      }
+      else {
+        if (next) next();
+      }
+    }
+  };
+
+  var save = function(next) {
+    if (currentFile.hasSaved()) {
+      currentFile.save(function(err) {
+        if (next) next(err);
+      });
+    }
+    else {
+      var chooser = $('#save-file-input');
+      chooser.attr('nwsaveas', titleSuggestion() + '.fountain');
+      chooser.change(function(evt) {
+        evt.preventDefault();
+        evt.stopPropagation();
+        evt.stopImmediatePropagation();
+        var fullpath = $(this).val();
+        if (!fullpath) return;
+        if (path.extname(fullpath) == '') fullpath = fullpath + '.fountain'
+        var config = {type: 'local', scriptPath: fullpath};
+        currentFile.saveAs(config, function(err) {
+          if (next) next(err);
+        });
+      });
+      chooser.trigger('click');
+    }
+  };
 
   var setActiveState = function(state) {
     activeState = state;
@@ -396,9 +474,6 @@
           e.preventDefault();
           fountainManager.nextScene(1);
           break;
-        case 83:  // s
-          currentFile.saveNow(function() {});
-          break;
       }
     };
 
@@ -436,8 +511,8 @@
             scriptEditor.toggleExpandNotes();
           }
           break;
-        case 78:  // n
-          if (e.metaKey) {  // cmd + n
+        case 68:  // d
+          if (e.metaKey) {  // cmd + d
             scriptEditor.toggleAutoIndent();
           }
           break;
@@ -450,9 +525,23 @@
       }
     };
 
+    var editorKeyHandler = function(e) {
+      switch (e.keyCode) {
+        case 83:  // s
+          if (e.metaKey) {  // cmd + s
+            flushScript(save);
+          }
+          break;
+      }
+    };
+
     $(window).keydown(function(e){
 
       globalKeyHandler(e);
+
+      if (recorder.getState() == 'paused' && player.getFullState().state == 'paused') {
+        editorKeyHandler(e);
+      }
 
       if (activeState == 'boards') {
         if (recorder.getState() == 'paused') {
@@ -569,52 +658,93 @@
       var menu = new gui.Menu();
       menu.append(new gui.MenuItem({
         label: 'New Script',
-        shortcut: '⌘N',
         click: function() {
-          currentFile.saveNow(function() {
-            currentFile.create(function() {});
+          flushScript(function() { 
+            askSave(function() {
+              currentFile.create(function() {});
+            });
           });
         }
       }));
       menu.append(new gui.MenuItem({
         label: 'Open...',
-        shortcut: '⌘O',
         click: function() {
-          currentFile.saveNow(function() {
-            var chooser = $('#open-file-input');
-            chooser.change(function(evt) {
-              var path = $(this).val();
-              console.log(path);
-              var source = {
-                type: 'local',
-                filename: path + '/config.json'
-              };
-              currentFile.open(source, function() {});
+          flushScript(function() {
+            askSave(function() {
+              var chooser = $('#open-file-input');
+              if (currentFile.hasSaved()) {
+                chooser.attr('nwworkingdir', path.dirname(currentFile.getSourceConfig().scriptPath));
+              }
+              chooser.change(function(evt) {
+                evt.preventDefault();
+                evt.stopPropagation();
+                evt.stopImmediatePropagation();
+                var fullpath = $(this).val();
+                if (!fullpath) return;
+                var config = {type: 'local', scriptPath: fullpath};
+                currentFile.open(config, function() {
+                  var _checkDataPath = function(next) {
+                    currentFile.checkDataPath(function(err, valid) {
+                      if (err || !valid) {
+                        var filename = path.basename(currentFile.getSourceConfig().scriptPath);
+                        var dataPath = currentFile.getDataPath();
+                        alert('The data directory ' + dataPath + ' for ' + filename + ' could not be found. Please locate it.');
+                        var chooser = $('#pick-data-path-input');
+                        if (currentFile.hasSaved()) {
+                          chooser.attr('nwworkingdir', path.dirname(currentFile.getSourceConfig().scriptPath));
+                        }
+                        chooser.change(function(evt) {
+                          evt.preventDefault();
+                          evt.stopPropagation();
+                          evt.stopImmediatePropagation();
+                          var fullpath = chooser.val();
+                          if (!fullpath) return;
+                          console.log('setting data path', fullpath);
+                          currentFile.setDataPath(fullpath, true, true);
+                          next();
+                        });
+                        chooser.trigger('click');
+                      }
+                      else {
+                        next();
+                      }
+                    });
+                  };
+                  _checkDataPath(function() {});
+                });
+              });
+              chooser.trigger('click');
             });
-            chooser.trigger('click');
           });
         }
       }));
       menu.append(new gui.MenuItem({
         label: 'Save',
-        shortcut: '⌘S',
-        click: function() {
-          currentFile.saveNow(function() {});
-        }
+        click: function() { flushScript(save); }
       }));
       menu.append(new gui.MenuItem({
         label: 'Save as...',
-        shortcut: '⇧⌘S',
         click: function() {
           var chooser = $('#save-file-input');
+          if (currentFile.hasSaved()) {
+            chooser.attr('nwsaveas', path.basename(currentFile.getSourceConfig().scriptPath));
+            chooser.attr('nwworkingdir', path.dirname(currentFile.getSourceConfig().scriptPath));
+          }
+          else {
+            chooser.attr('nwsaveas', titleSuggestion() + '.fountain'); 
+            chooser.attr('nwworkingdir', '~');
+          }
           chooser.change(function(evt) {
-            var path = $(this).val();
-            console.log(path);
-            var source = {
-              type: 'local',
-              filename: path + '/config.json'
-            };
-            currentFile.save(source, function() {});
+            evt.preventDefault();
+            evt.stopPropagation();
+            evt.stopImmediatePropagation();
+            var fullpath = $(this).val();
+            if (!fullpath) return;
+            if (path.extname(fullpath) == '') fullpath = fullpath + '.fountain'
+            var config = {type: 'local', scriptPath: fullpath};
+            flushScript(function() {
+              currentFile.saveAs(config, function() {});
+            });
           });
           chooser.trigger('click');
         }
@@ -744,8 +874,10 @@
   var gui = require('nw.gui');
   gui.Window.get().on('close', function() {
     this.hide();  // Pretend to be closed already
-    currentFile.saveNow(function() {
-      gui.Window.get().close(true);
+    flushScript(function() {
+      currentFile.save(function(err) {
+        gui.Window.get().close(true);
+      });
     });
   });
 

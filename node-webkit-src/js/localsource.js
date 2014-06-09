@@ -1,151 +1,238 @@
 ;(function() {
   'use strict';
   
+  var gui = require('nw.gui');
   var fs = require('fs');
   var path = require('path');
   var thunkify = require('thunkify');
   var co = require('co');
   var cofs = require('co-fs');
   var tmp = require('tmp');
+  var shortId = require('shortid');
+  var fsExtra = require('fs-extra');
+  var cocopy = thunkify(fsExtra.copy);
+  var mkdirp = require('mkdirp');
 
   var tmpDir = thunkify(tmp.dir);
 
-  var pathname = null;
-  var filename = null;
-  /**
-   * - script: path to script file
-   * - images: path to images directory
-   * - title: title of the script
-   */
-  var config = null;
+  var config = {};
+  var data = {};
+
+  var setLoaded = function(obj) {
+    config = {type: 'local', scriptPath: obj.scriptPath};
+    data = {script: obj.script, dataPath: obj.dataPath};
+    console.log('setLoaded');
+  };
+
+  var getSource = function() {
+    return {config: config, data: data};
+  };
+
+  var getFullDataPath = function() {
+    return path.dirname(config.scriptPath) + '/' + data.dataPath;
+  };
 
   var settings = function() {
     return {
-      AUTO_UPLOAD_LAYER_TIME: 20,
-      AUTO_UPLOAD_FLAT_TIME: 30
+      AUTO_UPLOAD_LAYER_TIME: 4,
+      AUTO_UPLOAD_FLAT_TIME: 5
     }
   };
 
-  var setup = function() {}
-
-  var create = function(next) {
-    co(function *() {
-      //try {
-        var path = yield tmpDir();
-        log('new script', path);
-        pathname = path;
-        filename = path + '/config.json';
-        config = {
-          script: 'script.fountain',
-          images: 'images',
-          title: 'Untitled'
-        };
-        // write the script file
-        yield cofs.writeFile(filename, JSON.stringify(config), 'utf8');
-        // create the images directory
-        yield cofs.mkdir(pathname + '/' + config.images);
-        var cfg = {
-          script: currentFile.NEW_SCRIPT_TEXT,
-          title: config.title
-        };
-        // write the script file
-        yield cofs.writeFile(pathname + '/' + config.script, cfg.script, 'utf8');
-        next(null, {source: {type: 'local', filename: filename}, config: cfg});
-      //}
-      //catch (e) {
-      //  next(e);
-      //}
-    })();
+  // generate a unique name for and make a data directory
+  var makeDataPath = function *(basepath, name) {
+    var alt = '';
+    while (true) {
+      var path = basepath + '/' + name + alt + '_data';
+      if (yield cofs.exists(path)) {
+        alt = '_' + shortId.generate();
+      }
+      else {
+        yield cofs.mkdir(path);
+        yield cofs.mkdir(path + '/images');
+        return './' + name + alt + '_data';
+      }
+    }
   };
 
   /**
-   * opts: {type: 'local', filename: path to config file}
-   * next expects (err, cfg)
+   * Create a new script.
+   *
+   * pass a callback function
+   * callback is called with:
+   * - TODO
    */
-  var load = function(opts, next) {
+  var create = function(next) {
     co(function *() {
-      try {
-        if (opts.filename) {
-          pathname = path.dirname(opts.filename);
-          filename = opts.filename;
-          config = JSON.parse(yield cofs.readFile(filename, {encoding: 'utf8'}));
-          var script = (yield cofs.readFile(pathname + '/' + config.script)).toString();
-          var cfg = {
-            script: script,
-            title: config.title
-          };
-          next(null, {source: opts, config: cfg});
-        }
-        else {
-          create(next);
-        }
-      }
-      catch (e) {
-        next(e);
-      }
-    })();
+      var name = shortId.generate();
+      var path = autosavesPath();
+      var dataPath = yield makeDataPath(path, name);
+      var script = example.fountainText(dataPath);
+      var scriptPath = path + '/' + name + '.fountain';
+      // write the script file
+      yield cofs.writeFile(scriptPath, script, 'utf8');
+      // ok, we've successfully created it, set the module vars
+      setLoaded({scriptPath: scriptPath, dataPath: dataPath, script: script});
+      return getSource();
+    })(next);
+  };
+
+  /**
+   * Open an existing script.
+   *
+   * config: {type: 'local', scriptPath: path to script file}
+   * next expects (err, {config, data})
+   */
+  var load = function(config, next) {
+    co(function *() {
+      if (config.type != 'local' || !config.scriptPath) return next('invalid config');
+      var scriptPath = config.scriptPath;
+      var script = (yield cofs.readFile(scriptPath)).toString();
+      setLoaded({script: script, scriptPath: scriptPath});
+      return getSource();
+    })(next);
   };
 
   var imageUrl = function(name) {
-    return 'file://' + pathname + '/' + 'images' + '/' + name;
+    return 'file://' + getFullDataPath() + '/images/' + name;
   };
 
-  var saveScript = function(cfg, next) {
-    fs.writeFile(pathname + '/' + config.script, cfg.script, next);
+  var saveScript = function(script, next) {
+    data.script = script;
+    fs.writeFile(config.scriptPath, script, next);
   };
 
   var saveImage = function(filename, imageData, contentType) {
     var dfd = new $.Deferred();
-    var data = imageData.replace(/^data:image\/\w+;base64,/, '');
-    var file = pathname + '/' + config.images + '/' + filename;
-    console.log('saving to', file);
-    fs.writeFile(file, data, 'base64', function(err) {
-      console.log('saved?', err);
-      if (err) dfd.reject(); else dfd.resolve();
-    });
+    if (data.dataPath) {
+      imageData = imageData.replace(/^data:image\/\w+;base64,/, '');
+      var file = getFullDataPath() + '/images/' + filename;
+
+      fs.writeFile(file, imageData, 'base64', function(err) {
+        if (err) dfd.reject(); else dfd.resolve();
+      });
+    }
+    else {
+      dfd.reject();
+    }
     return dfd.promise();
   };
 
-  var localPath = function() {
-    return pathname;
-  }
-
-  var ncp = require('ncp');
-  var thunkedNcp = thunkify(ncp);
-
-  var save = function(source, fromPath, next) {
+  var saveAs = function(toPath, next) {
     co(function *() {
-      try {
-        var src = fromPath;
-        var dst = path.dirname(source.filename);
-        yield thunkedNcp(src, dst);
-        //console.log('cp -r', src, dst);
-        pathname = dst;
-        filename = pathname + '/config.json';
-        // TODO: actually get the config here
-        config = {
-          script: 'script.fountain',
-          images: 'images',
-          title: 'Untitled'
-        };
-        next(null, {source: source});
+      if (!data.dataPath) {
+        return new Error('invalid data directory');
       }
-      catch (e) {
-        next(e);
+      if (toPath == config.scriptPath) {
+        // don't need to move
+        return getSource();
       }
-    })();
+
+      var src, dst;
+      // copy the script file over
+      src = config.scriptPath;
+      console.log('src', src);
+      var fileExists = yield cofs.exists(toPath);
+      var dirExists = yield cofs.exists(path.dirname(toPath));
+      var dirIsDirectory = (yield cofs.stat(path.dirname(toPath))).isDirectory();
+      if (fileExists) {
+        var stat = yield cofs.stat(toPath);
+        if (stat.isDirectory()) {
+          dst = toPath + '/' + path.basename(src);
+        }
+        else if (stat.isFile()) {
+          dst = toPath;
+        }
+        else {
+          console.log('invalid destination1');
+          throw new Error('invalid destination');
+        }
+      }
+      else if (dirExists && dirIsDirectory) {
+        dst = toPath;
+      }
+      else {
+        console.log('invalid destination');
+        throw new Error('invalid destination');
+      }
+      console.log('copying script: ', src, dst);
+      yield cocopy(src, dst);
+
+      var scriptPath = dst;
+
+      // copy the data dir over
+      src = getFullDataPath();
+      dst = path.dirname(scriptPath) + '/' + path.basename(src);
+      console.log('copying data: ', src, dst);
+      if (path.normalize(src) != path.normalize(dst)) {
+        yield cocopy(src, dst);
+      }
+
+      setLoaded({script: data.script, scriptPath: scriptPath, dataPath: data.dataPath});
+
+      return getSource();
+    })(next);
   }
+
+  // assume they haven't saved if we are saving to the autosave directory
+  var hasSaved = function() {
+    return path.dirname(config.scriptPath) != autosavesPath();
+  };
+
+  var getDataPath = function() {
+    return data.dataPath;
+  };
+
+  var setDataPath = function(fullpath, isAbsolute, ensureExists) {
+    if (isAbsolute) {
+      data.dataPath = path.relative(path.dirname(config.scriptPath), fullpath);
+    }
+    else {
+      data.dataPath = fullpath;
+    }
+    if (ensureExists) {
+      // make the images dir (and therefore the data dir)
+      mkdirp(getFullDataPath() + '/images');
+    }
+    console.log('setDataPath', fullpath, data.dataPath);
+  };
+
+  var checkDataPath = function(next) {
+    co(function *() {
+      var dataPath = getFullDataPath() + '/images';
+      return (
+        (yield cofs.exists(dataPath)) && 
+        (yield cofs.stat(dataPath)).isDirectory()
+      );
+    })(next);
+  };
 
   var localSource = window.localSource = {
     settings: settings,
-    setup: setup,
     create: create,
     load: load,
-    save: save,
+    saveAs: saveAs,
     imageUrl: imageUrl,
     saveScript: saveScript,
     saveImage: saveImage,
-    localPath: localPath
+    hasSaved: hasSaved,
+    getDataPath: getDataPath,
+    setDataPath: setDataPath,
+    checkDataPath: checkDataPath,
+    getSource: getSource
   };
+
+  function autosavesPath() {
+    return gui.App.dataPath + '/Autosaves';
+  }
+
+  function checkAutosavesPath() {
+    var path = autosavesPath();
+    fs.exists(path, function(exists) {
+      if (!exists) fs.mkdir(path);
+    });
+  }
+
+  checkAutosavesPath();
 
 }).call(this);

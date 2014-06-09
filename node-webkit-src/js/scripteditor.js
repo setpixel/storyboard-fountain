@@ -111,13 +111,18 @@
     editor.focus();
   };
 
+  var flushChanges = function(next) {
+    fountainManager.loadChange(editor.getDoc().getValue(), next);
+  };
+
   var scriptEditor = window.scriptEditor = {
     emitter: emitter,
     toggleAutoIndent: toggleAutoIndent,
     getAutoIndent: function() { return autoIndent; },
     toggleExpandNotes: toggleExpandNotes,
     getExpandNotes: function() { return expandNotes; },
-    refresh: refresh
+    refresh: refresh,
+    flushChanges: flushChanges
   };
 
   // force initial event fires

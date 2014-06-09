@@ -36,6 +36,8 @@
           return parseFloat(val);
         case 'boolean':
           return val === 'true';
+        case 'object':
+          return JSON.parse(val);
         default:
           return val;
       }

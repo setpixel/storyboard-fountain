@@ -4,176 +4,209 @@
 ;(function() {
   'use strict';
 
+  var path = require('path');
+  var gui = require('nw.gui');
   var util = require('util');
   var co = require('co');
   var thunkify = require('thunkify');
 
-  var gui = require('nw.gui');
-  gui.App.setCrashDumpDir(global.__dirname + '/..');
+  console.log('editing', localStorage.getItem('editing'));
 
-  var NEW_SCRIPT_TEXT = example.fountainText;
-  var currentSource = null;
-  var currentConfig = null;
-  var sourceModule = null;
+  var sourceConfig = getSetting('editing', {});
   var SOURCES = {
     local: window.localSource,
     s3: window.s3Source
   };
 
-  var openOnStartup = function(next) {
-    if (sourceModule) {
-      sourceModule.setup(JSON.parse(localStorage.getItem('sourceConfig') || '{}'));
-    }
+  var source = function(type) {
+    return SOURCES[type || sourceConfig.type];
+  };
 
-    var source = JSON.parse(localStorage.getItem("editing") || '{}');
-    if (source) {
-      open(source, function(err) {
-        if (err) {
-          create(next);
-        }
-        else {
-          next();
-        }
-      });
+  var restoreOnStartup = function(next) {
+    console.log('restoreOnStartup', sourceConfig, source());
+    if (sourceConfig && source()) {
+      // open the existing file
+      open(sourceConfig, next);
     }
     else {
+      // create a new file
       create(next);
     }
   };
 
-  var source = function() {
-    return currentSource;
+  var loadSource = function(source, next) {
+    sourceConfig = source.config;
+    localStorage.setItem("editing", JSON.stringify(source.config));
+    fountainManager.load(source.data);
+    gui.Window.get().title = 'Storyboard Fountain - ' + path.basename(source.config.scriptPath);
+    next();
   }
 
-  var config = function() {
-    return currentConfig;
-  }
-
-  var open = function(source, next) {
-    console.log('open', source);
-    if (source && source.type) {
-      currentSource = source;
-      localStorage.setItem("editing", JSON.stringify(currentSource));
-      log('set localstorage and it is now', localStorage.getItem('editing'));
-      sourceModule = SOURCES[currentSource.type];
-      //console.log('sourceModule = ', currentSource.type, sourceModule);
-      sourceModule.load(source, function(err, result) {
+  var open = function(config, next) {
+    if (config && source(config.type)) {
+      source(config.type).load(config, function(err, source) {
         if (err) {
-          console.log('failed to load', require('util').inspect(err));
-          localStorage.removeItem("editing");
-          create(next);
+          localStorage.removeItem('editing');
+          next(err);
         }
         else {
-          currentConfig = result.config;
-          //console.log('sourceModule = ', currentConfig);
-          fountainManager.load(currentConfig);
-          next();
+          console.log('loadSource', source);
+          loadSource(source, next);
         }
       });
     }
     else {
-      next('invalid source');
+      next('invalid config');
     }
   };
 
   var create = function(next) {
-    var type;
-    if (currentSource) {
-      type = currentSource.type || 'local';
-    }
-    else {
-      type = 'local';
-    }
-    //console.log('create', type);
-    SOURCES[type].create(function(err, result) {
-      //console.log('created', err, result);
+    source('local').create(function(err, source) {
       if (err) {
         next(err);
       }
       else {
-        open(result.source, next);
-        //console.log('opened');
+        console.log('loadSource', source);
+        loadSource(source, next);
       }
     });
   };
 
-  var save = function(source, next) {
-    saveNow(function() {
-      var path = sourceModule.localPath();
-      SOURCES[source.type].save(source, path, function(err, result) {
-        if (err) return next(err);
-        currentSource = result.source;
-        sourceModule = SOURCES[currentSource.type];
-        currentConfig = result.config;
-        localStorage.setItem("editing", JSON.stringify(currentSource));
-        next();
-      });
+  var saveAs = function(config, next) {
+    save(function() {
+      source().saveAs(config.scriptPath, function(err, source) {
+        if (err) {
+          console.log('saveAs err', err);
+          next(err);
+        }
+        else {
+          console.log('loadSource', source);
+          loadSource(source, next);
+        }
+      })
     });
   };
 
   var saveScript = function(next) {
-    currentConfig.script = fountainManager.exportScriptText();
-    sourceModule.saveScript(currentConfig, next);
+    var script = fountainManager.exportScriptText();
+    source().saveScript(script, next);
   }
 
   var imageUrl = function(name) {
-    return sourceModule.imageUrl(name);
+    return source().imageUrl(name);
   }
 
   var saveImage = function(filename, imageData, contentType) {
-    return sourceModule.saveImage(filename, imageData, contentType);
+    return source().saveImage(filename, imageData, contentType);
   }
 
   var settings = function() {
-    return sourceModule.settings();
+    return source().settings();
   }
 
-  var saveNow = function(next) {
-    var saveScriptTh = thunkify(saveScript);
+  var saveScriptTh = thunkify(saveScript);
+
+  var save = function(next) {
     co(function *() {
-      try {
-        yield saveScriptTh();
-        if (storyboardState.getDirty()) {
-          yield storyboardState.forceSave();
-        }
-        next();
+      // save the script
+      yield saveScriptTh();
+      // save any dirty images
+      if (storyboardState.getDirty()) {
+        yield storyboardState.forceSave();
       }
-      catch (e) {
-        next(e);
-      }
-    })();
+    })(next);
   };
 
+  var hasSaved = function() {
+    return source().hasSaved();
+  };
+
+  var getDataPath = function() {
+    return source().getDataPath();
+  }
+
+  var setDataPath = function(path, isAbsolute, ensureExists, fromParsing) {
+    if (ensureExists && path != getDataPath()) {
+      alert('The data path has been changed. Existing images may be broken unless changed back.');
+    }
+    source().setDataPath(path, isAbsolute, ensureExists);
+    if (!fromParsing) {
+      // export with the new data path
+      var script = fountainManager.exportScriptText();
+      source().saveScript(script, function() {
+        loadSource(source().getSource(), function() {});
+      });
+    }
+  };
+
+  var checkDataPath = function(next) {
+    source().checkDataPath(next);
+  }
+
   var currentFile = window.currentFile = {
-    /**
-     * the source of the open file
-     * - type: 'local' | 's3' | ...
-     * - other type-specific params
-     */
-    //source: source,
-    /**
-     * data for the open file
-     * - script: content of the script
-     * - title
-     */
-    //config: config,
     create: create,
     open: open,
+    saveAs: saveAs,
     save: save,
-    NEW_SCRIPT_TEXT: NEW_SCRIPT_TEXT,
     settings: settings,
     imageUrl: imageUrl,
     saveScript: saveScript,
     saveImage: saveImage,
-    saveNow: saveNow
+    hasSaved: hasSaved,
+    getDataPath: getDataPath,
+    setDataPath: setDataPath,
+    checkDataPath: checkDataPath,
+    getSourceConfig: function() { return sourceConfig; }
   };
 
   $(document).ready(function() {
-    var gui = require('nw.gui');
-    openOnStartup(function() {
-      gui.Window.get().show();
-
+    var afterRestore = function(err) {
+      if (err) {
+        console.log('error starting up', err.toString());
+        gui.Window.get().close(true);
+        return;
+      }
       console.log('done with startup');
+    };
+    restoreOnStartup(function(err) {
+      gui.Window.get().show();
+      if (err) {
+        console.log('err on restore', err.toString());
+        create(afterRestore);
+      }
+      else {
+        var _checkDataPath = function(next) {
+          checkDataPath(function(err, valid) {
+            if (err || !valid) {
+              var path = require('path');
+              var filename = path.basename(sourceConfig.scriptPath);
+              alert('The data directory for ' + filename + ' could not be found. Please locate it.');
+              var chooser = $('#pick-data-path-input');
+              var onChoose = function() {
+                var path = chooser.val();
+                if (path && path.length) {
+                  setDataPath(path, true);
+                  next();
+                }
+                else {
+                  alert('It looks like you didn\'t choose a directory. Images will be broken.');
+                }
+                next();
+              };
+              chooser.change(onChoose);
+              document.body.onfocus = function() {
+                document.body.onfocus = null;
+                onChoose();
+              };
+              chooser.trigger('click');
+            }
+            else {
+              next();
+            }
+          });
+        };
+        _checkDataPath(afterRestore);
+      }
     });
   });
 
