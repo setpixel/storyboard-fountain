@@ -10,8 +10,6 @@
   var co = require('co');
   var thunkify = require('thunkify');
 
-  console.log('editing', localStorage.getItem('editing'));
-
   var sourceConfig = getSetting('editing', {});
   var SOURCES = {
     local: window.localSource,
@@ -171,6 +169,7 @@
     restoreOnStartup(function(err) {
       gui.Window.get().show();
       $(".nano").nanoScroller();
+      updater.check(function () {});
       if (err) {
         console.log('err on restore', err.toString());
         create(afterRestore);

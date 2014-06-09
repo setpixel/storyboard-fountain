@@ -15,7 +15,8 @@
     "coffee-script": "~1.7.1",
     "shortid": "~2.0.0",
     "fs-extra": "~0.9.1",
-    "mkdirp": "~0.5.0"
+    "mkdirp": "~0.5.0",
+    "semver": "~2.3.0"
   },
   "window": {
     "title": "StoryboardFountain",

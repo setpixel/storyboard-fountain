@@ -1,0 +1,8 @@
+{
+  "updateUrl": "http://storyboardfountain.com/update.json",
+  "downloadUrl": "http://storyboardfountain.com",
+  "mac": {
+    "version": "0.0.1",
+    "description": "- Initial release!"
+  }
+}
