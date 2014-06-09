@@ -7,13 +7,10 @@
   var thunkify = require('thunkify');
   var co = require('co');
   var cofs = require('co-fs');
-  var tmp = require('tmp');
   var shortId = require('shortid');
   var fsExtra = require('fs-extra');
   var cocopy = thunkify(fsExtra.copy);
   var mkdirp = require('mkdirp');
-
-  var tmpDir = thunkify(tmp.dir);
 
   var config = {};
   var data = {};

@@ -3,5 +3,8 @@
   "devDependencies": {
     "grunt": "~0.4.5",
     "grunt-node-webkit-builder": "~0.1.21"
+  },
+  "dependencies": {
+    "ncp": "~0.5.1"
   }
 }

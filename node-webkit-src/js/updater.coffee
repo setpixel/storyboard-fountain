@@ -1,6 +1,6 @@
-gui = window.nwDispatcher.requireNwGui();
 request = require('request')
 semver = require('semver')
+$ = window.$
 
 getOS = -> {darwin: 'mac', win32: 'win', linux: 'linux'}[process.platform] ? 'unk'
 
@@ -8,7 +8,7 @@ isNewerVersion = (newVersion, oldVersion) ->
   return false  unless newVersion and oldVersion
   semver.gt(newVersion, oldVersion)
 
-check = ->
+check = (gui) ->
   request {
     url: window.getSetting('update-url', 'http://storyboardfountain.com/update.json')
     json: yes
@@ -18,11 +18,11 @@ check = ->
       window.localStorage.setItem('update-url', data.updateUrl)
     do (updateData = data[getOS()]) ->
       if updateData? and isNewerVersion(updateData.version, gui.App.manifest.version)
-        do (msg = 'A new version of Storyboard Fountain is available (' + updateData.version + ').\n\n' + 
-                  'Press OK to go to the website where you can download the latest version.\n\n' +
-                  'What\'s New:\n' + updateData.description) ->
-          if window.confirm(msg)
-            gui.Shell.openExternal(data.downloadUrl)  
+        do (template = window.Handlebars.compile($('#update-app-template').html())) ->
+          $('#update-app .modal-body').html(template(updateData))
+          $('#update-app').modal('show')
+          $('.btn.btn-primary', '#update-app').click ->
+            gui.Shell.openExternal(data.downloadUrl)
 
 module.exports = {
   check

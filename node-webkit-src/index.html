@@ -183,7 +183,6 @@
     <script src="js/scripteditor.js"></script>
     <script src="js/ui.js"></script>
     <script src="js/localsource.js"></script>
-    <script src="js/s3source.js"></script>
     <script src="js/main.js"></script>
 
     <div id="stats-window" class="modal fade">
@@ -243,6 +242,38 @@
       {{/if}}
     </script>
    
+    <div id="update-app" class="modal fade">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Update Available</h4>
+          </div>
+          <div class="modal-body">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Not Now</button>
+            <button type="button" class="btn btn-primary">Update</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script id="update-app-template" type="text/x-handlebars-template">
+      <p>
+        A new version of Storyboard Fountain is available ({{version}}).
+      </p>
+      <p>
+        Press Update to go to the website where you can download the latest version.
+      </p>
+      <p>
+        What's New:
+      </p>
+      <p>
+        {{description}}
+      </p>
+    </script>
+
     <svg width="1" height="1">
       <defs>
         <filter id="script-image-filter">

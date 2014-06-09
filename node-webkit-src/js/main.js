@@ -12,8 +12,7 @@
 
   var sourceConfig = getSetting('editing', {});
   var SOURCES = {
-    local: window.localSource,
-    s3: window.s3Source
+    local: window.localSource
   };
 
   var source = function(type) {
@@ -166,7 +165,7 @@
     restoreOnStartup(function(err) {
       windowState.init();
       $(".nano").nanoScroller();
-      updater.check();
+      updater.check(gui);
       if (err) {
         console.log('err on restore', err.toString());
         create(afterRestore);
