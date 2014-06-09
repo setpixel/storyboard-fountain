@@ -1,5 +1,6 @@
 ;(function() {
   
+  var gui = require('nw.gui');
   var events = require('events');
   var _ = require('underscore');
 
@@ -8,7 +9,7 @@
   var scriptText = '';
 
   var title = '';
-  var settings = {};
+  var settings = {aspectRatio: 2.35};
   var stats = {};
   var script = [];
   var scriptChunks = [];
@@ -43,6 +44,24 @@
     parseFountain(text);
     storyboardState.saveScript(next);
   }
+
+  var loadNonEditChange = function(text, next) {
+    if (text == scriptText) {
+      if (next) next(null, false);
+      return;
+    }
+    var oldScriptText = scriptText;
+    scriptText = text;
+    emitter.emit('script:change', scriptText, oldScriptText);
+    loadingChange = true;
+    parseFountain(text);
+    storyboardState.saveScript(next);
+  }
+
+  aspectRatio.emitter.on('aspectRatio:change', function(ratio) {
+    if (ratio == settings.aspectRatio) return;
+    loadNonEditChange(exportScriptText());
+  });
 
   var parseFountain = function (fountainText) {
     var tokens = "";
@@ -682,12 +701,16 @@ function hexToRgb(hex) {
           }
           else if (noteMetaData && noteMetaData.aspectRatio) {
             setSettings = true;
-            aspectRatio.setAspectRatio(parseFloat(noteMetaData.aspectRatio));
+            settings.aspectRatio = parseFloat(noteMetaData.aspectRatio);
+            aspectRatio.setAspectRatio(settings.aspectRatio);
             addAtom({settings: true});
           }
           else if (noteMetaData && noteMetaData.dataPath) {
             var path = recursiveMarkdown(noteMetaData.dataPath);
             currentFile.setDataPath(path, false, loadingChange, true);
+          }
+          else if (noteMetaData && noteMetaData['Storyboard Fountain']) {
+            // ignore for now
           }
           else {
             addAtom({});
@@ -1047,6 +1070,8 @@ function hexToRgb(hex) {
         var text = _.map(settings, function(value, key) {
           return key + ": " + value;
         }).join(', ');
+        scriptText.push('');
+        scriptText.push('[[Storyboard Fountain: ' + gui.App.manifest.version + ']]');
         scriptText.push('');
         scriptText.push('[[' + text + ']]');
         scriptText.push('');
