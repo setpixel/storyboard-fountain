@@ -164,6 +164,7 @@
     };
     restoreOnStartup(function(err) {
       windowState.init();
+      gui.Window.get().focus();
       $(".nano").nanoScroller();
       updater.check(gui);
       if (err) {

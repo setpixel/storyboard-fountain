@@ -10,6 +10,9 @@ isNewerVersion = (newVersion, oldVersion) ->
 
 check = (gui) ->
   request {
+    headers: {
+      'Cache-Control': 'no-cache'
+    }
     url: window.getSetting('update-url', 'http://storyboardfountain.com/update.json')
     json: yes
   }, (err, res, data) ->

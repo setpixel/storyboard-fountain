@@ -13,7 +13,8 @@
     "shortid": "~2.0.0",
     "fs-extra": "~0.9.1",
     "mkdirp": "~0.5.0",
-    "semver": "~2.3.0"
+    "semver": "~2.3.0",
+    "ncp": "~0.5.1"
   },
   "window": {
     "title": "StoryboardFountain",
