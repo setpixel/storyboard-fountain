@@ -15,7 +15,7 @@
     "mkdirp": "~0.5.0",
     "semver": "~2.3.0",
     "ncp": "~0.5.1",
-    "stream-buffer": "~0.2.5"
+    "stream-buffers": "~0.2.5"
   },
   "window": {
     "title": "StoryboardFountain",
