@@ -48,24 +48,6 @@
     updatedImgData[filename] = data;
   }
 
-  var fillBoardsList = function() {
-    var html = [];
-    for (var i = 0; i < scriptData.length; i ++) {
-      html.push("<div id='" + scriptData[i] + "'><img src='" + checkUpdated(scriptData[i] + "-small.jpeg") + "'> " + scriptData[i] + "</div>");
-    }
-    $($('.boards-list')[0]).html(html.join(''));
-
-    $(".boards-list div").click( function(e){
-      var id = this.id;
-      loadFlatBoard(id);
-    });
-    
-    $(".boards-list div").mouseenter( function(){
-      var id = this.id;
-      preload(id);
-    });
-  };
-
   $(document).ready(function() {
     $(".drawing-canvas").mousemove(function(){
       if (sketchpane.getEditMode()) {
@@ -83,28 +65,6 @@
     }
     sketchpane.loadLayers(layerURLs, currentBoard, copyAfter);
   }
-
-  var addBoardToList = function(boardname) {
-    var html = "<div id='" + boardname + "'><img> " + boardname + "</div>";
-    $($('.boards-list')[0]).append(html);
-    $("#" + boardname).click( function(e){
-      var id = this.id;
-      loadFlatBoard(id);
-    });
-    $("#" + boardname).mouseenter( function(){
-      var id = this.id;
-      preload(id);
-    });
-  };
-
-  var newBoard = function() {
-    var boardName = new Date().getTime().toString();
-    scriptData.push(boardName);
-    saveScript(function(err) {
-      addBoardToList(boardName);
-      loadFlatBoard(boardName, true);
-    });
-  };
 
   var saveScript = function(next) {
     currentFile.saveScript(next);
@@ -205,14 +165,6 @@
     return $.when.apply($, uploads);
   };
 
-  var goNext = function(increment) {
-    var index = scriptData.indexOf(currentBoard);
-    index = index + increment;
-    index = Math.max(Math.min(scriptData.length - 1, index), 0);
-    var id = scriptData[index];
-    loadFlatBoard(id);
-  };
-
   var preloadAround = function() {
     var index = scriptData.indexOf(currentBoard);
     for (var i=-1;i<3;i++) {
@@ -282,11 +234,9 @@
   };
 
   var storyboardState = window.storyboardState = {
-    newBoard: newBoard,
     setLayerDirty: setLayerDirty,
     getDirty: getDirty,
     forceSave: forceSave,
-    goNext: goNext,
     setThumb: setThumb,
     getScriptData: getScriptData,
     getCurrentBoard: getCurrentBoard,

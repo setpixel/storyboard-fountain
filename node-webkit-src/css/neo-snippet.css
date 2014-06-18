@@ -1,0 +1,101 @@
+/* neo-snippet theme for codemirror */
+
+/* Color scheme */
+
+.cm-s-neo-snippet.CodeMirror {
+  font-size: inherit !important;
+  font-weight: inherit !important;
+  background: transparent !important;
+  color: inherit !important;
+  font-family: inherit !important;
+  line-height: inherit !important;
+  width: 100%;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.3);
+  margin-bottom: -1px;
+}
+
+.cm-s-neo-snippet .CodeMirror-lines {
+  padding: 0;
+}
+
+.cm-s-neo-snippet .cm-markup {
+  color: #666;
+}
+
+.cm-s-neo-snippet .character {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 15px;
+  font-weight: normal;
+  font-family: 'Proxima Nova', sans-serif;
+}
+
+.cm-s-neo-snippet .text {
+  color: white;
+  font-size: 15px;
+  font-weight: normal;
+  font-family: 'Proxima Nova', sans-serif;
+}
+
+.cm-s-neo-snippet .slug {
+  color: rgba(255, 255, 255, 0.8);
+  font-family: 'Proxima Nova', sans-serif;
+  font-size: 12px;
+  font-weight: normal;
+}
+
+.cm-s-neo-snippet .title {
+  color: rgb(255, 255, 255);
+  font-family: 'Proxima Nova', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.cm-s-neo-snippet .synopsis {
+  color: rgba(255, 255, 255, 0.8);
+  font-family: 'Proxima Nova', sans-serif;
+  font-size: 12px;
+  font-weight: normal;
+}
+
+.cm-s-neo-snippet .cm-bold {
+  font-weight: bold;
+}
+
+.cm-s-neo-snippet .cm-italic {
+  font-style: italic;
+}
+
+.cm-s-neo-snippet .cm-underline {
+  text-decoration: underline;
+}
+
+/* Editor styling */
+
+.cm-s-neo-snippet pre {
+  padding:0;
+}
+
+.cm-s-neo-snippet .CodeMirror-gutters {
+  border:none;
+  border-right:10px solid transparent;
+  background-color:transparent;
+}
+
+.cm-s-neo-snippet .CodeMirror-linenumber {
+  padding:0;
+  color:#e0e2e5;
+}
+
+.cm-s-neo-snippet div.CodeMirror-cursors {
+  z-index: 200;
+}
+
+.cm-s-neo-snippet div.CodeMirror-cursor {
+  width: 2px;
+  border: 1px solid white;
+}
+
+.cm-s-neo-snippet .CodeMirror-foldmarker {
+  color: #88f;
+  font-style: italic;
+}

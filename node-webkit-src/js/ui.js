@@ -40,7 +40,7 @@
       });
     }
     else {
-      if (confirm('Would you like to save first?')) {
+      if (confirm('You haven\'t saved this script yet. Press OK to save first.')) {
         var chooser = $('#save-file-input');
         chooser.attr('nwsaveas', titleSuggestion() + '.fountain');
         chooser.change(function(evt) {
@@ -154,7 +154,7 @@
       if (editorWidths[size]) {
         return editorWidths[size];
       }
-      $('.CodeMirror').css('font-size', size + 'px');
+      $('#scripttext .CodeMirror').css('font-size', size + 'px');
       var w = $('.CodeMirror').width();
       editorWidths[size] = w;
       return w;
@@ -165,7 +165,7 @@
     while (calcEditorWidth(size) > editorSpace && size > 1) {
       size -= 1;
     }
-    $('.CodeMirror').css('font-size', size + 'px');
+    $('#scripttext .CodeMirror').css('font-size', size + 'px');
 
     window.scrollTo(0);
   }
@@ -475,6 +475,10 @@
           e.preventDefault();
           fountainManager.nextScene(1);
           break;
+        case 13:  // enter
+          e.preventDefault();
+          boardEditor.startEditing();
+          break;
       }
     };
 
@@ -521,7 +525,7 @@
     };
 
     var globalKeyHandler = function(e) {
-      if (e.metaKey && e.altKey && e.keyCode == 73) {  // cmd + i
+      if (e.metaKey && e.altKey && e.keyCode == 73) {  // cmd + opt + i
         require('nw.gui').Window.get().showDevTools();
       }
     };
@@ -545,7 +549,13 @@
       }
 
       if (activeState == 'boards') {
-        if (recorder.getState() == 'paused') {
+        if (elementEditor.isEditing()) {
+          // handled by CodeMirror instance
+        }
+        else if (boardEditor.isEditing()) {
+          // handled by CodeMirror instance
+        }
+        else if (recorder.getState() == 'paused') {
           if (player.getFullState().state == 'paused') {
             boardsKeyHandler(e);
           }

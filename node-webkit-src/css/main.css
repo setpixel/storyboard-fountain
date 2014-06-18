@@ -177,18 +177,18 @@ body {
   color: rgba(255,255,255,0.8);
 }
 
-#script .module .slug {
+#script .module .slug .view {
   color: rgba(255,255,255,0.8) !important;
   font-size: 12px !important;
 }
 
-#script .module .title {
+#script .module .title .view {
   color: rgba(255,255,255,1) !important;
   font-size: 15px !important;
   font-weight: 700 !important;
 }
 
-#script .module .synopsis {
+#script .module .synopsis .view {
   color: rgba(255,255,255,0.8) !important;
   font-size: 12px !important;
 }
@@ -518,7 +518,23 @@ svg {
   overflow-y: auto;
 }
 
-.character {
+.character .view, .character .edit {
   color: rgba(255,255,255,0.6);
   font-weight: 500;
+}
+
+.editable .view .italic {
+  font-style: italic;
+}
+
+.editable .view .bold {
+  font-weight: bold;
+}
+
+.editable .view .underline {
+  text-decoration: underline;
+}
+
+.editable.character .view:after {
+  content: ":";
 }

@@ -23,6 +23,27 @@
 
   var loadingChange = false;
 
+  // html templates used for rendering the left-sidebar
+  var templates = {};
+  $(document).ready(function() {
+    templates = {
+      'scene_heading': Handlebars.compile($('#scene-heading-element').html()),
+      'action': Handlebars.compile($('#action-element').html()),
+      'dialogue': Handlebars.compile($('#character-element').html()),
+      'parenthetical': Handlebars.compile($('#character-element').html())
+    };
+  });
+
+  // html templates used for rendering the board view
+  var boardTemplates = {};
+  $(document).ready(function() {
+    boardTemplates = {
+      'action': Handlebars.compile($('#text-boardview-element').html()),
+      'dialogue': Handlebars.compile($('#character-boardview-element').html()),
+      'parenthetical': Handlebars.compile($('#character-boardview-element').html())
+    };
+  });
+
   var load = function(data) {
     if (data.script == scriptText) return;
     var oldScriptText = scriptText;
@@ -63,6 +84,34 @@
     loadNonEditChange(exportScriptText());
   });
 
+  elementEditor.emitter.on('edit:finish', function() {
+    loadNonEditChange(exportScriptText());
+  });
+
+  boardEditor.emitter.on('edit:finish', function() {
+    loadNonEditChange(exportScriptText());
+  });
+
+  $(document).ready(function() {
+    // handle clicking on a board thumb
+    $(".boards-list").on("click", ".module.selectable img", imageClickHandler);
+
+    // handle clicking on a script element
+    $(".boards-list").on("click", ".module.selectable", function(e) {
+      e.stopPropagation();
+      var id = parseInt($(this).attr('id').split("-")[2]);
+      if (player.getFullState().state == 'playing') {
+        selectChunk(atomToChunk[id].chunkIndex);
+        var atom = getAtomForCursor();
+        var update = timeline.getUpdateForAtom(atom);
+        player.setPlayhead(update.time);
+      }
+      else if (recorder.getState() == 'paused') {
+        selectChunk(atomToChunk[id].chunkIndex);
+      }
+    });
+  });
+
   var parseFountain = function (fountainText) {
     var tokens = "";
     fountain.parse(fountainText, true, function (output) {
@@ -86,37 +135,22 @@
 
     fountainManager.renderScenes();
 
-
-    $(".module.selectable img").click(imageClickHandler);
-
-    $(".module.selectable").click(function(e) {
-      e.stopPropagation();
-      var id = parseInt($(this).attr('id').split("-")[2]);
-      if (player.getFullState().state == 'playing') {
-        selectChunk(atomToChunk[id].chunkIndex);
-        var atom = getAtomForCursor();
-        var update = timeline.getUpdateForAtom(atom);
-        player.setPlayhead(update.time);
-      }
-      else if (recorder.getState() == 'paused') {
-        selectChunk(atomToChunk[id].chunkIndex);
-      }
-    });
-
     // load initial selection
     scriptCursorIndex = parseInt(localStorage.getItem('scriptCursorIndex') || 0) || 0;
     scriptImageCursorIndex = parseInt(localStorage.getItem('scriptImageCursorIndex') || 0) || 0;
     selectChunkAndBoard(scriptCursorIndex, scriptImageCursorIndex, false, false);
+
+    elementEditor.keepEditing();
+    boardEditor.keepEditing();
   };
 
   var chunkText = function(chunk) {
-    switch (chunk.type) {
-      case 'dialogue':
-      case 'parenthetical':
-        return "<div class='character'>" + chunk.character + ":</div><div>" + chunk.text + "</div>";
-
-      default:
-        return chunk.text;
+    var template = boardTemplates[chunk.type];
+    if (template) {
+      return template({chunk: chunk});
+    }
+    else {
+      return '';
     }
   }
 
@@ -332,42 +366,45 @@
 
   var renderScriptModule = function(index) {
     var chunk = scriptChunks[index];
-
-    var html = [];
-
-    switch (scriptChunks[index].type) {
-      case 'action':
-        if (scriptChunks[index].images.length > 0) {
-          for (var i2=0; i2<scriptChunks[index].images.length; i2++) {
-            html.push("<img id='script-image-" + scriptChunks[index].images[i2][0].file + "' src='" + storyboardState.checkUpdated(scriptChunks[index].images[i2][0].file + "-small.jpeg") + "'>");
-          }
-        }
-        html.push('<div>' + scriptChunks[index].text + '</div>')
-        break;
-      case 'parenthetical':
-        if (scriptChunks[index].images.length > 0) {
-          for (var i2=0; i2<scriptChunks[index].images.length; i2++) {
-            html.push("<img id='script-image-" + scriptChunks[index].images[i2][0].file + "' src='" + storyboardState.checkUpdated(scriptChunks[index].images[i2][0].file + "-small.jpeg") + "'>");
-          }
-        }
-        html.push('<div><span class="character">' + scriptChunks[index].character + ':</span><br/>' + scriptChunks[index].text + '</div>')
-        break;
-      case 'dialogue':      
-        if (scriptChunks[index].images.length > 0) {
-          for (var i2=0; i2<scriptChunks[index].images.length; i2++) {
-            html.push("<img id='script-image-" + scriptChunks[index].images[i2][0].file + "' src='" + storyboardState.checkUpdated(scriptChunks[index].images[i2][0].file + "-small.jpeg") + "'>");
-          }
-        }
-        html.push('<div><span class="character">' + scriptChunks[index].character + ':</span><br/>' + scriptChunks[index].text + '</div>')
-        break;
-    }
-
-
-
-    //return html.join('');  
-    $("#module-script-" + chunk.id).html(html.join(''));
-    $("#module-script-" + chunk.id + " img").click(imageClickHandler);
+    var chunkHtml = renderChunk(chunk) || '';
+    $("#module-script-" + chunk.id).replaceWith(chunkHtml);
   }
+
+  Handlebars.registerHelper('boardThumb', function() {
+    return new Handlebars.SafeString(
+      storyboardState.checkUpdated(this[0].file + "-small.jpeg")
+    );
+  });
+
+  Handlebars.registerHelper('boardId', function() {
+    return new Handlebars.SafeString(
+      this[0].file
+    );
+  });
+
+  var renderChunk = function(chunk) {
+    var outlineChunk = outline[parseInt(chunk.scene)-1];
+    if (!outlineChunk) return null;
+
+    var sceneColor = vSceneListColors[outlineChunk.slugline.split(" - ")[0]].color;
+    sceneColor = hexToRgb(sceneColor);
+
+    var headerStyleText = 'background: -webkit-linear-gradient(left, rgba(' + sceneColor.r + ',' + sceneColor.g + ',' + sceneColor.b + ', 0.5) 10px, rgba(' + sceneColor.r + ',' + sceneColor.g + ',' + sceneColor.b + ', 0.1) 10px);';
+    var mainStyleText = 'background: -webkit-linear-gradient(left, rgba(' + sceneColor.r + ',' + sceneColor.g + ',' + sceneColor.b + ', 0.5) 10px, rgba(0,0,0,0) 10px);';
+
+    var template = templates[chunk.type];
+    if (template) {
+      return template({
+        chunk: chunk,
+        headerStyleText: headerStyleText,
+        mainStyleText: mainStyleText,
+        outlineChunk: outlineChunk
+      });
+    }
+    else {
+      return null;
+    }
+  };
 
   var renderScript = function() {
     scriptChunks = [];
@@ -423,54 +460,16 @@
       }
     }
 
-    var objects = scriptChunks;
-
     console.log("SHOTS: " + shots);
-    //console.log(objects);
+
+    // render the sidebar
     var html = [];
-
-    for (var i=0; i<objects.length; i++) {
-      var chunk = objects[i];
-      var outlineChunk = outline[parseInt(chunk.scene)-1];
-      if (!outlineChunk) continue;
-      var sceneColor = vSceneListColors[outlineChunk.slugline.split(" - ")[0]].color;
-      sceneColor = hexToRgb(sceneColor);
-
-      var headerStyleText = 'background: -webkit-linear-gradient(left, rgba(' + sceneColor.r + ',' + sceneColor.g + ',' + sceneColor.b + ', 0.5) 10px, rgba(' + sceneColor.r + ',' + sceneColor.g + ',' + sceneColor.b + ', 0.1) 10px);';
-      var mainStyleText = 'background: -webkit-linear-gradient(left, rgba(' + sceneColor.r + ',' + sceneColor.g + ',' + sceneColor.b + ', 0.5) 10px, rgba(0,0,0,0) 10px);';
-
-      //col = vSceneListColors[outline[i].slugline.split(" - ")[0]].color;
-
-      switch (chunk.type) {
-        case 'scene_heading':
-          
-          html.push('<div class="module" id="module-script-' + chunk.id + '" style="' + headerStyleText + '"><div class="slug">' + outlineChunk.slugline + '</div><div class="title">' + outlineChunk.title + '</div><div class="synopsis">' + outlineChunk.synopsis + '</div></div>')
-          break;
-
-        case 'action':
-          html.push('<div class="module selectable" id="module-script-' + chunk.id + '" style="' + mainStyleText + '">')
-          if (chunk.images) {
-            for (var i2=0; i2<chunk.images.length; i2++) {
-              html.push("<img id='script-image-" + chunk.images[i2][0].file + "' src='" + storyboardState.checkUpdated(chunk.images[i2][0].file + "-small.jpeg") + "'>");
-            }
-          }
-          html.push('<div>' + chunk.text + '</div></div>')
-          break;
-
-        case 'parenthetical':
-        case 'dialogue':      
-          html.push('<div class="module selectable" id="module-script-' + chunk.id + '" style="' + mainStyleText + '">')
-          if (chunk.images) {
-            for (var i2=0; i2<chunk.images.length; i2++) {
-              html.push("<img id='script-image-" + chunk.images[i2][0].file + "' src='" + storyboardState.checkUpdated(chunk.images[i2][0].file + "-small.jpeg") + "'>");
-            }
-          }
-          html.push('<div><span class="character">' + chunk.character + ':</span><br/>' + chunk.text + '</div></div>')
-          break;
-      }
+    for (var i = 0; i < scriptChunks.length; i++) {
+      var chunk = scriptChunks[i];
+      var chunkHtml = renderChunk(chunk);
+      if (chunkHtml) html.push(chunkHtml);
     }
-
-    return html.join('');  
+    return html.join('');
   };
 
 
@@ -616,7 +615,7 @@ function hexToRgb(hex) {
           break;
 
         case 'title':
-          title = recursiveMarkdown(token.text);
+          title = fountainHelpers.htmlToMarkup(token.text);
           addAtom({duration: 2000});
           break;
 
@@ -704,7 +703,7 @@ function hexToRgb(hex) {
             addAtom({settings: true});
           }
           else if (noteMetaData && noteMetaData.dataPath) {
-            var path = recursiveMarkdown(noteMetaData.dataPath);
+            var path = fountainHelpers.htmlToMarkup(noteMetaData.dataPath);
             currentFile.setDataPath(path, false, loadingChange, true);
           }
           else if (noteMetaData && noteMetaData['Storyboard Fountain']) {
@@ -811,7 +810,9 @@ function hexToRgb(hex) {
 
     var sceneCount = 0;
     var recentSection = "";
+    var recentSectionId = null;
     var recentSynopsis = "";
+    var recentSynopsisId = null;
     var dialogueCount = 0;
     var timeMarkIn = 0;
 
@@ -822,9 +823,11 @@ function hexToRgb(hex) {
     for (var i=0; i<script.length; i++) {
       if (script[i].type == "section") {
         recentSection = script[i].text;
+        recentSectionId = i;
       }
       if (script[i].type == "synopsis") {
         recentSynopsis = script[i].text;
+        recentSynopsisId = i;
       }
       if (script[i].type == "dialogue") {
         dialogueCount++;
@@ -838,7 +841,18 @@ function hexToRgb(hex) {
         dialogueCount = 0;
         timeMarkIn = script[i].time;
 
-        sceneAtom = {'slugline': script[i].text, 'scriptIndex': i, 'title': recentSection, 'synopsis': recentSynopsis, 'dialogue': 0, 'duration': 0, 'page': script[i].page, 'time': script[i].time };
+        sceneAtom = {
+          'slugline': script[i].text, 
+          'scriptIndex': i, 
+          'title': recentSection, 
+          'synopsis': recentSynopsis, 
+          'dialogue': 0, 
+          'duration': 0, 
+          'page': script[i].page, 
+          'time': script[i].time, 
+          'titleId': recentSectionId, 
+          'synopsisId': recentSynopsisId
+        };
         outline.push(sceneAtom);
 
 
@@ -999,38 +1013,9 @@ function hexToRgb(hex) {
   var capitaliseFirstLetter = function(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
   };
-
-  var recursiveMarkdown = function(string) {
-    for (var i=0; i<10; i++) {
-      string = convert2markdown(string);
-    }
-    return string;
-  }
-
-  var convert2markdown = function(string) {
-    var finalString = "";
-    var j = $.parseHTML(string)
-    if (!j) return '';
-    for (var i=0; i<j.length; i++) {
-      switch ($(j[i]).attr('class')) {
-        case 'underline':
-          finalString = finalString + "_" + $(j[i]).html() + "_";
-          break;
-        case 'italic':
-          finalString = finalString + "*" + $(j[i]).html() + "*";
-          break;
-        case 'bold':
-          finalString = finalString + "**" + $(j[i]).html() + "**";
-          break;
-        default:
-          finalString = finalString + $(j[i]).text();
-      }  
-    }
-    return finalString;
-  }
-
+ 
   var exportScriptText = function() {
-    scriptText = [];
+    var scriptText = [];
     var currentCharacter = "";
 
     var titlePage = true;
@@ -1113,7 +1098,7 @@ function hexToRgb(hex) {
           //var tempVal = script[i].text.replace(/(<br \/>)+/g, "\n").trim();
 
           var text = script[i].text || '';
-          var lines = recursiveMarkdown(text.replace(/(<br \/>)+/g, "\n").trim()).split("\n");
+          var lines = fountainHelpers.htmlToMarkup(text.replace(/(<br \/>)+/g, "\n").trim()).split("\n");
 
           if (lines.length > 1) {
             scriptText.push(capitaliseFirstLetter(script[i].type).replace("_", " ") + ":");
@@ -1131,9 +1116,9 @@ function hexToRgb(hex) {
             scriptText.push('');
           }
           if (script[i].text.indexOf("EXT") == -1 && script[i].text.indexOf("INT") == -1 && script[i].text.indexOf("EST") == -1 && script[i].text.indexOf("I/E") == -1) {
-            scriptText.push("." + recursiveMarkdown(script[i].text));
+            scriptText.push("." + fountainHelpers.htmlToMarkup(script[i].text));
           } else {
-            scriptText.push(recursiveMarkdown(script[i].text));
+            scriptText.push(fountainHelpers.htmlToMarkup(script[i].text));
           }          
           scriptText.push('');
           break;
@@ -1142,7 +1127,7 @@ function hexToRgb(hex) {
             titlePage = false;
             scriptText.push('');
           }
-          scriptText.push(recursiveMarkdown(script[i].text.replace(/(<br \/>)+/g, "\n").trim()));
+          scriptText.push(fountainHelpers.htmlToMarkup(script[i].text.replace(/(<br \/>)+/g, "\n").trim()));
           scriptText.push('');
           break;
         case 'parenthetical':
@@ -1177,7 +1162,7 @@ function hexToRgb(hex) {
               scriptText.push(script[i].character);
             }
           }
-          scriptText.push(recursiveMarkdown(script[i].text.replace(/(<br \/>)+/g, "\n").trim()));
+          scriptText.push(fountainHelpers.htmlToMarkup(script[i].text.replace(/(<br \/>)+/g, "\n").trim()));
           if (script.length > i+1 && (script[i+1] && (script[i+1].character === undefined || currentCharacter !== script[i+1].character))) {
             currentCharacter = "";
             scriptText.push('');
@@ -1188,7 +1173,7 @@ function hexToRgb(hex) {
             titlePage = false;
             scriptText.push('');
           }
-          var lines = recursiveMarkdown(script[i].text.replace(/(<br \/>)+/g, "\n").trim()).split("\n");
+          var lines = fountainHelpers.htmlToMarkup(script[i].text.replace(/(<br \/>)+/g, "\n").trim()).split("\n");
           for (var i2=0; i2<lines.length; i2++) {
             scriptText.push("> " + lines[i2].trim() + " <");
           }
@@ -1415,6 +1400,7 @@ function hexToRgb(hex) {
   }
 
   var getScriptChunks = function(){ return scriptChunks;};
+  var getScriptChunk = function(index) { return scriptChunks[index]; }
 
   var boardForCursor = function() {
     var chunk = scriptCursorIndex;
@@ -1594,12 +1580,23 @@ function hexToRgb(hex) {
     return title;
   };
 
+  var getCursor = function() {
+    return {
+      chunkIndex: scriptCursorIndex,
+      boardIndex: scriptImageCursorIndex
+    };
+  };
+
   var fountainManager = window.fountainManager = {
     load: load,
     loadChange: loadChange,
     getTitle: getTitle,
     getScript: getScript,
     getScriptChunks: getScriptChunks,
+    getScriptChunk: getScriptChunk,
+    getCursor: getCursor,
+    getOutlineItem: function(index) { return outline[index]; },
+    getAtom: function(index) { return script[index]; },
     getCursorHasImages: function() { return chunkHasImages(scriptCursorIndex); },
     exportScriptText: exportScriptText,
     goNext: goNext,

@@ -69,6 +69,9 @@ isInputElement = (el) ->
 boardIsFocus = (action) ->
   # if we are not on the boards tab, nope
   return no  if window.ui.getActiveState() isnt 'boards'
+  # if we are editing a script element, nope
+  return no  if window.elementEditor.isEditing()
+  return no  if window.boardEditor.isEditing()
   # if we want to copy and something else is selected, nope
   return no  if action is 'copy' and window.getSelection().type isnt 'None'
   # if we are active on an input element, nope
