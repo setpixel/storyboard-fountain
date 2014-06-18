@@ -30,9 +30,14 @@ play = ->
     emitter.emit('state:change', state)
     startAt = startedAt
     _atom = window.fountainManager.getAtomForCursor()
-    console.log('atom', _atom)
+    unless _atom
+      window.fountainManager.selectChunkAndBoard(0, 0)
+      _atom = window.fountainManager.getAtomForCursor()
     _update = window.timeline.getUpdateForAtom(_atom)
-    console.log('update', _update)
+    unless _update
+      done = yes
+      pause()
+      return
     updateIndex = _update.index
     startTime = update().time
     continuePlaying = ->

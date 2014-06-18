@@ -156,37 +156,43 @@
 
   // TODO: skipSelect is needed b/c we can't select the chunk on initial load without causing an error
   var selectChunkAndBoard = function(chunkIndex, boardIndex, skipSelect, scrollToTop) {
-    scriptCursorIndex = chunkIndex;
-    scriptImageCursorIndex = boardIndex;
-    localStorage.setItem('scriptCursorIndex', scriptCursorIndex);
-    localStorage.setItem('scriptImageCursorIndex', scriptImageCursorIndex);
-    var chunk = scriptChunks[scriptCursorIndex];
-    if (chunk) {
-      if (!skipSelect) {
-        selectAndScroll(scriptCursorIndex, scrollToTop);
-      }
-      $(".module.selectable img").filter('.selected').removeClass('selected');
-      var imageLoc = boardForCursor();
-      if (imageLoc) {
-        var image = scriptChunks[imageLoc.chunk].images[imageLoc.image];
-        storyboardState.loadFlatBoard(image[0].file, false, chunkText(chunk));
-        $("#script-image-" + image[0].file).addClass('selected');
-      }
-      else {
-        sketchpane.noImage(chunkText(chunk));
-      }
+    if (canSelectChunk(chunkIndex)) {
+      scriptCursorIndex = chunkIndex;
+      scriptImageCursorIndex = boardIndex;
+      localStorage.setItem('scriptCursorIndex', scriptCursorIndex);
+      localStorage.setItem('scriptImageCursorIndex', scriptImageCursorIndex);
+      var chunk = scriptChunks[scriptCursorIndex];
+      if (chunk) {
+        if (!skipSelect) {
+          selectAndScroll(scriptCursorIndex, scrollToTop);
+        }
+        $(".module.selectable img").filter('.selected').removeClass('selected');
+        var imageLoc = boardForCursor();
+        if (imageLoc) {
+          var image = scriptChunks[imageLoc.chunk].images[imageLoc.image];
+          storyboardState.loadFlatBoard(image[0].file, false, chunkText(chunk));
+          $("#script-image-" + image[0].file).addClass('selected');
+        }
+        else {
+          sketchpane.noImage(chunkText(chunk));
+        }
 
-      if (imageLoc && imageLoc.image > 0 && chunkHasImages(imageLoc.chunk)) {
-        var image = scriptChunks[imageLoc.chunk].images[imageLoc.image - 1];
-        storyboardState.loadLightboxImage(image[0].file);
-      } else {
-        storyboardState.clearLightboxImage();
+        if (imageLoc && imageLoc.image > 0 && chunkHasImages(imageLoc.chunk)) {
+          var image = scriptChunks[imageLoc.chunk].images[imageLoc.image - 1];
+          storyboardState.loadLightboxImage(image[0].file);
+        } else {
+          storyboardState.clearLightboxImage();
+        }
       }
+      $("#nano-script").nanoScroller({ flash: true });
+
+      emitter.emit('selection:change', scriptCursorIndex, scriptImageCursorIndex);
     }
-
-    $("#nano-script").nanoScroller({ flash: true });
-
-    emitter.emit('selection:change', scriptCursorIndex, scriptImageCursorIndex);
+    else {
+      scriptCursorIndex = 0;
+      scriptImageCursorIndex = 0;
+      goNext(1);
+    }
   };
 
   var selectChunk = function(chunkIndex, scrollToTop) {
