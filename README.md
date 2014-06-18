@@ -1,8 +1,8 @@
 # Storyboard Fountain
 
-Storyboard software that allows anyone to visualize a screenplay as fast they can draw stick figures. Even as they write the script, they can quickly visualize to test if a scene works, show animatics to others, and use it as an essential tool in the writing process. Storyboarding allows you to make your movie, without the cost of making a movie.
+Storyboard Fountain makes it easy to visualize a screenplay as fast you can draw stick figures. Quickly visualize to test if a scene works. Create and show animatics to others. Make your movie without the cost of making a movie. [storyboardfountain.com](http://storyboardfountain.com)
 
-[<img src="https://raw.githubusercontent.com/setpixel/storyboard-fountain/master/node-webkit-src/img/icon.png" width=200><br/>Download Storyboard Fountain (Mac v0.0.1)](http://www.serafdad.com/) (Not released yet!)
+[<img src="https://raw.githubusercontent.com/setpixel/storyboard-fountain/master/node-webkit-src/img/icon.png" width=200><br/>Download Storyboard Fountain (Mac v0.0.1)](http://storyboardfountain.com/downloads/StoryboardFountain-0.0.1.zip) (June 9th, 2014)
 
 ## Features
 
