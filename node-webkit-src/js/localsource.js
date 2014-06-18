@@ -204,6 +204,36 @@
     })(next);
   };
 
+  var tmp = require('tmp');
+  var co_tmpName = thunkify(tmp.tmpName);
+  var childProcess = require('child_process');
+  var co_exec = thunkify(childProcess.exec);
+
+  var fixPath = function(_path) {
+    return _path.replace(/(\s)/g, "\\ ");
+  };
+
+  var createPlayerZip = function(next) {
+    co(function *() {
+      var tmpPath = yield co_tmpName({prefix: 'files-', postfix: '.zip'});
+      var _tmpPath = fixPath(tmpPath);
+      console.log('tmp name created', tmpPath);
+
+      var scriptPathDir = fixPath(path.dirname(config.scriptPath));
+      var scriptPathName = fixPath(path.basename(config.scriptPath));
+      var cmd = "cd " + scriptPathDir + " && zip -r -X " + _tmpPath + " " + scriptPathName;
+      console.log('zipping', cmd);
+      yield co_exec(cmd);
+
+      var dataPath = fixPath(getFullDataPath());
+      var cmd = "cd " + dataPath + " && zip -r -X " + _tmpPath + " images/*-large.jpeg";
+      console.log('zipping', cmd);
+      yield co_exec(cmd);
+
+      return tmpPath;
+    })(next);
+  };
+
   var localSource = window.localSource = {
     settings: settings,
     create: create,
@@ -216,7 +246,8 @@
     getDataPath: getDataPath,
     setDataPath: setDataPath,
     checkDataPath: checkDataPath,
-    getSource: getSource
+    getSource: getSource,
+    createPlayerZip: createPlayerZip
   };
 
   function autosavesPath() {

@@ -126,6 +126,11 @@ createScript = ->
               atom.caption = metadata.caption  if metadata.caption
               if metadata.duration?
                 atom.duration = Math.floor(parseFloat(metadata.duration) * 1000)
+            else if metadata?.board?
+              atom = addAtom {type: 'image', file: metadata.board}
+              atom.caption = metadata.caption  if metadata.caption
+              if metadata.duration?
+                atom.duration = Math.floor(parseFloat(metadata.duration) * 1000)
             else if metadata?.duration?
               pendingDuration = Math.floor(parseFloat(metadata.duration) * 1000)
             else if metadata?.aspectRatio?

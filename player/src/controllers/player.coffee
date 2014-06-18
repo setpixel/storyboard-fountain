@@ -36,7 +36,10 @@ module.exports = {
     app.get '/data/:key/script.fountain', 
       helpers.requireShare('key'),
       (req, res) ->
-        file = process.env.DATA_PATH + '/' + req.params.key + '/script.fountain'
+        filePath = process.env.DATA_PATH + '/' + req.params.key
+        await fs.readdir filePath, defer(err, files)
+        filename = _.find files, (file) -> /\.fountain$/.test(file)
+        file = process.env.DATA_PATH + '/' + req.params.key + '/' + filename
         await fs.stat file, defer(err, stats)
         if err
           console.log('not found')

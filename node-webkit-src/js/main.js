@@ -137,6 +137,10 @@
     source().checkDataPath(next);
   }
 
+  var createPlayerZip = function(next) {
+    source().createPlayerZip(next);
+  };
+
   var currentFile = window.currentFile = {
     create: create,
     open: open,
@@ -150,7 +154,8 @@
     getDataPath: getDataPath,
     setDataPath: setDataPath,
     checkDataPath: checkDataPath,
-    getSourceConfig: function() { return sourceConfig; }
+    getSourceConfig: function() { return sourceConfig; },
+    createPlayerZip: createPlayerZip
   };
 
   $(document).ready(function() {
