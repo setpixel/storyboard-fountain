@@ -20,7 +20,7 @@
   },
   "window": {
     "title": "StoryboardFountain",
-    "toolbar": true,
+    "toolbar": false,
     "frame": true,
     "width": 1350,
     "height": 800,
