@@ -32,7 +32,9 @@ Storyboard Fountain makes it easy to visualize a screenplay as fast you can draw
 
 You can make changes to the code in `node-webkit-src`. 
 
-To easily run your changes: `webkitbuilds/cache/mac/0.9.2/node-webkit.app/Contents/MacOS/node-webkit node-webkit-src/`
+To easily run your changes, start node-webkit form your terminal and tell it to use `node-webkit-src/` like this:
+
+`webkitbuilds/cache/mac/0.9.2/node-webkit.app/Contents/MacOS/node-webkit node-webkit-src/`
 
 You may also want to use chrome dev tools. To do this open `node-webkit-src/package.json`. Change this: `"toolbar": true,` And re-run to see the toolbar.
 
