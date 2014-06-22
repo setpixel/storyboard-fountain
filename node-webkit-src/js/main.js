@@ -1,5 +1,10 @@
 /**
  */
+process.on("uncaughtException", function(err) { 
+  userTracking.event('uncaughtException', err.message, JSON.stringify(err.stack)).send();
+  setTimeout(function(){process.exit();}, 5000);
+});
+
 
 ;(function() {
   'use strict';

@@ -16,7 +16,9 @@
     "semver": "~2.3.0",
     "ncp": "~0.5.1",
     "stream-buffers": "~0.2.5",
-    "tmp": "~0.0.23"
+    "tmp": "0.0.23",
+    "node-uuid" : "git+https://github.com/gpt-modules/node-uuid.git",
+    "universal-analytics": "git+https://github.com/gpt-modules/universal-analytics.git"
   },
   "window": {
     "title": "StoryboardFountain",

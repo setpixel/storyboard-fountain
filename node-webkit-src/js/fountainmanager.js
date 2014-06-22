@@ -118,9 +118,10 @@
       tokens = output.tokens;
     });
 
+
     //paginator(tokens);
     script = createScript(tokens);
-    
+
     timeline.buildUpdates();
 
     getUniqueLocations(script);
@@ -138,6 +139,7 @@
     // load initial selection
     scriptCursorIndex = parseInt(localStorage.getItem('scriptCursorIndex') || 0) || 0;
     scriptImageCursorIndex = parseInt(localStorage.getItem('scriptImageCursorIndex') || 0) || 0;
+
     selectChunkAndBoard(scriptCursorIndex, scriptImageCursorIndex, false, false);
 
     elementEditor.keepEditing();
@@ -197,6 +199,7 @@
 
   var selectChunk = function(chunkIndex, scrollToTop) {
     selectChunkAndBoard(chunkIndex, 0, false, scrollToTop);
+    userTracking.pageview('/boards/chunk/?chunk='+ chunkIndex, 'Select Chunk').send();
   };
 
   var updateSelection = function() {
@@ -344,6 +347,7 @@
     var oldScriptText = scriptText;
     scriptText = exportScriptText();
     emitter.emit('script:change', scriptText, oldScriptText);
+    userTracking.event('New Board').send();
   }
 
   var deleteBoard = function() {
@@ -1379,22 +1383,26 @@ function hexToRgb(hex) {
   var selectAndScroll = function(index, scrollToTop) {
     $(".module.selectable").filter('.selected').removeClass('selected');
     var chunk = scriptChunks[index];
+
     var $chunk = $("#module-script-" + chunk.id);
-    $chunk.addClass('selected');
-    $("#script").finish();
-    if (scrollToTop) {
-      var chunk2 = scriptChunks[index-1];
-      var $chunk2 = $("#module-script-" + chunk2.id);
-      var difference = $chunk2.offset().top - 105;
-      $("#script").animate({scrollTop: $("#script").scrollTop() + difference}, 100);
-    } else {
-      if (($chunk.offset().top+$chunk.outerHeight())> $("#script").height()) {
-        var difference = ($chunk.offset().top+$chunk.outerHeight()) - $("#script").height();
+
+    if ($chunk.offset()) {
+      $chunk.addClass('selected');
+      $("#script").finish();
+      if (scrollToTop) {
+        var chunk2 = scriptChunks[index-1];
+        var $chunk2 = $("#module-script-" + chunk2.id);
+        var difference = $chunk2.offset().top - 105;
         $("#script").animate({scrollTop: $("#script").scrollTop() + difference}, 100);
-      }
-      if (($chunk.offset().top) < (0 + 100)) {
-        var difference = $chunk.offset().top - 100;
-        $("#script").animate({scrollTop: $("#script").scrollTop() + difference}, 100);
+      } else {
+        if (($chunk.offset().top+$chunk.outerHeight())> $("#script").height()) {
+          var difference = ($chunk.offset().top+$chunk.outerHeight()) - $("#script").height();
+          $("#script").animate({scrollTop: $("#script").scrollTop() + difference}, 100);
+        }
+        if (($chunk.offset().top) < (0 + 100)) {
+          var difference = $chunk.offset().top - 100;
+          $("#script").animate({scrollTop: $("#script").scrollTop() + difference}, 100);
+        }
       }
     }
   };
