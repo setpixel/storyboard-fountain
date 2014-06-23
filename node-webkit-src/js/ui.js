@@ -493,7 +493,7 @@
 
     var recorderKeyHandler = function(e) {
       switch (e.keyCode) {
-        case 27:  // enter
+        case 13:  // enter
         case 32:  // space
         case 39:  // right
         case 40:  // down
