@@ -199,7 +199,6 @@
 
   var selectChunk = function(chunkIndex, scrollToTop) {
     selectChunkAndBoard(chunkIndex, 0, false, scrollToTop);
-    userTracking.pageview('/boards/chunk/?chunk='+ chunkIndex, 'Select Chunk').send();
   };
 
   var updateSelection = function() {
