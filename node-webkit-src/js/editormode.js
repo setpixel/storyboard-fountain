@@ -59,6 +59,9 @@ $(document).ready(function() {
             state.line = 'title_page';
             return 'line-title_page title_key';
           }
+          else if (stream.match(/^\[\[(board|Storyboard Fountain|aspectRatio|dataPath|duration):.*\]\]$/)) {
+            return 'line-sf-note';
+          }
           else if (stream.match(/^\[\[.*\]\]$/)) {
             return 'line-note';
           }
@@ -89,21 +92,32 @@ $(document).ready(function() {
 
         // rest of the line -- look for bold/italic/underline markup
 
+        // TODO: build a more accurate parser. this will currently break when
+        // center and notes are mixed on the same line
+
+        if (stream.match(/\[\[.*\]\]/)) {
+          return getTokens() + 'note';
+        }
+
+        if (stream.match(/[^_\*]*(?=\[\[.*\]\])/)) {
+          return getTokens();
+        }
+
         if (state.lookFor && stream.match(state.lookFor)) {
           return getTokens() + 'markup';
         }
 
-        if (state.line == 'centered' && stream.match(/[^_\*]+(?=<$)/)) {
+        if (state.line == 'centered' && stream.match(/[^_\*\[]+(?=<$)/)) {
           state.lookFor = '<';
           return getTokens();
         }
 
-        if (stream.match(/[^_\*]*(?=\/\*)/)) {
+        if (stream.match(/[^_\*\[]*(?=\/\*)/)) {
           state.inBoneyard = true;
           return getTokens();
         }
 
-        if (stream.match(/[^_\*]+/)) {
+        if (stream.match(/[^_\*\[]+/)) {
           return getTokens();
         }
         if (state.isUnderline && stream.eat('_')) {
@@ -156,7 +170,7 @@ $(document).ready(function() {
     function hasNote(line) {
       if (line < cm.firstLine() || line > cm.lastLine()) return null;
       var start = cm.getTokenAt(CodeMirror.Pos(line, 1));
-      if (start.type == 'line-note') {
+      if (start.type == 'line-sf-note') {
         return 0;
       }
     }

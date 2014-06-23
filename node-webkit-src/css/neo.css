@@ -47,6 +47,11 @@
   color: #aaa;
 }
 
+.cm-s-neo .sf-note {
+  font-style: italic;
+  color: #aaa;
+}
+
 .cm-s-neo.auto-indent .transition {
   text-align: right;
 }
@@ -103,6 +108,11 @@
 
 .cm-s-neo .cm-underline {
   text-decoration: underline;
+}
+
+.cm-s-neo .cm-note {
+  font-style: italic;
+  color: #aaa;
 }
 
 /* Editor styling */
