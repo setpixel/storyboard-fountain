@@ -27,6 +27,15 @@ $(document).ready(function() {
 
         // rest of the line -- look for bold/italic/underline markup
 
+        // match a whole comment
+        if (stream.match(/\[\[.*\]\]/)) {
+          return getTokens() + 'note';
+        }
+        // match up to the beginning of a comment
+        if (stream.match(/[^_\*]*(?=\[\[.*\]\])/)) {
+          return getTokens();
+        }
+
         if (stream.match(/[^_\*]+/)) {
           return getTokens();
         }

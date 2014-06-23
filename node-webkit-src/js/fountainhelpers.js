@@ -24,6 +24,10 @@
   var markupLineToHtml = function(markup) {
     var styles = ['underline', 'italic', 'bold', 'bold_italic', 'italic_underline', 'bold_underline', 'bold_italic_underline'];
     var i = styles.length, style, match;
+
+    // convert comments
+    markup = markup.replace(/\[\[(.*)\]\]/g, '<!--$1-->');
+
     while (i--) {
       style = styles[i];
       match = regex[style];
@@ -56,19 +60,26 @@
     var j = $.parseHTML(string)
     if (!j) return '';
     for (var i=0; i<j.length; i++) {
-      switch ($(j[i]).attr('class')) {
-        case 'underline':
-          finalString = finalString + "_" + $(j[i]).html() + "_";
-          break;
-        case 'italic':
-          finalString = finalString + "*" + $(j[i]).html() + "*";
-          break;
-        case 'bold':
-          finalString = finalString + "**" + $(j[i]).html() + "**";
-          break;
-        default:
-          finalString = finalString + $(j[i]).text();
-      }  
+      if (j[i].nodeType == 8) {
+        // html comment -- maps to fountain note
+        // need to trim to remove extra spaces that are added somewhere in the process
+        finalString += '[[' + j[i].nodeValue.trim() + ']]';
+      }
+      else {
+        switch ($(j[i]).attr('class')) {
+          case 'underline':
+            finalString = finalString + "_" + $(j[i]).html() + "_";
+            break;
+          case 'italic':
+            finalString = finalString + "*" + $(j[i]).html() + "*";
+            break;
+          case 'bold':
+            finalString = finalString + "**" + $(j[i]).html() + "**";
+            break;
+          default:
+            finalString = finalString + $(j[i]).text();
+        }
+      }
     }
     return finalString;
   }

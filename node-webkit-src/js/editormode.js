@@ -107,17 +107,17 @@ $(document).ready(function() {
           return getTokens() + 'markup';
         }
 
-        if (state.line == 'centered' && stream.match(/[^_\*\[]+(?=<$)/)) {
+        if (state.line == 'centered' && stream.match(/[^_\*]+(?=<$)/)) {
           state.lookFor = '<';
           return getTokens();
         }
 
-        if (stream.match(/[^_\*\[]*(?=\/\*)/)) {
+        if (stream.match(/[^_\*]*(?=\/\*)/)) {
           state.inBoneyard = true;
           return getTokens();
         }
 
-        if (stream.match(/[^_\*\[]+/)) {
+        if (stream.match(/[^_\*]+/)) {
           return getTokens();
         }
         if (state.isUnderline && stream.eat('_')) {

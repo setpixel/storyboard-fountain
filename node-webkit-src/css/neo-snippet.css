@@ -69,6 +69,11 @@
   text-decoration: underline;
 }
 
+.cm-s-neo-snippet .cm-note {
+  font-style: italic;
+  color: #aaa;
+}
+
 /* Editor styling */
 
 .cm-s-neo-snippet pre {
