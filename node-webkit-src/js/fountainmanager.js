@@ -1391,8 +1391,13 @@ function hexToRgb(hex) {
       $("#script").finish();
       if (scrollToTop) {
         var chunk2 = scriptChunks[index-1];
-        var $chunk2 = $("#module-script-" + chunk2.id);
-        var difference = $chunk2.offset().top - 105;
+        var difference = 0;
+        if (chunk2) {
+          var $chunk2 = $("#module-script-" + chunk2.id);
+          if ($chunk2 && $chunk2.offset()) {
+            difference = $chunk2.offset().top - 105;
+          }
+        }
         $("#script").animate({scrollTop: $("#script").scrollTop() + difference}, 100);
       } else {
         if (($chunk.offset().top+$chunk.outerHeight())> $("#script").height()) {
