@@ -20,8 +20,8 @@ Storyboard Fountain makes it easy to visualize a screenplay as fast you can draw
 2. Make sure you have node installed. If not: [nodejs.org and install](http://nodejs.org/).
 3. In terminal, in the storyboard-fountain directory run: `npm install`
 4. `cd node-webkit-src`
-5. `npm install`
-5. Install Bower, if you dont have it: `npm install -g bower`
+5. `sudo npm install`
+5. Install Bower, if you dont have it: `sudo npm install -g bower`
 6. `bower install`
 7. `cd ..`
 8. Make sure you have grunt-cli installed. If not: run: `sudo npm install -g grunt-cli`
