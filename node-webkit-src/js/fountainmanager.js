@@ -860,7 +860,8 @@ function hexToRgb(hex) {
           'page': script[i].page, 
           'time': script[i].time, 
           'titleId': recentSectionId, 
-          'synopsisId': recentSynopsisId
+          'synopsisId': recentSynopsisId,
+          'scene': sceneCount + 1
         };
         outline.push(sceneAtom);
 
