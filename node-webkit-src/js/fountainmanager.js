@@ -172,21 +172,34 @@
 
         if (click) {
           //console.log(chunk.text)
-          var find = window.editor.getSearchCursor(chunk.text);
+          var find = window.editor.getSearchCursor(chunk.text.split("<br />")[0]);
+
+          console.log(chunk.text.split("<br />")[0]);
+          
           if (find.find()) {
             var pos = find.pos.from;
-            window.editor.setCursor({line: pos.line, ch:0}, 0, {scroll: false});
-            window.editor.focus();
-            if ($("#scripttext").css('display') == 'none') {
-               window.editor.scrollIntoView(pos, 300);
+            
+            if (find.find()) {
+
             } else {
-              $("#scripttext").animate({z: window.editor.charCoords(pos, "local").top-300}, {
-                step: function( now, fx ) {
-                window.editor.scrollTo(0,fx.now);
-              },duration: 1000});
+              if ($("#scripttext").css('display') == 'none') {
+                window.editor.setCursor({line: pos.line, ch:0}, 0, {scroll: true});
+                window.editor.scrollIntoView(pos, 300);
+                
+                 //$("#scripttext").css('z',  window.editor.charCoords(pos, "local").top-300);
+              } else {
+                window.editor.setCursor({line: pos.line, ch:0});
+                window.editor.scrollIntoView(pos);
+                $("#scripttext").animate({z: window.editor.charCoords(pos, "local").top-300}, {
+                  step: function( now, fx ) {
+                  window.editor.scrollTo(0,fx.now);
+                },duration: 1000});
+              }
+
             }
+           
 
-
+            window.editor.focus();
 
 
           }
@@ -257,6 +270,45 @@
     else if (recorder.getState() == 'paused') {
       selectChunkAndBoard(scriptCursorIndex, scriptImageCursorIndex);
     }
+
+
+    var find = window.editor.getSearchCursor(chunk.images[scriptImageCursorIndex][0].text);
+
+    console.log(chunk.images[scriptImageCursorIndex][0].text);
+    
+    if (find.find()) {
+      var pos = find.pos.from;
+      
+      if (find.find()) {
+
+      } else {
+        if ($("#scripttext").css('display') == 'none') {
+          window.editor.setCursor({line: pos.line, ch:0}, 0, {scroll: true});
+          window.editor.scrollIntoView(pos, 300);
+          
+           //$("#scripttext").css('z',  window.editor.charCoords(pos, "local").top-300);
+        } else {
+          window.editor.setCursor({line: pos.line, ch:0});
+          window.editor.scrollIntoView(pos);
+          $("#scripttext").animate({z: window.editor.charCoords(pos, "local").top-300}, {
+            step: function( now, fx ) {
+            window.editor.scrollTo(0,fx.now);
+          },duration: 1000});
+        }
+
+      }
+     
+
+      window.editor.focus();
+
+
+    }
+
+
+
+
+
+
   };
 
   var insertBoardAt = function(chunkIndex, boardIndex) {
