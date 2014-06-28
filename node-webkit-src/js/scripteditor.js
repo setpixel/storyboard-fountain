@@ -62,7 +62,7 @@
     window.editor = editor = CodeMirror($('#scripttext')[0], {
       value: toEdit,
       mode: 'fountain',
-      viewportMargin: 5,
+      viewportMargin: 305,
       theme: 'neo',
       lineWrapping: true,
       keyMap: 'fountain',

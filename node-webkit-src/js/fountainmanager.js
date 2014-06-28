@@ -175,9 +175,20 @@
           var find = window.editor.getSearchCursor(chunk.text);
           if (find.find()) {
             var pos = find.pos.from;
-            window.editor.scrollIntoView(pos, window.editor.getScrollInfo().clientHeight/2);
-            window.editor.setCursor({line: pos.line, ch:0});
+            window.editor.setCursor({line: pos.line, ch:0}, 0, {scroll: false});
             window.editor.focus();
+            if ($("#scripttext").css('display') == 'none') {
+               window.editor.scrollIntoView(pos, 300);
+            } else {
+              $("#scripttext").animate({z: window.editor.charCoords(pos, "local").top-300}, {
+                step: function( now, fx ) {
+                window.editor.scrollTo(0,fx.now);
+              },duration: 1000});
+            }
+
+
+
+
           }
         }
 
