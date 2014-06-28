@@ -144,29 +144,34 @@
     var scriptHeight = windowHeight - toolbarHeight - $('.tabs').outerHeight();
     $('#nano-script').css('height', scriptHeight + 'px');
 
-    $("#scriptpane").css('width', canvasDim[0]);
-    $("#scriptpane").css('height', canvasDim[1]);
+    $("#scripttext").css('width', canvasDim[0]);
+    window.editor.setSize(canvasDim[0],canvasDim[1])
+
 
     var canvasWidth = (canvasDim[0] - (canvasSidePadding * 2));
-    $("#scripttext").css('width', canvasWidth + 'px');
+    //$("#scripttext").css('width', canvasWidth + 'px');
 
-    var calcEditorWidth = function(size) {
-      if (editorWidths[size]) {
-        return editorWidths[size];
-      }
-      $('#scripttext .CodeMirror').css('font-size', size + 'px');
-      var w = $('.CodeMirror').width();
-      editorWidths[size] = w;
-      return w;
-    }
-    var editorWidth = calcEditorWidth();
+    // var calcEditorWidth = function(size) {
+    //   if (editorWidths[size]) {
+    //     return editorWidths[size];
+    //   }
+    //   $('#scripttext .CodeMirror').css('font-size', size + 'px');
+    //   var w = $('.CodeMirror').width();
+    //   editorWidths[size] = w;
+    //   return w;
+    // }
+    var editorWidth = 500; //calcEditorWidth();
     var editorSpace = canvasDim[0] - canvasSidePadding * 2 - 20 * 2;
     var size = 18;
-    while (calcEditorWidth(size) > editorSpace && size > 1) {
-      size -= 1;
-    }
-    $('#scripttext .CodeMirror').css('font-size', size + 'px');
+    // while (calcEditorWidth(size) > editorSpace && size > 1) {
+    //   size -= 1;
+    // }
+    // $('#scripttext .CodeMirror').css('font-size', size + 'px');
 
+    window.scrollTo(0);
+  }
+
+  var scrollToTop = function () {
     window.scrollTo(0);
   }
 
@@ -233,7 +238,7 @@
     })
 
     $('#tab-script').click(checkDisabled(function(){
-      $('#scriptpane').hide();
+      $('#scripttext').css('display', 'none');
       $('#drawpane').show();
       $('#boards-toolbar').show();
       $('#script-toolbar').hide();
@@ -241,7 +246,7 @@
     }));
 
     $('#tab-scripttext').click(checkDisabled(function() {
-      $('#scriptpane').show();
+      $('#scripttext').css('display', 'inline-block');
       $('#drawpane').hide();
       $('#boards-toolbar').hide();
       $('#script-toolbar').show();
@@ -881,7 +886,7 @@
   };
 
   // hack necessary to fix window overscrolling sometimes (e.g., on pageup/down)
-  window.setInterval(resizeView, 1000);
+  window.setInterval(scrollToTop, 1000);
 
   var gui = require('nw.gui');
   gui.Window.get().on('close', function() {

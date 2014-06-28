@@ -8,7 +8,12 @@
   background-color:#ffffff;
   color: #000;
   line-height:1.4375;
+ /* width: 62ch;*/
+}
+
+.cm-s-neo .CodeMirror-lines {
   width: 62ch;
+  margin: 0 auto;
 }
 
 .cm-s-neo .cm-markup {
@@ -124,6 +129,7 @@
 .cm-s-neo .CodeMirror-gutters {
   border:none;
   border-right:10px solid transparent;
+  width: 1px;
   background-color:transparent;
 }
 

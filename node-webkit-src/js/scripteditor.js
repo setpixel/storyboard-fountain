@@ -62,10 +62,12 @@
     window.editor = editor = CodeMirror($('#scripttext')[0], {
       value: toEdit,
       mode: 'fountain',
-      viewportMargin: Infinity,
+      viewportMargin: 5,
       theme: 'neo',
       lineWrapping: true,
-      keyMap: 'fountain'
+      keyMap: 'fountain',
+      gutters: '',
+      cursorActivity: cursorMove
     })
     editor.options.foldOptions = {
       rangeFinder: CodeMirror.fold.note,
@@ -76,6 +78,9 @@
       clearOnEnter: false,
       atomic: true
     };
+
+    editor.on("cursorActivity", cursorMove);
+
     editor.getDoc().on('change', debounce(propagate, 3000));
     ui.emitter.on('activeState:change', function(state) {
       switch (state) {
@@ -105,6 +110,33 @@
       toEdit = text;
     }
   });
+
+
+
+
+  var cursorMove = function() {
+    var text = editor.doc.getLine(editor.doc.getCursor().line)
+
+    var chunks = fountainManager.getScriptChunks();
+    
+    var findCount = 0;
+    var chunkIndex = 0;
+    for (var i=0; i<chunks.length; i++) {
+      if (chunks[i].text == text) {
+        findCount++;
+        chunkIndex = i;
+      }
+    }
+    if (findCount == 1) {
+      fountainManager.selectChunkAndBoard(chunkIndex);
+    }
+
+            
+
+
+
+  }
+
 
   var refresh = function() {
     if (editor) editor.refresh();

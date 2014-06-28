@@ -19,6 +19,8 @@
         <link rel="stylesheet" media="all" href="css/nanoscroller.css">
         <script src="js/libs/modernizr-2.6.2-respond-1.1.0.min.js"></script>
         <script src="bower_components/codemirror/lib/codemirror.js"></script>
+        <script src="bower_components/codemirror/addon/search/searchcursor.js"></script>
+        <script src="bower_components/codemirror/addon/search/search.js"></script>
         <script src="js/libs/foldcode-modified.js"></script>
         <link href='http://fonts.googleapis.com/css?family=Roboto:400,500,300' rel='stylesheet' type='text/css'>
         <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600' rel='stylesheet' type='text/css'>
@@ -29,6 +31,9 @@
         </script>
     </head>
     <body ondragstart="return false;" ondrop="return false;" onselectstart="return false;">
+
+   <!--  <div id="codemirror-test"></div> -->
+
 
     <div id="boards-toolbar" class="toolbar">
 
@@ -125,12 +130,12 @@
         
       </div>
 
+      <div id="scripttext"></div>
+
       <div id="mainpane">
         
-        <div id="scriptpane" style="display: none;">
-          <div id="scripttext"></div>
-        </div>
-
+        
+        
         <div id="drawpane">
           <div class="drawing-canvas">
             <div class="canvas white-bg"></div>
@@ -283,6 +288,7 @@
 
     <script id="scene-heading-element" type="text/x-handlebars-template">
       <div class="module" id="module-script-{{chunk.id}}" style="{{headerStyleText}}">
+        <div class="slug"><div class="view">SCENE: {{{outlineChunk.scene}}}</div></div>
         <div class="slug editable" data-id="{{chunk.id}}" data-part="slug">
           <div class="view">{{{outlineChunk.slugline}}}</div>
           <div class="edit"></div>

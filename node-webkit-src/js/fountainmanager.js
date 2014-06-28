@@ -107,7 +107,7 @@
         player.setPlayhead(update.time);
       }
       else if (recorder.getState() == 'paused') {
-        selectChunk(atomToChunk[id].chunkIndex);
+        selectChunk(atomToChunk[id].chunkIndex, false, true);
       }
     });
   });
@@ -156,15 +156,32 @@
     }
   }
 
+
+
   // TODO: skipSelect is needed b/c we can't select the chunk on initial load without causing an error
-  var selectChunkAndBoard = function(chunkIndex, boardIndex, skipSelect, scrollToTop) {
+  var selectChunkAndBoard = function(chunkIndex, boardIndex, skipSelect, scrollToTop, click) {
     if (canSelectChunk(chunkIndex)) {
       scriptCursorIndex = chunkIndex;
       scriptImageCursorIndex = boardIndex;
       localStorage.setItem('scriptCursorIndex', scriptCursorIndex);
       localStorage.setItem('scriptImageCursorIndex', scriptImageCursorIndex);
+
+
       var chunk = scriptChunks[scriptCursorIndex];
       if (chunk) {
+
+        if (click) {
+          //console.log(chunk.text)
+          var find = window.editor.getSearchCursor(chunk.text);
+          if (find.find()) {
+            var pos = find.pos.from;
+            window.editor.scrollIntoView(pos, window.editor.getScrollInfo().clientHeight/2);
+            window.editor.setCursor({line: pos.line, ch:0});
+            window.editor.focus();
+          }
+        }
+
+
         if (!skipSelect) {
           selectAndScroll(scriptCursorIndex, scrollToTop);
         }
@@ -197,8 +214,8 @@
     }
   };
 
-  var selectChunk = function(chunkIndex, scrollToTop) {
-    selectChunkAndBoard(chunkIndex, 0, false, scrollToTop);
+  var selectChunk = function(chunkIndex, scrollToTop, click) {
+    selectChunkAndBoard(chunkIndex, 0, false, scrollToTop, click);
   };
 
   var updateSelection = function() {
@@ -1412,9 +1429,14 @@ function hexToRgb(hex) {
     }
   };
 
-  var selectSceneAndScroll = function(scene) {
+  var selectSceneAndScroll = function(scene, click) {
     var atom = script[outline[scene].scriptIndex];
     var pos = getCursorForAtom(atom.id);
+
+    if (click) {
+      console.log("clicked!");
+    }
+
     selectChunk(pos.chunkIndex+1, true);
   }
 
@@ -1633,7 +1655,7 @@ function hexToRgb(hex) {
         $("#scene-colorbars").html(renderScenes(outline)); 
     
         $('.sidebar-scene-link').click(function() {
-          selectSceneAndScroll(parseInt($(this).attr('data-scene')));
+          selectSceneAndScroll(parseInt($(this).attr('data-scene')),true);
         });
 
 
