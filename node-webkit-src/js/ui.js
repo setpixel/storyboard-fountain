@@ -8,6 +8,7 @@
   var emitter = new events.EventEmitter();
   var editor = null;
   var activeState = 'boards';
+  var modal = null;
 
   var editorWidths = {};
 
@@ -376,6 +377,15 @@
     });
 
     $(window).keyup(function(e) {
+      if (modal) {
+        switch (e.keyCode) {
+          case 27:  // esc
+            $(modal).modal('hide');
+            modal = null;
+            break;
+        }
+      }
+
       if (activeState == 'boards') {
         if (recorder.getState() == 'recording') {
           switch (e.keyCode) {
@@ -532,6 +542,11 @@
     var globalKeyHandler = function(e) {
       if (e.metaKey && e.altKey && e.keyCode == 73) {  // cmd + opt + i
         require('nw.gui').Window.get().showDevTools();
+      }
+      if (e.metaKey && e.keyCode == 191) {  // cmd + / (?)
+        e.preventDefault();
+        modal = '#shortcuts';
+        $('#shortcuts').modal('show');
       }
     };
 
@@ -866,12 +881,25 @@
       return menu;
     };
 
+    var helpMenu = function() {
+      var menu = new gui.Menu();
+      menu.append(new gui.MenuItem({
+        label: 'Keyboard shortcuts',
+        click: function() {
+          modal = '#shortcuts';
+          $('#shortcuts').modal('show');
+        }
+      }));
+      return menu;
+    };
+
     var win = gui.Window.get();
     var menubar = new gui.Menu({type: 'menubar'});
     win.menu = menubar;
     win.menu.insert(new gui.MenuItem({label: 'File', submenu: fileMenu()}), 1);
     win.menu.insert(new gui.MenuItem({label: 'View', submenu: viewMenu()}), 3);
     win.menu.insert(new gui.MenuItem({label: 'Share', submenu: shareMenu()}), 4);
+    win.menu.insert(new gui.MenuItem({label: 'Help', submenu: helpMenu()}), 6);
 
     gui.Window.height = 100;
 

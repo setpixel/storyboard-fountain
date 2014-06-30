@@ -17,6 +17,7 @@
         <link rel="stylesheet" media="all" href="css/neo.css">
         <link rel="stylesheet" media="all" href="css/neo-snippet.css">
         <link rel="stylesheet" media="all" href="css/nanoscroller.css">
+        <link rel="stylesheet" href="css/shortcuts.css">
         <script src="js/libs/modernizr-2.6.2-respond-1.1.0.min.js"></script>
         <script src="bower_components/codemirror/lib/codemirror.js"></script>
         <script src="bower_components/codemirror/addon/search/searchcursor.js"></script>
@@ -349,6 +350,238 @@
         <div class="edit"></div>
       </div>
     </script>
+
+    <div id="shortcuts" class="modal fade">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title">Keyboard shortcuts</h4>
+          </div>
+          <div class="modal-body">
+            <div class="container">
+              <div class="row">
+
+                <div class="col-sm-4">
+
+                  <h3>General</h3>
+
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <kbd>⌘</kbd> + <kbd>?</kbd>
+                    </div>
+                    <div class="col-sm-6">
+                      Keyboard shortcuts
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <kbd>⌘</kbd> + <kbd>s</kbd>
+                    </div>
+                    <div class="col-sm-6">
+                      Save
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <kbd>⌘</kbd> + <kbd>q</kbd>
+                    </div>
+                    <div class="col-sm-6">
+                      Quit
+                    </div>
+                  </div>
+
+                </div>
+
+                <div class="col-sm-4">
+
+                  <h3>Board View</h3>
+
+                  <div class="row">
+                    <div class="col-md-6">
+                      <kbd>Space</kbd>
+                    </div>
+                    <div class="col-md-6">
+                      Play / Pause
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <kbd>Enter</kbd>
+                    </div>
+                    <div class="col-md-6">
+                      Edit script element
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <kbd>n</kbd>
+                    </div>
+                    <div class="col-md-6">
+                      New board
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <kbd>l</kbd>
+                    </div>
+                    <div class="col-md-6">
+                      Toggle lightbox
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <kbd>Delete</kbd>
+                    </div>
+                    <div class="col-md-6">
+                      Delete board
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <kbd>Page Up</kbd>
+                    </div>
+                    <div class="col-md-6">
+                      Prev scene
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <kbd>Page Down</kbd>
+                    </div>
+                    <div class="col-md-6">
+                      Next scene
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <kbd>⌘</kbd> + <kbd>r</kbd>
+                    </div>
+                    <div class="col-md-6">
+                      Start recording
+                    </div>
+                  </div>
+
+                  <h3>Recording</h3>
+
+                  <div class="row">
+                    <div class="col-md-6">
+                      <kbd>Esc</kbd>
+                    </div>
+                    <div class="col-md-6">
+                      Stop recording
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <kbd>Space</kbd> / <kbd>→</kbd>
+                    </div>
+                    <div class="col-md-6">
+                      Next script element
+                    </div>
+                  </div>
+
+                </div>
+
+                <div class="col-sm-4">
+
+
+                  <h3>Drawing</h3>
+
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <kbd>1</kbd> .. <kbd>3</kbd>
+                    </div>
+                    <div class="col-sm-6">
+                      Pick brush
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <kbd>4</kbd> .. <kbd>9</kbd>
+                    </div>
+                    <div class="col-sm-6">
+                      Pick color
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <kbd>z</kbd>
+                    </div>
+                    <div class="col-md-6">
+                      Undo
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <kbd>x</kbd>
+                    </div>
+                    <div class="col-md-6">
+                      Redo
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <kbd>⌘</kbd> + <kbd>c</kbd>
+                    </div>
+                    <div class="col-md-6">
+                      Copy board
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <kbd>⌘</kbd> + <kbd>v</kbd>
+                    </div>
+                    <div class="col-md-6">
+                      Paste board
+                    </div>
+                  </div>
+
+                  <h3>Script</h3>
+
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <kbd>⌘</kbd> + <kbd>e</kbd>
+                    </div>
+                    <div class="col-sm-6">
+                      Toggle expand notes
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-sm-6">
+                      <kbd>⌘</kbd> + <kbd>d</kbd>
+                    </div>
+                    <div class="col-sm-6">
+                      Toggle auto-indent
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <kbd>⌘</kbd> + <kbd>f</kbd>
+                    </div>
+                    <div class="col-md-6">
+                      Find...
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6">
+                      <kbd>⌘</kbd> + <kbd>g</kbd>
+                    </div>
+                    <div class="col-md-6">
+                      Find next
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <svg width="1" height="1">
       <defs>

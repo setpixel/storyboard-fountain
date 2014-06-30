@@ -1,0 +1,43 @@
+/* http://techsperia.blogspot.com/2013/11/keyboard-key-effect-css-blogger.html */
+
+kbd {
+  border: 1px solid gray;
+  padding: 1px 5px;
+  margin: 0 5px;
+  font-size: 0.8em;
+  text-transform: uppercase;
+  -webkit-box-shadow: 1px 0 1px 0 #fff, 0 2px 0 2px lightGray, 0 2px 0 3px #333;
+  -moz-box-shadow: 1px 0 1px 0 #fff, 0 2px 0 2px lightGray, 0 2px 0 3px #333;
+  box-shadow: 1px 0 1px 0 #fff, 0 2px 0 2px lightGray, 0 2px 0 3px #333;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  background: -moz-linear-gradient(left, #ffffff 0%, #e2e2e2 25%);
+  background: -webkit-gradient(linear, left top, right top, color-stop(0%, #ffffff), color-stop(25%, #e2e2e2));
+  background: -webkit-linear-gradient(left, #ffffff 0%, #e2e2e2 25%);
+  background: -o-linear-gradient(left, #ffffff 0%, #e2e2e2 25%);
+  background: -ms-linear-gradient(left, #ffffff 0%, #e2e2e2 25%);
+  background: linear-gradient(left, #ffffff 0%, #e2e2e2 25%);
+  filter:progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#e2e2e2', GradientType=1 )
+}
+
+kbd.space {
+  padding: 0 90px;
+}
+
+kbd:active {
+  background: #777;
+}
+
+kbd:hover {
+  opacity: 0.8;
+  cursor: pointer;
+}
+
+#shortcuts .row {
+  padding-bottom: 1em;
+}
+
+.modal-lg {
+  width: 900px;
+}
