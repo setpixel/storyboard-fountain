@@ -104,20 +104,20 @@
         // window resizing scaling factor 
         mult = parseInt($(".drawing-canvas .canvas").css('width')) / canvasSize[0];
         var wacom = getWacomPlugin();
-        if (usingWacom()) {
-          var pt = getWacomPoint(e);
-          // the pen location (px)
-          var tabX = pt.x;
-          var tabY = pt.y;
-          // canvas position on page (px)
-          var canvasX = (e.pageX-$(contexts[0].canvas).offset().left);
-          var canvasY = (e.pageY-$(contexts[0].canvas).offset().top);
-          // pen location on canvas (scaled px)
-          penOffset = [tabX - canvasX, tabY - canvasY];
-          // pen location on canvas (unscaled px)
-          previousLoc = [[(tabX - penOffset[0])/mult, (tabY - penOffset[1])/mult]];
-          penDown = true;
-        } else {
+        // if (usingWacom()) {
+        //   var pt = getWacomPoint(e);
+        //   // the pen location (px)
+        //   var tabX = pt.x;
+        //   var tabY = pt.y;
+        //   // canvas position on page (px)
+        //   var canvasX = (e.pageX-$(contexts[0].canvas).offset().left);
+        //   var canvasY = (e.pageY-$(contexts[0].canvas).offset().top);
+        //   // pen location on canvas (scaled px)
+        //   penOffset = [tabX - canvasX, tabY - canvasY];
+        //   // pen location on canvas (unscaled px)
+        //   previousLoc = [[(tabX - penOffset[0])/mult, (tabY - penOffset[1])/mult]];
+        //   penDown = true;
+        // } else {
           var tabX = e.pageX;
           var tabY = e.pageY;
           var canvasX = (e.pageX-$(contexts[0].canvas).offset().left);
@@ -125,7 +125,7 @@
           penOffset = [tabX - canvasX, tabY - canvasY];
           previousLoc = [[(tabX - penOffset[0])/mult, (tabY - penOffset[1])/mult]];
           penDown = true;
-        }
+        // }
         previousPenAttributes = getPointerData(e);
         addToUndoStack();
       }
@@ -303,15 +303,17 @@
     var wacom;
     wacom = getWacomPlugin();
     var tabX, tabY;
-    if (usingWacom()) {
-      var pt = getWacomPoint(e);
-      tabX = pt.x;
-      tabY = pt.y;
-    }
-    else {
+    // FOR TAINOS INTUOUS
+
+    // if (usingWacom()) {
+    //   var pt = getWacomPoint(e);
+    //   tabX = pt.x;
+    //   tabY = pt.y;
+    // }
+//    else {
       tabX = e.pageX;
       tabY = e.pageY;
-    }
+//    }
     var currentPoint = [(tabX - penOffset[0])/mult, (tabY - penOffset[1])/mult];
     if (usingWacom()) {
       var angle = Math.atan2(wacom.penAPI.tiltY, wacom.penAPI.tiltX) * TO_DEGREES;

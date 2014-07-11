@@ -91,7 +91,8 @@ function restoreWindowState() {
     }
 
     win.resizeTo(winState.width, winState.height);
-    win.moveTo(winState.x, winState.y);
+    win.moveTo(winState.x, Math.max(winState.y,22));
+    console.log("window y: " + winState.y)
 }
 
 function saveWindowState() {
