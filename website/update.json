@@ -2,7 +2,7 @@
   "updateUrl": "http://storyboardfountain.com/update.json",
   "downloadUrl": "http://storyboardfountain.com",
   "mac": {
-    "version": "0.0.1",
-    "description": "- Initial release!"
+    "version": "0.0.2",
+    "description": "• Adds editing script elements inline in the board view and in the side panel. • Syncs location between side panel and script (partially-working). • Script editor now only collapses StoryboardFountain-specific notes. • Adds keyboard shortcut help (Cmd + ?). • You can now actually export to web player for sharing with others. • Fixes app crash on playback. • Fixes some copy/paste problems. • Fixes various editing/saving bugs. • Fixes drawing when multiple tablets are connected."
   }
 }
