@@ -13,3 +13,4 @@ player/public/lib/*
 player/config/dev.coffee
 player/config/prod.coffee
 npm-debug.log
+*.pdf

@@ -244,6 +244,7 @@
     saveImage: saveImage,
     hasSaved: hasSaved,
     getDataPath: getDataPath,
+    getFullDataPath: getFullDataPath,
     setDataPath: setDataPath,
     checkDataPath: checkDataPath,
     getSource: getSource,

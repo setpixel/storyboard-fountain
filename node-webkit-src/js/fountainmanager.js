@@ -9,6 +9,7 @@
   var scriptText = '';
 
   var title = '';
+  var author = '';
   var settings = {aspectRatio: 2.35};
   var stats = {};
   var script = [];
@@ -144,6 +145,45 @@
 
     elementEditor.keepEditing();
     boardEditor.keepEditing();
+
+    // printManager.scenePrint(2, {columns: 5, orientation: 'landscape',
+    //   boardWorksheet: false,
+    //   printWorksheetLines: false,
+    //   worksheetLines: 3,
+    //   repeatEmptyBoards: false,
+    //   drawGuides: true,
+    //   printHeader: true,
+    //   margin: 21,
+    //   innerMargin: 7,
+    //   headerHeight: 30,
+    //   textHeight: 20
+    // });
+    
+    // printManager.outlinePrint({
+    //   columns: 4, 
+    //   includeBeats: true,
+    //   orientation: 'landscape',
+    //   printWorksheetLines: false,
+    //   worksheetLines: 3,
+    //   drawGuides: true,
+    //   printHeader: true,
+    //   margin: 21,
+    //   innerMargin: 7,
+    //   headerHeight: 30,
+    // });
+  
+    // printManager.scriptPrint({
+    //   printHeader: true,
+    //   printBoards: true,
+    //   printElementLabels: true,
+    //   leftMarginOffset: 0.3*72,
+    //   topMargin: 1.25*72,
+    //   monoFontSize: 11.4,
+    //   lineGap: -0.10,
+    //   lineNumberBreak: 53,
+    // });
+
+
   };
 
   var chunkText = function(chunk) {
@@ -256,6 +296,7 @@
     var chunk = scriptChunks[scriptCursorIndex];
     for (var i=0; i<chunk.images.length; i++) {
       if (chunk.images[i][0].file == id) {
+        console.log("IMAGE CLICKED: " + id);
        scriptImageCursorIndex = i;
        break; 
       }
@@ -425,6 +466,8 @@
     storyboardState.saveScript();
     var oldScriptText = scriptText;
     scriptText = exportScriptText();
+    
+    console.log(outline)
     emitter.emit('script:change', scriptText, oldScriptText);
     userTracking.event('New Board').send();
   }
@@ -437,6 +480,7 @@
       storyboardState.saveScript();
       var oldScriptText = scriptText;
       scriptText = exportScriptText();
+
       emitter.emit('script:change', scriptText, oldScriptText);
     }
   }
@@ -710,6 +754,7 @@ function hexToRgb(hex) {
 
         case 'credit':
         case 'author':
+          author = fountainHelpers.htmlToMarkup(token.text);
         case 'source':
         case 'draft_date':
         case 'contact':
@@ -777,6 +822,7 @@ function hexToRgb(hex) {
           if (noteMetaData && noteMetaData.board) {
             var atom = addAtom({type: 'image', file: noteMetaData.board, duration: 1000});
             if (noteMetaData.caption) atom.caption = noteMetaData.caption;
+            if (noteMetaData.continued) atom.continued = noteMetaData.continued;
             if (noteMetaData.duration) {
               atom.duration = Math.floor(parseFloat(noteMetaData.duration) * 1000);
               atom.durationIsCalculated = false;
@@ -1337,7 +1383,12 @@ function hexToRgb(hex) {
           if (!atom.durationIsCalculated) {
             duration = ', duration: ' + (atom.duration / 1000).toFixed(2);
           }
-          scriptText.push('[[board: ' + script[i].file + duration + ']]');
+          var continued = '';
+          if (atom.continued) {
+            continued = ', continued: true';
+          }
+
+          scriptText.push('[[board: ' + script[i].file + duration + continued + ']]');
           scriptText.push('');
           break;
 
@@ -1684,6 +1735,10 @@ function hexToRgb(hex) {
     return title;
   };
 
+  var getAuthor = function() {
+    return author;
+  };
+
   var getCursor = function() {
     return {
       chunkIndex: scriptCursorIndex,
@@ -1695,12 +1750,14 @@ function hexToRgb(hex) {
     load: load,
     loadChange: loadChange,
     getTitle: getTitle,
+    getAuthor: getAuthor,
     getScript: getScript,
     getScriptChunks: getScriptChunks,
     getScriptChunk: getScriptChunk,
     getCursor: getCursor,
     getOutlineItem: function(index) { return outline[index]; },
     getAtom: function(index) { return script[index]; },
+    getAtoms: function() { return script; },
     getCursorHasImages: function() { return chunkHasImages(scriptCursorIndex); },
     exportScriptText: exportScriptText,
     goNext: goNext,
