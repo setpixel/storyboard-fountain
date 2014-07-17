@@ -20,7 +20,7 @@
     "node-uuid" : "git+https://github.com/gpt-modules/node-uuid.git",
     "universal-analytics": "git+https://github.com/gpt-modules/universal-analytics.git",
     "pdfkit": "0.6.2",
-    "stream-buffers": "0.2.5",
+    "stream-buffers": "0.2.5"
   },
   "window": {
     "title": "StoryboardFountain",
