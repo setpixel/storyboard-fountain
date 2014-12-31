@@ -1651,8 +1651,8 @@ function hexToRgb(hex) {
     var elementsCount = 0;
     var currentScene = 0;
     for (var i=0; i<objects.length; i++) {
+      if (typeof sceneStats[objects[i].scene-1] == 'undefined') { sceneStats[objects[i].scene-1] = {}; } 
       if (currentScene != objects[i].scene) {
-        if (typeof sceneStats[objects[i].scene-1] == 'undefined') { sceneStats[objects[i].scene-1] = {}; } 
         sceneStats[objects[i].scene-1]["elementsCount"] = 0;
         currentScene = objects[i].scene;
       }
