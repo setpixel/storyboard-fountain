@@ -146,9 +146,9 @@
     elementEditor.keepEditing();
     boardEditor.keepEditing();
 
-    // printManager.scenePrint(2, {columns: 5, orientation: 'landscape',
+    // printManager.scenePrint(61, {columns: 5, orientation: 'landscape',
     //   boardWorksheet: false,
-    //   printWorksheetLines: false,
+    //   printWorksheetLines: true,
     //   worksheetLines: 3,
     //   repeatEmptyBoards: false,
     //   drawGuides: true,
@@ -159,18 +159,18 @@
     //   textHeight: 20
     // });
     
-    // printManager.outlinePrint({
-    //   columns: 4, 
-    //   includeBeats: true,
-    //   orientation: 'landscape',
-    //   printWorksheetLines: false,
-    //   worksheetLines: 3,
-    //   drawGuides: true,
-    //   printHeader: true,
-    //   margin: 21,
-    //   innerMargin: 7,
-    //   headerHeight: 30,
-    // });
+    printManager.outlinePrint({
+      columns: 4, 
+      includeBeats: true,
+      orientation: 'landscape',
+      printWorksheetLines: false,
+      worksheetLines: 3,
+      drawGuides: true,
+      printHeader: true,
+      margin: 21,
+      innerMargin: 7,
+      headerHeight: 30,
+    });
   
     // printManager.scriptPrint({
     //   printHeader: true,
@@ -312,43 +312,26 @@
       selectChunkAndBoard(scriptCursorIndex, scriptImageCursorIndex);
     }
 
-
-    // var find = window.editor.getSearchCursor(chunk.images[scriptImageCursorIndex][0].text);
-
-    // console.log(chunk.images[scriptImageCursorIndex][0].text);
-    
-    // if (find.find()) {
-    //   var pos = find.pos.from;
-      
-    //   if (find.find()) {
-
-    //   } else {
-    //     if ($("#scripttext").css('display') == 'none') {
-    //       window.editor.setCursor({line: pos.line, ch:0}, 0, {scroll: true});
-    //       window.editor.scrollIntoView(pos, 300);
-          
-    //        //$("#scripttext").css('z',  window.editor.charCoords(pos, "local").top-300);
-    //     } else {
-    //       window.editor.setCursor({line: pos.line, ch:0});
-    //       window.editor.scrollIntoView(pos);
-    //       $("#scripttext").animate({z: window.editor.charCoords(pos, "local").top-300}, {
-    //         step: function( now, fx ) {
-    //         window.editor.scrollTo(0,fx.now);
-    //       },duration: 1000});
-    //     }
-
-    //   }
-     
-
-    //   window.editor.focus();
-
-
-    // }
-
-
-
-
-
+    // scroll to board position in script editor.
+    var find = window.editor.getSearchCursor(fountainManager.getAtomForCursor().file);
+    if (find.find()) {
+      var pos = find.pos.from;
+      if (find.find()) {
+      } else {
+        if ($("#scripttext").css('display') == 'none') {
+          window.editor.setCursor({line: pos.line, ch:0}, 0, {scroll: true});
+          window.editor.scrollIntoView(pos, 300);
+        } else {
+          window.editor.setCursor({line: pos.line, ch:0});
+          window.editor.scrollIntoView(pos);
+          $("#scripttext").animate({z: window.editor.charCoords(pos, "local").top-300}, {
+            step: function( now, fx ) {
+            window.editor.scrollTo(0,fx.now);
+          },duration: 200});
+        }
+      }
+      window.editor.focus();
+    }
 
   };
 
@@ -380,7 +363,7 @@
     } 
     else {
       chunk.images = [];
-      scriptIndex = getPositionAtTempIndex(chunk.tempIndex);
+      scriptIndex = getPositionAtTempIndex(chunk.tempIndex) + 1;
       boardIndex = 0;
     }
 
@@ -545,6 +528,8 @@
     var imageCollection = null;
     var shots = 0;
 
+    var lastAtom;
+
     for (var i=0; i<script.length; i++) {
       var atom = script[i];
       if (atom.boneyard) continue;
@@ -554,12 +539,16 @@
         scriptChunks.push(atom);
         atomToChunk[atom.id] = atom;
         if (addImages && imageCollection) {
-          atom.images = imageCollection;
-          _.each(imageCollection, function(image, index) {
-            atomToChunk[image[0].id] = atom;
-            atomToBoard[image[0].id] = index;
-          });
-          imageCollection = null;
+          //atom.images = imageCollection;
+          if (lastAtom) {
+            scriptChunks[lastAtom].images = imageCollection;
+
+            _.each(imageCollection, function(image, index) {
+              atomToChunk[image[0].id] = atom;
+              atomToBoard[image[0].id] = index;
+            });
+            imageCollection = null;
+          }  
         }
       };
 
@@ -571,16 +560,19 @@
         case 'action':
           shots++;
           addChunk(true);
+          lastAtom = scriptChunks.length-1;
           break;
 
         case 'parenthetical':
           shots++;
           addChunk(true);
+          lastAtom = scriptChunks.length-1;
           break;
 
         case 'dialogue':      
           shots++;
           addChunk(true);
+          lastAtom = scriptChunks.length-1;
           break;
 
         case 'image':
@@ -701,6 +693,7 @@ function hexToRgb(hex) {
 
     var currentTime = 0;
     var currentCharacter = '';
+    var currentParenthetical = null;
     var sceneCounter = 0;
     var inDualDialogue = 0;
     var inDialogue = 0;
@@ -783,13 +776,18 @@ function hexToRgb(hex) {
 
         case 'character':
           currentCharacter = text;
+          currentParenthetical = null;
           break;
 
-        case 'parenthetical':
         case 'dialogue':      
           duration = durationOfWords(text, 300)+1000;
           var atom = addAtom({duration: duration, character: currentCharacter});
           if (inDualDialogue == 3) atom.dual = 1;
+          if (currentParenthetical) atom.parenthetical = currentParenthetical;
+          break;
+
+        case 'parenthetical':
+          currentParenthetical = text;
           break;
 
         case 'dialogue_end': 
@@ -1065,7 +1063,7 @@ function hexToRgb(hex) {
       pos = Math.floor(((outline[i].time-outline[0].time)/(outline[outline.length-1].time+outline[outline.length-1].duration-outline[0].time))*length);
       siz = Math.ceil((outline[i].duration/(outline[outline.length-1].time+outline[outline.length-1].duration-outline[0].time))*length);
       col = vSceneListColors[outline[i].slugline.split(" - ")[0]].color
-      html.push("<div class='sidebar-scene-link' data-scene='" + i + "' title='Scene " + (i+1) + ":&#10;" + (outline[i].title || outline[i].slugline).replace("'","&#146;") + "' style='position: absolute; top: " + pos + "px; left: 0px; height: "+siz+"px; background-color: #" + col + "; width: 100%; box-shadow: -1px -1px 0px rgba(0,0,0,0.2) inset, 0px 1px 0px rgba(255,255,255,0.3) inset;'></div>")
+      html.push("<div class='sidebar-scene-link' data-scene='" + (i+1) + "' title='Scene " + (i+1) + ":&#10;" + (outline[i].title || outline[i].slugline).replace("'","&#146;") + "' style='position: absolute; top: " + pos + "px; left: 0px; height: "+siz+"px; background-color: #" + col + "; width: 100%; box-shadow: -1px -1px 0px rgba(0,0,0,0.2) inset, 0px 1px 0px rgba(255,255,255,0.3) inset;'></div>")
     }
     return html.join('');
   }
@@ -1298,6 +1296,9 @@ function hexToRgb(hex) {
               scriptText.push(script[i].character);
             }
           }
+          if (script[i].parenthetical) {
+            scriptText.push(script[i].parenthetical);
+          }
           scriptText.push(fountainHelpers.htmlToMarkup(script[i].text.replace(/(<br \/>)+/g, "\n").trim()));
           if (script.length > i+1 && (script[i+1] && (script[i+1].character === undefined || currentCharacter !== script[i+1].character))) {
             currentCharacter = "";
@@ -1463,8 +1464,8 @@ function hexToRgb(hex) {
 
   var nextScene = function(increment) {
     var nextIndex = Math.min(Math.max(scriptChunks[scriptCursorIndex].scene+increment,1),outline.length);
-    //console.log(nextIndex)
-    selectSceneAndScroll(nextIndex-1);
+    console.log(nextIndex)
+    selectSceneAndScroll(nextIndex);
   }
 
   // increment should be positive or negative to indicate direction
@@ -1544,14 +1545,34 @@ function hexToRgb(hex) {
   };
 
   var selectSceneAndScroll = function(scene, click) {
-    var atom = script[outline[scene].scriptIndex];
-    var pos = getCursorForAtom(atom.id);
+    // var atom = script[outline[scene].scriptIndex];
+    // var pos = getCursorForAtom(atom.id);
 
-    if (click) {
-      console.log("clicked!");
+    // if (click) {
+    //   console.log("clicked!");
+    // }
+
+    var sceneNumber = 0;
+    var currentChunk = 0;
+
+    console.log("SCENE: "  + scene);
+
+
+    for (var i = 0; i < scriptChunks.length; i++) { 
+      if (scriptChunks[i].type == "scene_heading") {
+        sceneNumber++;
+        if (scene == sceneNumber) {
+          currentChunk = i;
+          break;
+        }
+      }
     }
 
-    selectChunk(pos.chunkIndex+1, true);
+    console.log(currentChunk+1);
+
+
+
+    selectChunk(currentChunk+1, true);
   }
 
   var getScriptChunks = function(){ return scriptChunks;};
@@ -1633,8 +1654,10 @@ function hexToRgb(hex) {
     atom.duration = ms;
     atom.durationIsCalculated = false;
     timeline.buildUpdates();
-    storyboardState.saveScript();
+  }
 
+  var updateScriptChanges = function() {
+    storyboardState.saveScript();
     var oldScriptText = scriptText;
     scriptText = exportScriptText();
     emitter.emit('script:change', scriptText, oldScriptText);
@@ -1783,6 +1806,7 @@ function hexToRgb(hex) {
       }
     },
     setAtomDuration: setAtomDuration,
+    updateScriptChanges: updateScriptChanges,
     generateBoardStats: generateBoardStats,
     selectSceneAndScroll: selectSceneAndScroll,
     nextScene: nextScene

@@ -781,8 +781,22 @@
           chooser.trigger('click');
         }
       }));
+
+      menu.append(new gui.MenuItem({ type: 'separator' }));
+    
+      menu.append(new gui.MenuItem({
+        label: 'Export scene video',
+        click: function() { videoRenderer.renderCurrentScene(); }
+      }));
+
+      menu.append(new gui.MenuItem({
+        label: 'Export all scenes',
+        click: function() { videoRenderer.renderAllScenes(); }
+      }));
+
       return menu;
     };
+
 
     var source = $('#share-links-template').html();
     var shareLinksTemplate = Handlebars.compile(source);

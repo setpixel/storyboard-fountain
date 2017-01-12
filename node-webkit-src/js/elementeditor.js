@@ -191,6 +191,9 @@
       case 'character':
         value = chunk.character;
         break;
+      case 'parenthetical':
+        value = chunk.parenthetical;
+        break;
       case 'text':
         value = chunk.text;
         break;
@@ -248,6 +251,9 @@
           break;
         case 'character':
           chunk.character = value;
+          break;
+        case 'parenthetical':
+          chunk.parenthetical = value;
           break;
         case 'text':
           chunk.text = value;

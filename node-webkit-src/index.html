@@ -198,6 +198,7 @@
     <script src="js/localsource.js"></script>
     <script src="js/main.js"></script>
     <script src="js/printmanager.js"></script>
+    <script src="js/videorenderer.js"></script>
 
     <div id="stats-window" class="modal fade">
       <div class="modal-dialog">
@@ -327,6 +328,10 @@
           <div class="view">{{{chunk.character}}}</div>
           <div class="edit"></div>
         </div>
+        <div class="editable" data-id="{{chunk.id}}" data-part="parenthetical">
+          <div class="view">{{{chunk.parenthetical}}}</div>
+          <div class="edit"></div>
+        </div>
         <div class="editable" data-id="{{chunk.id}}" data-part="text">
           <div class="view">{{{chunk.text}}}</div>
           <div class="edit"></div>
@@ -337,6 +342,10 @@
     <script id="character-boardview-element" type="text/x-handlebars-template">
       <div class="character editable" data-id="{{chunk.id}}" data-part="character">
         <div class="view">{{{chunk.character}}}</div>
+        <div class="edit"></div>
+      </div>
+      <div class="editable" data-id="{{chunk.id}}" data-part="parenthetical">
+        <div class="view">{{{chunk.parenthetical}}}</div>
         <div class="edit"></div>
       </div>
       <div class="editable" data-id="{{chunk.id}}" data-part="text">

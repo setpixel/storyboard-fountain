@@ -180,6 +180,10 @@
     return data.dataPath;
   };
 
+  var getScriptpath = function() {
+    return path.dirname(config.scriptPath);
+  };
+
   var setDataPath = function(fullpath, isAbsolute, ensureExists) {
     if (isAbsolute) {
       data.dataPath = path.relative(path.dirname(config.scriptPath), fullpath);
@@ -248,6 +252,7 @@
     setDataPath: setDataPath,
     checkDataPath: checkDataPath,
     getSource: getSource,
+    getScriptpath: getScriptpath,
     createPlayerZip: createPlayerZip
   };
 
