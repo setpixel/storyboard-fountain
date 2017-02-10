@@ -1,3 +1,7 @@
+# UPDATE: New version from the ground up: [https://github.com/setpixel/storyboarder](https://github.com/setpixel/storyboarder)
+
+Please follow it for new updates.
+
 # Storyboard Fountain
 
 Storyboard Fountain makes it easy to visualize a screenplay as fast you can draw stick figures. Quickly visualize to test if a scene works. Create and show animatics to others. Make your movie without the cost of making a movie. [storyboardfountain.com](http://storyboardfountain.com)
